@@ -1,0 +1,3 @@
+function MTestSimpleExample()
+    TestSimpleExample();
+end

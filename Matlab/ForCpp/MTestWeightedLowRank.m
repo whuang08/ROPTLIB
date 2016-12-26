@@ -1,0 +1,3 @@
+function MTestWeightedLowRank()
+    TestWeightedLowRank();
+end

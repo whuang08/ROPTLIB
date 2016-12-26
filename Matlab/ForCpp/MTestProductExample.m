@@ -1,0 +1,3 @@
+function MTestProductExample()
+    TestProductExample();
+end

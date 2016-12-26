@@ -1,0 +1,76 @@
+MATLAB environment:
+	For matlab users, users can use command "mex -setup" to find helps for setting up c++ compiler in matlab. 
+	After setting up a C++ compile, one runs GenerateMyMex.m file to generate a file "MyMex.m".
+	Then one can compile any file in the ROPTLIB/test/* by command "MyMex name". For example, to compile
+	TestStieBrockett.cpp, use command "MyMex TestStieBrockett". (The postfix ".cpp" is not added)
+    
+    Windows: If windows 7 SDK is used, then one error may occur. If the error occurs, then open "program and feature"
+             and unstall Microsoft Visual C++ 2010 x64 Redistributable-10.0.40219
+             and unstall Microsoft Visual C++ 2010 x86 Redistributable-10.0.40219. If Net Framework 4 can not be installed,
+             then one can uninstall Net Framework 4.6 to fix this problem.
+
+
+C++ environment:
+
+	Windows:
+	
+
+	Linux: (tested on Ubuntu 16.04 LTS)
+		Install blas and lapack by using the following command lines:
+			sudo apt-get install build-essential
+			sudo apt-get install liblapack*
+			sudo apt-get install libblas*
+		Download the latest version of ROPTLIB to this ubuntu mechine and go the the directory of ROPTLIB.
+		Open ROPTLIB/Makefile and make sure "ROOTPATH" is set to be the correct directory of ROPTLIB.
+		Run Makefile by command "make ROPTLIB" to generate a binary file for a test problem,
+		i.e., using command:
+			make ROPTLIB TP=name_of_the_test_file
+		For example, one can generate a binary for any test problem in ROPTLIB/test/*. If one 
+		wants to generate a binary for "TestStieBrockett.cpp", then use command:
+			make ROPTLIB TP=TestStieBrockett
+		Note the postfix ".cpp" is not used. Run ./TestStieBrockett to see the test results.
+
+	MAC:
+
+
+Julia environment:
+	Linux: (tested on Ubuntu 16.04 LTS)
+		#Download the nightly builds version from http://julialang.org/downloads/. We need to use Cxx package,
+		#which allows Julia to call C++ libraries. The current release version v0.5.0 does not work with Cxx package, 
+		#but the nightly builds version does. Unzip the folder of the nightly builds version. The binary of julia
+		#is under the directory of bin. Follow the instruction on https://github.com/Keno/Cxx.jl to install 
+		#Cxx package. Note that Cxx package will be embedded in Julia release versions in future.
+
+		Download the latest release version from http://julialang.org/downloads/ (I used version v0.5.0-rc3.)
+		Unzip the folder of the nightly builds version. The binary of julia is under the directory of bin. 
+		Follow the instruction on https://github.com/Keno/Cxx.jl to install Cxx package, i.e., use command:
+		Pkg.build("Cxx") to install Cxx.
+		
+		Download the latest version of ROPTLIB to this ubuntu mechine and go the the directory of ROPTLIB.
+
+		Open ROPTLIB/Makefile and make sure "ROOTPATH" is set to be the correct directory of ROPTLIB and
+		JULIA_DIR is set to be the directory of Julia.
+
+		Run "make JuliaROPTLIB TP=DriverJuliaProb" to obtain a shared library of ROPTLIB for Julia.
+
+		Open the downloaded Julia. Go to the directory of ROPTLIB in Julia using command
+			julia> cd("directory_of_ROPTLIB")
+
+		Open ROPTLIB/Julia/BeginROPTLIB.jl and make sure that the path of ROPTLIB is correct and the path of head files of julia is correct. 
+		
+		Run ROPTLIB/Julia/BeginROPTLIB.jl to import ROPTLIB into Julia.
+		Run JTestSimpleExample.jl to run an example.	
+	
+Note: 
+In blas/f2c.h and lapack/f2c.h files (the f2c.h files are from http://www.netlib.org/clapack/f2c.h)
+*) line 10: long int has been changed to int, since in MAC and Ubuntu, the integer of fortain 
+	is int in C++, not long int in C++.
+*) lines 159 and 160 about max and min are comment out since they
+	have been defined in cmath.
+*) if gl.h is missing, then sudo apt-get install mesa-common-dev.
+*) if -lgl is not defined, then sudo apt-get install build-essential libgl1-mesa-dev.
+
+*) 
+
+
+
