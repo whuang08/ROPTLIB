@@ -65,13 +65,22 @@ ROPTLIB.
 #endif
 
 
-
-//using namespace std;
-
 namespace NIST_SPBLAS
 {
 
-
+    
+    /* dummy routines for real version of usdot to compile. */
+    
+    inline const double& conj(const double &x)
+    {
+        return x;
+    }
+    
+    inline const float& conj(const float &x)
+    { 
+        return x;
+    }
+    
 
 /**
    Generic sparse matrix (base) class: defines only the structure 
@@ -759,7 +768,7 @@ class TSp_mat : public Sp_mat
       }
       else
       {
-        S[i].push_back( make_pair(val, j) );
+          S[i].push_back( std::make_pair(val, j) );
       }
 
       num_nonzeros() ++;
@@ -1056,7 +1065,6 @@ void print(int A)
 }
 /* namespace NIST_SPBLAS */
 
-using namespace std;
 using namespace NIST_SPBLAS;
 
 
@@ -1282,19 +1290,6 @@ int BLAS_usds(int A)
 /* --------------------------- */
 /*  Level 1 generic routines   */
 /* --------------------------- */
-
-/* dummy routines for real version of usdot to compile. */
-
-inline const double& conj(const double &x)
-{ 
-  return x;
-}
-
-inline const float& conj(const float &x)
-{ 
-  return x;
-}
-
 
 template <class T>
 void BLAS_xusdot( enum blas_conj_type conj_flag, int nz,
@@ -1585,7 +1580,7 @@ blas_sparse_matrix BLAS_DOUBLE_NAME(uscr_variable_block_begin)(
     int Mb, int Nb, const int *k, const int *l )
 {
   TSp_mat<DOUBLE> *A = new TSp_mat<DOUBLE>(  
-                accumulate(k, k+Mb, 0), accumulate(l, l+Nb, 0) );
+                std::accumulate(k, k+Mb, 0), std::accumulate(l, l+Nb, 0) );
 
   TSp_MAT_SET_DOUBLE(A);
   A->set_var_block_parameters(Mb, Nb, k, l);
@@ -1812,7 +1807,7 @@ blas_sparse_matrix BLAS_COMPLEX_DOUBLE_NAME(uscr_variable_block_begin)(
     int Mb, int Nb, const int *k, const int *l )
 {
   TSp_mat<COMPLEX_DOUBLE> *A = new TSp_mat<COMPLEX_DOUBLE>(  
-                accumulate(k, k+Mb, 0), accumulate(l, l+Nb, 0) );
+                std::accumulate(k, k+Mb, 0), std::accumulate(l, l+Nb, 0) );
 
   TSp_MAT_SET_COMPLEX_DOUBLE(A);
   A->set_var_block_parameters(Mb, Nb, k, l);
@@ -2043,7 +2038,7 @@ blas_sparse_matrix BLAS_FLOAT_NAME(uscr_variable_block_begin)(
     int Mb, int Nb, const int *k, const int *l )
 {
   TSp_mat<FLOAT> *A = new TSp_mat<FLOAT>(  
-                accumulate(k, k+Mb, 0), accumulate(l, l+Nb, 0) );
+                std::accumulate(k, k+Mb, 0), std::accumulate(l, l+Nb, 0) );
 
   TSp_MAT_SET_FLOAT(A);
   A->set_var_block_parameters(Mb, Nb, k, l);
@@ -2270,7 +2265,7 @@ blas_sparse_matrix BLAS_COMPLEX_FLOAT_NAME(uscr_variable_block_begin)(
     int Mb, int Nb, const int *k, const int *l )
 {
   TSp_mat<COMPLEX_FLOAT> *A = new TSp_mat<COMPLEX_FLOAT>(  
-                accumulate(k, k+Mb, 0), accumulate(l, l+Nb, 0) );
+                std::accumulate(k, k+Mb, 0), std::accumulate(l, l+Nb, 0) );
 
   TSp_MAT_SET_COMPLEX_FLOAT(A);
   A->set_var_block_parameters(Mb, Nb, k, l);
