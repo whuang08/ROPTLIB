@@ -38,6 +38,9 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTSIMPLEEXAMPLE
 //#define TESTPRODUCTEXAMPLE
 
+#include <cmath> /*for MAC*/
+
+
 /*std library*/
 #include <cstdio>
 #include <cstdlib>
@@ -94,7 +97,7 @@ are included.*/
 	#include <zpotrf.h>
 #endif // end of ifndef MATLAB_MEX_FILE
 
-#include <cmath>
+//#include <cmath> for others
 
 #ifdef _WIN64 // The following code is compiled only when this library is compiled in Windows (64-bit only)
 	/*If the code is compile under DEBUG mode, then test wheter there is memory leakage or not*/

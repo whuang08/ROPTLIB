@@ -1,4 +1,3 @@
-
 #include "Others/ForDebug.h"
 
 /*Define the namespace*/

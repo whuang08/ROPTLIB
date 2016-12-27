@@ -8,7 +8,7 @@ Manifold --> Euclidean
 #ifndef EUCLIDEAN_H
 #define EUCLIDEAN_H
 
-#include "Others/ForDebug.h"
+
 #include "Manifolds/Euclidean/EucVariable.h"
 #include "Manifolds/Euclidean/EucVector.h"
 #include "Manifolds/Manifold.h"

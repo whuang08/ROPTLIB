@@ -7,9 +7,6 @@ This is the test file for the bounding box problem defined in OrthBoundingBox.h 
 #ifndef TESTORTHBOUNDINGBOX_H
 #define TESTORTHBOUNDINGBOX_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

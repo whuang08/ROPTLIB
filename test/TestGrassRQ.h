@@ -7,9 +7,6 @@ This is the test file for the Reyleigh Quotient problem defined in GrassRQ.h and
 #ifndef TESTGRASSRQ_H
 #define TESTGRASSRQ_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

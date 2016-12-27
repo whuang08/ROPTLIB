@@ -7,7 +7,7 @@ This is the test file to run the problem defined in WeightedLowRank.h and Weight
 #ifndef TESTWEIGHTEDLOWRANK_H
 #define TESTWEIGHTEDLOWRANK_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

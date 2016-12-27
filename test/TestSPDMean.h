@@ -7,9 +7,6 @@ This is the test file for the Geometric mean of SPD problem defined in SPDMean.h
 #ifndef TESTSPDMEAN_H
 #define TESTSPDMEAN_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

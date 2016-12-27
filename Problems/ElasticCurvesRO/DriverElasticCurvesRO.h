@@ -15,7 +15,7 @@ acceptable global optimum. The idea of computing initial points is given in [HGS
 #ifndef DRIVERELASTICCURVESRO_H
 #define DRIVERELASTICCURVESRO_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

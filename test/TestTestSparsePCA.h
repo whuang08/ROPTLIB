@@ -7,7 +7,7 @@ This is the test file to run the problem defined in ObliqueTestSparsePCA.h and O
 #ifndef TESTTESTSPARSEPCA_H
 #define TESTTESTSPARSEPCA_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

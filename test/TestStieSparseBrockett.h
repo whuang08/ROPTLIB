@@ -7,9 +7,6 @@ This is the test file for the Brocokett problem defined in StieBrockett.h and St
 #ifndef TESTSTIESPARSEBROCKETT_H
 #define TESTSTIESPARSEBROCKETT_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

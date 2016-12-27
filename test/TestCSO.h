@@ -7,7 +7,7 @@ This is the test file to check the correctenss of the manifold defined in CpxNST
 #ifndef TESTCSO_H
 #define TESTCSO_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

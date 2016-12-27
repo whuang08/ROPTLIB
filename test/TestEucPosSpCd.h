@@ -10,9 +10,6 @@ See details in Section IV.B in [CS15].
 #ifndef TESTEUCPOSSPCD_H
 #define TESTEUCPOSSPCD_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

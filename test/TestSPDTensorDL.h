@@ -10,9 +10,6 @@ See details in Section IV.A in [CS15].
 #ifndef TESTSPDTENSORDL_H
 #define TESTSPDTENSORDL_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

@@ -7,7 +7,7 @@ This is the test file to run the problem defined in EucQuadratic.h and EucQuadra
 #ifndef TESTEUCQUADRATIC_H
 #define TESTEUCQUADRATIC_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

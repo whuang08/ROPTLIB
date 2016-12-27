@@ -12,7 +12,6 @@ Manifold --> SPD
 #ifndef SPDMANIFOLD_H
 #define SPDMANIFOLD_H
 
-#include "Others/ForDebug.h"
 #include "Manifolds/SPDManifold/SPDVariable.h"
 #include "Manifolds/SPDManifold/SPDVector.h"
 #include "Manifolds/Manifold.h"

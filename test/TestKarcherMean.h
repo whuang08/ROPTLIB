@@ -10,7 +10,6 @@
 #define TestKarcherMean_h
 
 #include <fstream>
-#include "Others/ForDebug.h"
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

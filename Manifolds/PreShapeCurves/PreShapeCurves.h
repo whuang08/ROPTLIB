@@ -10,7 +10,6 @@
 #ifndef PRESHAPECURVES_H
 #define PRESHAPECURVES_H
 
-#include "Others/ForDebug.h"
 #include "Manifolds/PreShapeCurves/PSCVariable.h"
 #include "Manifolds/PreShapeCurves/PSCVector.h"
 #include "Manifolds/Manifold.h"

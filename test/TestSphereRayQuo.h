@@ -8,7 +8,7 @@ i.e., \min_{x \in S^{n - 1}) x^T B x.
 #ifndef TESTSPHERERAYQUO_H
 #define TESTSPHERERAYQUO_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

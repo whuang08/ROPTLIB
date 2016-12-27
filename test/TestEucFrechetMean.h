@@ -7,7 +7,7 @@ This is the test file to run the problem defined in EucFrechetMean.h and EucFrec
 #ifndef TESTEUCFRECHETMEAN_H
 #define TESTEUCFRECHETMEAN_H
 
-#include "Others/ForDebug.h"
+
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

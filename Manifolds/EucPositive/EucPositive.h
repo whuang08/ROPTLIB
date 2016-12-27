@@ -10,7 +10,7 @@ Manifold --> EucPositive
 #ifndef EUCPOSITIVE_H
 #define EUCPOSITIVE_H
 
-#include "Others/ForDebug.h"
+
 #include "Manifolds/EucPositive/EucPosVariable.h"
 #include "Manifolds/EucPositive/EucPosVector.h"
 #include "Manifolds/Manifold.h"

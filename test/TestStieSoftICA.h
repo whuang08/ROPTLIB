@@ -7,7 +7,6 @@ This is the test file to run the problem defined in StieSoftICA.h and StieSoftIC
 #ifndef TESTSTIESOFTICA_H
 #define TESTSTIESOFTICA_H
 
-#include "Others/ForDebug.h"
 #include <iostream>
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"

@@ -7,8 +7,6 @@ This is the test file for the Brocokett problem defined in StieBrockett.h and St
 #ifndef TESTSIMPLEEXAMPLE_CPP
 #define TESTSIMPLEEXAMPLE_CPP
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
 /*Output to console*/
 #include <iostream>
 /*Generate random number*/

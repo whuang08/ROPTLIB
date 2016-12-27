@@ -7,9 +7,6 @@ This is the test file to test the wrapper functions, of lapack and blas, in MyMa
 #ifndef TESTMYMATRIX_H
 #define TESTMYMATRIX_H
 
-/*Help to debug the code*/
-#include "Others/ForDebug.h"
-
 /*Output to console*/
 #include <iostream>
 

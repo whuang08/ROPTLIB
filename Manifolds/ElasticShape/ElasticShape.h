@@ -9,7 +9,7 @@
 #ifndef ElasticShape_h
 #define ElasticShape_h
 
-#include "Others/ForDebug.h"
+
 #include "Manifolds/ElasticShape/ShapeVariable.h"
 #include "Manifolds/ElasticShape/ShapeVector.h"
 #include "Manifolds/Manifold.h"

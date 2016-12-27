@@ -13,7 +13,6 @@ Manifold --> CpxNStQOrth
 #ifndef CPXNSTQORTH_H
 #define CPXNSTQORTH_H
 
-#include "Others/ForDebug.h"
 #include "Manifolds/CpxNStQOrth/CSOVariable.h"
 #include "Manifolds/CpxNStQOrth/CSOVector.h"
 #include "Manifolds/Manifold.h"

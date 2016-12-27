@@ -12,7 +12,6 @@ Manifold --> SPDTensor
 #ifndef SPDTENSOR_H
 #define SPDTENSOR_H
 
-#include "Others/ForDebug.h"
 #include "Manifolds/SPDTensor/SPDTVariable.h"
 #include "Manifolds/SPDTensor/SPDTVector.h"
 #include "Manifolds/SPDManifold/SPDManifold.h"
