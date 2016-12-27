@@ -5,7 +5,9 @@ using Cxx
 cd("/home/whuang/Documents/ROPTLIB")
 
 # import the directory of the header files of Julia
-addHeaderDir("/home/whuang/julia-v0.5.0/include/julia/", kind=C_System) 
+addHeaderDir("/home/whuang/Documents/julia/usr/include", kind=C_System) 
+addHeaderDir("/home/whuang/Documents/julia/src", kind=C_System) 
+addHeaderDir("/home/whuang/Documents/julia/src/support", kind=C_System) 
 
 const path_to_lib = pwd()
 

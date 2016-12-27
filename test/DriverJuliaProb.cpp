@@ -53,8 +53,8 @@ double *DriverJuliaProb(struct FunHandles *Handles, struct SolverParams *Sparams
     {
         initialX->RandInManifold();
 	}
-	Variable *SolnX = nulptr;
-	if (soln != nulptr)
+	Variable *SolnX = nullptr;
+	if (soln != nullptr)
 	{
 		SolnX = new ProductElement(elements, numoftotal, powsinterval, numoftype);
 		double *SolnXptr = SolnX->ObtainWriteEntireData();

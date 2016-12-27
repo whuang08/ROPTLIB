@@ -10,13 +10,13 @@ TP?=TestSimpleExample
 ROOTPATH = /home/whuang/Documents/ROPTLIB
 
 # set the path of Julia
-JULIA_DIR:=/home/whuang/julia-v0.5.0
+JULIA_DIR:=/home/whuang/Documents/julia
 
 # ROPTLIB C++ files
 MANIFOLDS = $(ROOTPATH)/Manifolds/Element.cpp $(ROOTPATH)/Manifolds/LinearOPE.cpp $(ROOTPATH)/Manifolds/Manifold.cpp $(ROOTPATH)/Manifolds/ProductElement.cpp $(ROOTPATH)/Manifolds/ProductManifold.cpp $(ROOTPATH)/Manifolds/SharedSpace.cpp $(ROOTPATH)/Manifolds/SmartSpace.cpp $(ROOTPATH)/Manifolds/CpxNStQOrth/CSOVariable.cpp $(ROOTPATH)/Manifolds/CpxNStQOrth/CSOVector.cpp $(ROOTPATH)/Manifolds/CpxNStQOrth/CpxNStQOrth.cpp $(ROOTPATH)/Manifolds/ElasticShape/ElasticShape.cpp $(ROOTPATH)/Manifolds/ElasticShape/ShapeVariable.cpp $(ROOTPATH)/Manifolds/ElasticShape/ShapeVector.cpp $(ROOTPATH)/Manifolds/EucPositive/EucPosVariable.cpp $(ROOTPATH)/Manifolds/EucPositive/EucPosVector.cpp $(ROOTPATH)/Manifolds/EucPositive/EucPositive.cpp $(ROOTPATH)/Manifolds/Euclidean/EucVariable.cpp $(ROOTPATH)/Manifolds/Euclidean/EucVector.cpp $(ROOTPATH)/Manifolds/Euclidean/Euclidean.cpp $(ROOTPATH)/Manifolds/Grassmann/GrassVariable.cpp $(ROOTPATH)/Manifolds/Grassmann/GrassVector.cpp $(ROOTPATH)/Manifolds/Grassmann/Grassmann.cpp $(ROOTPATH)/Manifolds/L2Sphere/L2Sphere.cpp $(ROOTPATH)/Manifolds/L2Sphere/L2SphereVariable.cpp $(ROOTPATH)/Manifolds/L2Sphere/L2SphereVector.cpp $(ROOTPATH)/Manifolds/LowRank/LowRank.cpp $(ROOTPATH)/Manifolds/LowRank/LowRankVariable.cpp $(ROOTPATH)/Manifolds/LowRank/LowRankVector.cpp $(ROOTPATH)/Manifolds/Oblique/Oblique.cpp $(ROOTPATH)/Manifolds/Oblique/ObliqueVariable.cpp $(ROOTPATH)/Manifolds/Oblique/ObliqueVector.cpp $(ROOTPATH)/Manifolds/OrthGroup/OrthGroup.cpp $(ROOTPATH)/Manifolds/OrthGroup/OrthGroupVariable.cpp $(ROOTPATH)/Manifolds/OrthGroup/OrthGroupVector.cpp $(ROOTPATH)/Manifolds/PreShapeCurves/PSCVariable.cpp $(ROOTPATH)/Manifolds/PreShapeCurves/PSCVector.cpp $(ROOTPATH)/Manifolds/PreShapeCurves/PreShapeCurves.cpp $(ROOTPATH)/Manifolds/SPDManifold/SPDManifold.cpp $(ROOTPATH)/Manifolds/SPDManifold/SPDVariable.cpp $(ROOTPATH)/Manifolds/SPDManifold/SPDVector.cpp $(ROOTPATH)/Manifolds/SPDTensor/SPDTVariable.cpp $(ROOTPATH)/Manifolds/SPDTensor/SPDTVector.cpp $(ROOTPATH)/Manifolds/SPDTensor/SPDTensor.cpp $(ROOTPATH)/Manifolds/Sphere/Sphere.cpp $(ROOTPATH)/Manifolds/Sphere/SphereVariable.cpp $(ROOTPATH)/Manifolds/Sphere/SphereVector.cpp $(ROOTPATH)/Manifolds/Stiefel/StieVariable.cpp $(ROOTPATH)/Manifolds/Stiefel/StieVector.cpp $(ROOTPATH)/Manifolds/Stiefel/Stiefel.cpp
 
 # ROPTLIB C++ files
-OTHERS = $(ROOTPATH)/Others/ForDebug.cpp $(ROOTPATH)/Others/MinPNormConHull.cpp $(ROOTPATH)/Others/MyMatrix.cpp $(ROOTPATH)/Others/Spline.cpp $(ROOTPATH)/Others/Timer.cpp $(ROOTPATH)/Others/randgen.cpp 
+OTHERS = $(ROOTPATH)/Others/ForDebug.cpp $(ROOTPATH)/Others/MinPNormConHull.cpp $(ROOTPATH)/Others/MyMatrix.cpp $(ROOTPATH)/Others/Spline.cpp $(ROOTPATH)/Others/Timer.cpp $(ROOTPATH)/Others/randgen.cpp $(ROOTPATH)/Others/nist_spblas.cpp 
 
 # ROPTLIB C++ files
 PROBLEMS = $(ROOTPATH)/Problems/Problem.cpp $(ROOTPATH)/Problems/mexProblem.cpp $(ROOTPATH)/Problems/juliaProblem.cpp $(ROOTPATH)/Problems/ElasticCurvesRO/DriverElasticCurvesRO.cpp $(ROOTPATH)/Problems/ElasticCurvesRO/ElasticCurvesRO.cpp $(ROOTPATH)/Problems/EucFrechetMean/EucFrechetMean.cpp $(ROOTPATH)/Problems/EucPosSpCd/EucPosSpCd.cpp $(ROOTPATH)/Problems/EucQuadratic/EucQuadratic.cpp $(ROOTPATH)/Problems/GrassRQ/GrassRQ.cpp $(ROOTPATH)/Problems/KarcherMean/KarcherMean.cpp $(ROOTPATH)/Problems/ObliqueTestSparsePCA/ObliqueTestSparsePCA.cpp $(ROOTPATH)/Problems/OrthBoundingBox/OrthBoundingBox.cpp $(ROOTPATH)/Problems/PreShapePathStraighten/PreShapePathStraighten.cpp $(ROOTPATH)/Problems/SPDMean/SPDMean.cpp $(ROOTPATH)/Problems/SPDTensorDL/SPDTensorDL.cpp $(ROOTPATH)/Problems/ShapePathStraighten/ShapePathStraighten.cpp $(ROOTPATH)/Problems/SphereConvexHull/SphereConvexHull.cpp $(ROOTPATH)/Problems/StieBrockett/StieBrockett.cpp $(ROOTPATH)/Problems/StieSoftICA/StieSoftICA.cpp $(ROOTPATH)/Problems/StieSparseBrockett/StieSparseBrockett.cpp $(ROOTPATH)/Problems/StieSumBrockett/StieSumBrockett.cpp $(ROOTPATH)/Problems/WeightedLowrank/WeightedLowRank.cpp 
@@ -35,13 +35,13 @@ ROPTLIB:
 	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lm -o $(TP)
 
 
-JULIA_LIB:=$(JULIA_DIR)/lib
-JULIA_INC:=$(JULIA_DIR)/include/julia
-CPPFLAGS:=-I$(JULIA_INC)
+JULIA_LIB:=$(JULIA_DIR)/usr/lib
+JULIA_SRC:=$(JULIA_DIR)/src
+JULIA_INC:=$(JULIA_DIR)/usr/include
+CPPFLAGS:=-I$(JULIA_INC) -I$(JULIA_SRC) -I$(JULIA_SRC)/support
 LDFLAGS:=-L$(JULIA_LIB)
-LDFLAGS+=-L$(JULIA_LIB)/julia
-export LD_LIBRARY_PATH:=$(JULIA_LIB):$(JULIA_LIB)/julia/
 LDLIBS=-ljulia
+export LD_LIBRARY_PATH:=$(JULIA_LIB):$(JULIA_LIB)/julia
 
 # make a shared library, which is used by Julia
 JuliaROPTLIB:
