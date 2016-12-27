@@ -85,8 +85,8 @@ namespace ROPTLIB{
 	void Stiefel::CheckParams(void) const
 	{
 		std::string StieMetricnames[STIEMETRICLENGTH] = { "EUCLIDEAN", "CANONICAL" };
-		std::string StieRetractionnames[STIERETRACTIONLENGTH] = { "QF", "POLAR", "EXP", "CONSTRUCTED" };
-		std::string StieVectorTransportnames[STIEVECTORTRANSPORTLENGTH] = { "PARALLELIZATION", "RIGGING", "PARALLELTRANSLATION", "PROJECTION" };
+		std::string StieRetractionnames[STIERETRACTIONLENGTH] = { "QF", "POLAR", "EXP", "CONSTRUCTED", "CAYLEYR" };
+		std::string StieVectorTransportnames[STIEVECTORTRANSPORTLENGTH] = { "PARALLELIZATION", "RIGGING", "PARALLELTRANSLATION", "PROJECTION", "CAYLEYVT" };
 		Manifold::CheckParams();
 		printf("%s PARAMETERS:\n", name.c_str());
 		printf("n             :%15d,\t", n);

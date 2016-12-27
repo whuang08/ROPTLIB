@@ -327,9 +327,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	if (ParamSet == 1)
 		Domain.ChooseStieParamsSet1();
 	else
+    if (ParamSet == 2)
 		Domain.ChooseStieParamsSet2();
+	else
+    if (ParamSet == 3)
+		Domain.ChooseStieParamsSet3();
+	else
+    if (ParamSet == 4)
+		Domain.ChooseStieParamsSet4();
+	else
+    {
+        printf("error: ParamSet parameter!");
+        return;
+    }
 	Domain.SetHasHHR((HasHHR != 0));
-
+	Domain.CheckParams();
 	//Domain.CheckParams();
 	ParseSolverParamsAndOptimizing(prhs[6], &Prob, StieX, Stiesoln, plhs);
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
