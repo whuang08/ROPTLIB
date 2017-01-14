@@ -59,7 +59,10 @@ namespace ROPTLIB{
 			/*If accurate enough, then a fixed stepsize is chosen.*/
 			if (ngf / ngf0 < Accuracy)
 			{
-				stepsize = Finalstepsize;
+				if (Finalstepsize > 0)
+					stepsize = Finalstepsize;
+				else
+					stepsize = initiallength;
 				f2 = h();
 				Prob->Grad(x2, gf2); ng++;
 			}

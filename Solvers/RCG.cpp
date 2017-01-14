@@ -78,26 +78,27 @@ namespace ROPTLIB{
 			if (RCGmethod == FLETCHER_REEVES)
 			{
 				sigma = Mani->Metric(x2, gf2, gf2) / Mani->Metric(x1, gf1, gf1);
-				Mani->VectorTransport(x1, eta2, x2, eta1, zeta);
+				Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nV++;
 			}
 			else
 				if (RCGmethod == POLAK_RIBIERE_MOD)
 				{
-					Mani->VectorTransport(x1, eta2, x2, gf1, zeta);
+					Mani->VectorTransport(x1, eta2, x2, gf1, zeta); nV++;
 					Mani->VectorMinusVector(x2, gf2, zeta, zeta);
 					sigma = Mani->Metric(x2, zeta, gf2) / Mani->Metric(x1, gf1, gf1);
 					if (LineSearch_LS == STRONGWOLFE && sigma <= 0)
 						sigma = 0;
 					else
-						Mani->VectorTransport(x1, eta2, x2, eta1, zeta);
+					{
+						Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nVp++;
+					}
 				}
 				else
 					if (RCGmethod == HESTENES_STIEFEL)
 					{
 						double numerator, denominator;
-						Mani->VectorTransport(x1, eta2, x2, eta1, zeta);
-
-						Mani->VectorTransport(x1, eta2, x2, gf1, eta1);
+						Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nV++;
+						Mani->VectorTransport(x1, eta2, x2, gf1, eta1); nVp++;
 						Mani->VectorMinusVector(x2, gf2, eta1, eta1);
 						numerator = Mani->Metric(x2, eta1, gf2);
 						denominator = Mani->Metric(x2, zeta, eta1);
@@ -107,7 +108,7 @@ namespace ROPTLIB{
 						if (RCGmethod == FR_PR)
 						{
 							double sigmaFR, sigmaPR;
-							Mani->VectorTransport(x1, eta2, x2, gf1, zeta);
+							Mani->VectorTransport(x1, eta2, x2, gf1, zeta); nV++;
 							Mani->VectorMinusVector(x2, gf2, zeta, zeta);
 							sigmaPR = Mani->Metric(x2, zeta, gf2) / Mani->Metric(x1, gf1, gf1);
 							sigmaFR = Mani->Metric(x2, gf2, gf2) / Mani->Metric(x1, gf1, gf1);
@@ -118,14 +119,14 @@ namespace ROPTLIB{
 									sigma = sigmaFR;
 								else
 									sigma = sigmaPR;
-							Mani->VectorTransport(x1, eta2, x2, eta1, zeta);
+							Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nVp++;
 						}
 						else
 							if (RCGmethod == DAI_YUAN)
 							{
-								Mani->VectorTransport(x1, eta2, x2, eta1, zeta);
+								Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nV++;
 
-								Mani->VectorTransport(x1, eta2, x2, gf1, eta1);
+								Mani->VectorTransport(x1, eta2, x2, gf1, eta1); nVp++;
 								Mani->VectorMinusVector(x2, gf2, eta1, eta1);
 								sigma = Mani->Metric(x2, gf2, gf2) / Mani->Metric(x2, zeta, eta1);
 							}
@@ -133,9 +134,9 @@ namespace ROPTLIB{
 								if (RCGmethod == HAGER_ZHANG)
 								{
 									double temp1, temp2;
-									Mani->VectorTransport(x1, eta2, x2, eta1, zeta);
+									Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nV++;
 
-									Mani->VectorTransport(x1, eta2, x2, gf1, eta1);
+									Mani->VectorTransport(x1, eta2, x2, gf1, eta1); nVp++;
 									Mani->VectorMinusVector(x2, gf2, eta1, eta1);
 									temp1 = Mani->Metric(x2, eta1, zeta);
 									temp2 = -2.0 * Mani->Metric(x2, eta1, eta1) / temp1;
