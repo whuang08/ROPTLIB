@@ -50,7 +50,7 @@ ROPTLIB.
 #include <utility>
   /* pair defined here */
 
-#include "Others/blas_sparse.h"
+#include "Others/SparseBLAS/blas_sparse.h"
 
 
 

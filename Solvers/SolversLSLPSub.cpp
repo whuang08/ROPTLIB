@@ -86,12 +86,12 @@ namespace ROPTLIB{
 				{
 					//Vector *exeta1 = Prob->GetDomain()->GetEMPTYEXTR()->ConstructEmpty();
 					//Prob->GetDomain()->ObtainExtr(x1, eta1, exeta1);
-					stepsize = LinesearchInput(x1, exeta1, stepsize, initialslope, Prob);
+					stepsize = LinesearchInput(iter, x1, exeta1, stepsize, initialslope, Prob);
 					//delete exeta1;
 				}
 				else
 				{
-					stepsize = LinesearchInput(x1, eta1, stepsize, initialslope, Prob);
+					stepsize = LinesearchInput(iter, x1, eta1, stepsize, initialslope, Prob);
 				}
 				stepsize = (stepsize < std::numeric_limits<double>::epsilon()) ? initiallength : stepsize;
 				initiallength = stepsize;
@@ -163,6 +163,7 @@ namespace ROPTLIB{
 			{
 				printf("nV(nVp):%d(%d),", nV, nVp);
 			}
+			printf("Eps:%.3e,", Eps);
 			printf("\n");
 		}
 	};

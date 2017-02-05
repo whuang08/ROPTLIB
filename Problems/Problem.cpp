@@ -166,7 +166,28 @@ namespace ROPTLIB{
 
 	void Problem::EucHessianEta(Variable *x, Vector *etax, Vector *exix) const
 	{
-		printf("The action of Euclidean Hessian has not been done!\n");
+		/*
+		finite difference to approximate the action of the Hessian.
+		Since everything is done in Euclidean space, no retraction and vector transport are necessary.
+		*/
+		Variable *y = x->ConstructEmpty();
+		Vector *gfy = etax->ConstructEmpty();
+		double normetax = sqrt(Domain->Metric(x, etax, etax));
+		double factor = 1e-5 / normetax;
+		Domain->ScaleTimesVector(x, factor, etax, exix);
+		Domain->VectorAddVector(x, x, exix, y);
+
+		/*
+		f(y) is evaluated before EucGrad since some computations, which are needed in EucGrad, are done in f(y).
+		The Euclidean gradient uses extrinsic approach.
+		*/
+		f(y); EucGrad(y, gfy);
+		const SharedSpace *Sharedegf = x->ObtainReadTempData("EGrad");
+		Vector *gfx = Sharedegf->GetSharedElement();
+		Domain->VectorLinearCombination(x, 1.0 / factor, gfy, -1.0 / factor, gfx, exix); //
+
+		delete y;
+		delete gfy;
 	};
 
 	void Problem::SetDomain(Manifold *inDomain)

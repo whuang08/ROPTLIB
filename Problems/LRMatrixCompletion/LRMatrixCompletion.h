@@ -14,7 +14,7 @@ Problem --> LRMatrixCompletion
 
 #include "Problems/Problem.h"
 #include "Manifolds/SharedSpace.h"
-#include "Others/blas_sparse.h"
+#include "Others/SparseBLAS/blas_sparse.h"
 #include "Others/def.h"
 #include "Manifolds/Element.h"
 #include "Manifolds/ProductElement.h"

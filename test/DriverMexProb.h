@@ -151,27 +151,30 @@ namespace RMEX{
 	};
 	mxArray *LinesearchInput = nullptr;
 	/*This function defines the line search algorithm that may be used in the C++ solver*/
-	double mexLinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+	double mexLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
 	{
-		mxArray *Xmx, *eta1mx, *tmx, *smx;
+		mxArray *Xmx, *eta1mx, *tmx, *smx, *imx;
 		mexProblem::ObtainMxArrayFromElement(Xmx, x1);
 		mexProblem::ObtainMxArrayFromElement(eta1mx, eta1);
 		tmx = mxCreateDoubleScalar(initialstepsize);
 		smx = mxCreateDoubleScalar(initialslope);
+		imx = mxCreateDoubleScalar(iter);
 
 
-		mxArray *lhs[1], *rhs[5];
+		mxArray *lhs[1], *rhs[6];
 		rhs[0] = const_cast<mxArray *> (LinesearchInput);
 		rhs[1] = const_cast<mxArray *> (Xmx);
 		rhs[2] = const_cast<mxArray *> (eta1mx);
 		rhs[3] = const_cast<mxArray *> (tmx);
 		rhs[4] = const_cast<mxArray *> (smx);
-		mexCallMATLAB(1, lhs, 5, rhs, "feval");
+		rhs[5] = const_cast<mxArray *> (imx);
+		mexCallMATLAB(1, lhs, 6, rhs, "feval");
 		double result = mxGetScalar(lhs[0]);
 		mxDestroyArray(Xmx);
 		mxDestroyArray(eta1mx);
 		mxDestroyArray(tmx);
 		mxDestroyArray(smx);
+		mxDestroyArray(imx);
 		mxDestroyArray(lhs[0]);
 		return result;
 	}

@@ -69,7 +69,7 @@ namespace ROPTLIB{
 		/*Beside the four line search algorithms provided in this library and specified by the member variable "LineSearch_LS",
 		user also can define a line search algorithm by assigning the following function pointer.
 		User needs to assign LineSearch_LS to be INPUTFUN to call this function. */
-		double(*LinesearchInput)(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob);
+		double(*LinesearchInput)(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob);
 
 		/* ===============public parameters below================= */
 

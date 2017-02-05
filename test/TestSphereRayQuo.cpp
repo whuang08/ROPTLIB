@@ -12,7 +12,7 @@ int main(void)
 	genrandseed(0);
 
 	// size of the Sphere
-	integer n = 12;
+	integer n = 5;
 
 	// Generate the matrices in the problem.
 	double *B = new double[n * n + 1];
@@ -118,13 +118,12 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 		for (integer i = 0; i < n; i++)
 			SphereXptr[i] = X[i];
 	}
-
 	// Generate the matrices in the Brockett problem with p = 1
 	// In this case, it is the Rayleigh Quotient problem on the Sphere.
 
 	// Define the manifold
 	Sphere Domain(n);
-	Domain.ChooseSphereParamsSet1();
+	Domain.ChooseSphereParamsSet2();
 
 	// Define the Brockett problem with p = 1
 	// In this case, it is the Rayleigh Quotient problem on the Sphere.
@@ -132,6 +131,7 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	Prob.SetDomain(&Domain);
 
 	Domain.CheckParams();
+	Prob.CheckGradHessian(&SphereX);
 
 	//Domain.CheckIntrExtr(&SphereX);
 	//Domain.CheckRetraction(&SphereX);
@@ -144,17 +144,17 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	//Domain.CheckTranHInvTran(&SphereX);
 	//Domain.CheckHaddScaledRank1OPE(&SphereX);
 
-	// test RSD
-	printf("********************************Check all line search algorithm in RSD*****************************************\n");
-	for (integer i = 0; i < INPUTFUN; i++)
-	{
-		RSD *RSDsolver = new RSD(&Prob, &SphereX);
-		RSDsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-		RSDsolver->Debug = FINALRESULT;
-		RSDsolver->CheckParams();
-		RSDsolver->Run();
-		delete RSDsolver;
-	}
+	//// test RSD
+	//printf("********************************Check all line search algorithm in RSD*****************************************\n");
+	//for (integer i = 0; i < INPUTFUN; i++)
+	//{
+	//	RSD *RSDsolver = new RSD(&Prob, &SphereX);
+	//	RSDsolver->LineSearch_LS = static_cast<LSAlgo> (i);
+	//	RSDsolver->Debug = FINALRESULT;
+	//	RSDsolver->CheckParams();
+	//	RSDsolver->Run();
+	//	delete RSDsolver;
+	//}
 
 	//// test RNewton
 	//printf("********************************Check all line search algorithm in RNewton*************************************\n");
@@ -237,12 +237,12 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	//RTRSDsolver.CheckParams();
 	//RTRSDsolver.Run();
 
-	//// test RTRNewton
-	//printf("********************************Check RTRNewton*************************************\n");
-	//RTRNewton RTRNewtonsolver(&Prob, &SphereX);
-	//RTRNewtonsolver.Debug = FINALRESULT;
-	//RTRNewtonsolver.CheckParams();
-	//RTRNewtonsolver.Run();
+	// test RTRNewton
+	printf("********************************Check RTRNewton*************************************\n");
+	RTRNewton RTRNewtonsolver(&Prob, &SphereX);
+	RTRNewtonsolver.Debug = FINALRESULT;
+	RTRNewtonsolver.CheckParams();
+	RTRNewtonsolver.Run();
 
 	//// test RTRSR1
 	//printf("********************************Check RTRSR1*************************************\n");

@@ -1,9 +1,9 @@
 
-#include "test/TestTestSparsePCA.h"
+#include "test/TestSparsePCA.h"
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTTESTSPARSEPCA)
+#if !defined(MATLAB_MEX_FILE) && defined(TESTSPARSEPCA)
 
 std::map<integer *, integer> *CheckMemoryDeleted;
 
@@ -12,9 +12,8 @@ int main(void)
 	genrandseed(0);
 	CheckMemoryDeleted = new std::map<integer *, integer>;
 
-	integer p = 100, r = 5, n = 20;
-	double epsilon = 1e-4;
-	double mu = 1e-6;
+	integer p = 10, r = 3, n = 5;
+	double mu = 5e-2;
 
 	double *B = new double[p * n + r + 2 * p * r];
 	double *Dsq = B + n * p;
@@ -78,7 +77,7 @@ int main(void)
 	}
 	delete[] Bcopy;
 
-	testTestSparsePCA(B, Dsq, p, n, r, epsilon, mu, X, Xopt);
+	testSparsePCA(B, Dsq, p, n, r, mu, X, Xopt);
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
 	{
@@ -111,8 +110,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	B = mxGetPr(prhs[0]);
 	D = mxGetPr(prhs[1]);
 	X = mxGetPr(prhs[2]);
-	double epsilon = mxGetScalar(prhs[3]);
-	double mu = mxGetScalar(prhs[4]);
+	double mu = mxGetScalar(prhs[3]);
 	/* dimensions of input matrices */
 	integer p, n, r;
 	p = mxGetM(prhs[0]);
@@ -136,7 +134,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	genrandseed(0);
 
 	CheckMemoryDeleted = new std::map<integer *, integer>;
-	testTestSparsePCA(B, D, p, n, r, epsilon, mu, X, Xopt);
+	testSparsePCA(B, D, p, n, r, mu, X, Xopt);
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
 	{
@@ -146,10 +144,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	delete CheckMemoryDeleted;
 	return;
 }
-
 #endif
 
-void testTestSparsePCA(double *B, double *Dsq, integer p, integer n, integer r, double epsilon, double mu, double *X, double *Xopt)
+void testSparsePCA(double *B, double *Dsq, integer p, integer n, integer r, double mu, double *X, double *Xopt)
 {
 	// reduce n to r
 	ObliqueVariable ObliqueX(p, r);
@@ -170,71 +167,41 @@ void testTestSparsePCA(double *B, double *Dsq, integer p, integer n, integer r, 
 	double *ObliqueXptr = ObliqueX.ObtainWriteEntireData();
 	for (integer i = 0; i < ObliqueX.Getlength(); i++)
 		ObliqueXptr[i] = X[i];
-	ObliqueTestSparsePCA Prob(B, Dsq, mu, epsilon, p, n, r);
+	ObliqueX.Print("initialX:");//---
+	ObliqueSparsePCA Prob(B, Dsq, mu, p, n, r);
 	Prob.SetDomain(&Mani);
 
 	//Prob.CheckGradHessian(&ObliqueX);
 
 	// test LRBFGS
-	printf("********************************Check all line search algorithm in LRBFGS*************************************\n");
-	for (integer i = 0; i < INPUTFUN; i++)
+	printf("********************************Check all line search algorithm in LRBFGSLPsub*************************************\n");
+	RBFGSLPSub *LRBFGSLPSubsolver = new RBFGSLPSub(&Prob, &ObliqueX);
+	LRBFGSLPSubsolver->Debug = ITERRESULT;
+	//LRBFGSLPSubsolver->Tolerance = 1e-12;
+	//LRBFGSLPSubsolver->InitSteptype = QUADINTMOD;
+	LRBFGSLPSubsolver->NumExtraGF = Mani.GetIntrDim() * 5;
+	LRBFGSLPSubsolver->lambdaLower = 1e-3;
+	LRBFGSLPSubsolver->lambdaUpper = 1e3;
+	LRBFGSLPSubsolver->Eps = 1e-3;
+	LRBFGSLPSubsolver->Max_Iteration = 1000;
+	LRBFGSLPSubsolver->OutputGap = 10;
+	//LRBFGSLPSubsolver->CheckParams();
+	LRBFGSLPSubsolver->Run();
+	const Element *xopt = LRBFGSLPSubsolver->GetXopt();
+	printf("[0:0.0005)  :%d\n", GetNumberBetweenC1andC2(xopt, 0, 0.0005));
+	printf("[0.0005:0.1):%d\n", GetNumberBetweenC1andC2(xopt, 0.0005, 0.1));
+	printf("[0.1:1)    :%d\n", GetNumberBetweenC1andC2(xopt, 0.1, 1));
+	xopt->Print("Xopt:");//---
+	if (Xopt != nullptr)
 	{
-		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &ObliqueX);
-		LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-		LRBFGSsolver->Debug = ITERRESULT;
-		LRBFGSsolver->Max_Iteration = 10000;
-		LRBFGSsolver->OutputGap = 1000;
-// 		LRBFGSsolver->Stop_Criterion = FUN_REL;
-// 		LRBFGSsolver->Tolerance = 1e-4;
-		LRBFGSsolver->CheckParams();
-		LRBFGSsolver->Run();
-		const Element *xopt = LRBFGSsolver->GetXopt();
-		printf("[0:0.0005)  :%d\n", GetNumBetweenC1andC2(xopt, 0, 0.0005));
-		printf("[0.0005:0.1):%d\n", GetNumBetweenC1andC2(xopt, 0.0005, 0.1));
-		printf("[0.1:1)    :%d\n", GetNumBetweenC1andC2(xopt, 0.1, 1));
-		if (Xopt != nullptr)
-		{
-			const double *xoptptr = xopt->ObtainReadData();
-			for (integer i = 0; i < xopt->Getlength(); i++)
-				Xopt[i] = xoptptr[i];
-		}
-		delete LRBFGSsolver;
+		const double *xoptptr = xopt->ObtainReadData();
+		for (integer i = 0; i < xopt->Getlength(); i++)
+			Xopt[i] = xoptptr[i];
 	}
-
-	// 	// test RTRNewton
-	// 	printf("********************************Check RTRNewton*************************************\n");
-	// 	RTRNewton RTRNewtonsolver(&Prob, &ObliqueX);
-	// 	RTRNewtonsolver.Debug = ITERRESULT;
-	// 	RTRNewtonsolver.OutputGap = 5;
-	// 	RTRNewtonsolver.Max_Iteration = 10000;
-	// 	RTRNewtonsolver.CheckParams();
-	// 	RTRNewtonsolver.Run();
-	// 	const Element *xopt = RTRNewtonsolver.GetXopt();
-	//printf("[0:0.0005)  :%d\n", GetNumBetweenC1andC2(xopt, 0, 0.0005));
-	//printf("[0.0005:0.1):%d\n", GetNumBetweenC1andC2(xopt, 0.0005, 0.1));
-	//printf("[0.1:1)    :%d\n", GetNumBetweenC1andC2(xopt, 0.1, 1));
-
-	//// test RCG
-	//printf("********************************Check all Formulas in RCG*************************************\n");
-	//for (integer i = 0; i < RCGMETHODSLENGTH; i++)
-	//{
-	//	Mani.HasHHR = true;
-	//	RCG *RCGsolver = new RCG(&Prob, &ObliqueX);
-	//	RCGsolver->RCGmethod = static_cast<RCGmethods> (i);
-	//	RCGsolver->LineSearch_LS = STRONGWOLFE;
-	//	RCGsolver->LS_beta = 0.1;
-	//	RCGsolver->Debug = ITERRESULT;
-	//	RCGsolver->CheckParams();
-	//	RCGsolver->Run();
-	//	const Element *xopt = RCGsolver->GetXopt();
-	//printf("[0:0.0005)  :%d\n", GetNumBetweenC1andC2(xopt, 0, 0.0005));
-	//printf("[0.0005:0.1):%d\n", GetNumBetweenC1andC2(xopt, 0.0005, 0.1));
-	//printf("[0.1:1)    :%d\n", GetNumBetweenC1andC2(xopt, 0.1, 1));
-	//	delete RCGsolver;
-	//}
+	delete LRBFGSLPSubsolver;
 };
 
-integer GetNumBetweenC1andC2(const Element *x, double c1, double c2)
+integer GetNumberBetweenC1andC2(const Element *x, double c1, double c2)
 {
 	const double *xptr = x->ObtainReadData();
 	integer length = x->Getlength();

@@ -32,7 +32,7 @@ Manifold --> ProductManifold --> LowRank
 #include "Manifolds/LowRank/LowRankVariable.h"
 #include "Manifolds/LowRank/LowRankVector.h"
 #include "Others/MyMatrix.h"
-#include "Others/blas_sparse.h"
+#include "Others/SparseBLAS/blas_sparse.h"
 
 /*Define the namespace*/
 namespace ROPTLIB{

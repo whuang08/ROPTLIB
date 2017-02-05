@@ -12,7 +12,7 @@ SmartSpace --> ProductElement --> LowRankVector
 #include "Manifolds/ProductElement.h"
 #include "Manifolds/Grassmann/GrassVector.h"
 #include "Manifolds/Euclidean/EucVector.h"
-#include "Others/blas_sparse.h"
+#include "Others/SparseBLAS/blas_sparse.h"
 
 /*Define the namespace*/
 namespace ROPTLIB{

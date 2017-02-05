@@ -9,11 +9,11 @@ Problem
 #ifndef JULIAPROBLEM_H
 #define JULIAPROBLEM_H
 
-#include "Problem.h"
+#include "Problems/Problem.h"
 #include <cstring>
-#include "SharedSpace.h"
-#include "def.h"
-#include "MyMatrix.h"
+#include "Manifolds/SharedSpace.h"
+#include "Others/def.h"
+#include "Others/MyMatrix.h"
 
 #ifdef DRIVERJULIAPROB
 

@@ -75,11 +75,11 @@ namespace ROPTLIB{
 				{
 					if (Prob->GetDomain()->GetIsIntrinsic())
 					{
-						stepsize = LinesearchInput(x1, exeta1, stepsize, initialslope, Prob);
+						stepsize = LinesearchInput(iter, x1, exeta1, stepsize, initialslope, Prob);
 					}
 					else
 					{
-						stepsize = LinesearchInput(x1, eta1, stepsize, initialslope, Prob);
+						stepsize = LinesearchInput(iter, x1, eta1, stepsize, initialslope, Prob);
 					}
 					stepsize = (stepsize < std::numeric_limits<double>::epsilon()) ? initiallength : stepsize;
 					initiallength = stepsize;

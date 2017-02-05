@@ -34,7 +34,7 @@ namespace ROPTLIB{
 	{
 	};
 
-	double ShapePathStraiLinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+	double ShapePathStraiLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
 	{
 		return 1;
 	}

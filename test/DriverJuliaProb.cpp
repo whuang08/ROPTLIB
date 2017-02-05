@@ -128,7 +128,7 @@ namespace RJULIA{
 
     jl_function_t *LinesearchInput = nullptr;
     /*This function defines the line search algorithm that may be used in the C++ solver*/
-    double juliaLinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+    double juliaLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
     {
         jl_value_t *args[4] = {nullptr};
         jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
@@ -139,9 +139,10 @@ namespace RJULIA{
         args[0] = (jl_value_t *) arrx;
         args[1] = (jl_value_t *) arreta;
         args[2] = jl_box_float64(initialstepsize);
-        args[3] = jl_box_float64(initialslope);
+		args[3] = jl_box_float64(initialslope);
+		args[4] = jl_box_int64(iter);
 
-        jl_value_t *retx = jl_call(LinesearchInput, args, 4);
+        jl_value_t *retx = jl_call(LinesearchInput, args, 5);
 
         if(jl_is_float64(retx))
         {

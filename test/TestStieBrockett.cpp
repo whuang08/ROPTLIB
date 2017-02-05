@@ -56,7 +56,7 @@ int main(void)
 
 /*We don't have to a line search algorithm defined in the solvers. The line seach algorithm can be defined 
 here:*/
-double LinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
 { /*For example, simply use one to be the stepsize*/
 
 	const StieBrockett *P = dynamic_cast<StieBrockett *> (const_cast<Problem*> (prob));
@@ -120,11 +120,12 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 	//RBFGSLPSub *RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &StieX);
 	//RBFGSLPSubsolver->Debug = FINALRESULT;
 	//RBFGSLPSubsolver->OutputGap = 10;
-	//RBFGSLPSubsolver->lambdaLower = 1;
-	//RBFGSLPSubsolver->lambdaUpper = 1;
+	//RBFGSLPSubsolver->lambdaLower = 1e-3;
+	//RBFGSLPSubsolver->lambdaUpper = 1e3;
 	//RBFGSLPSubsolver->CheckParams();
 	//RBFGSLPSubsolver->Run();
 	//delete RBFGSLPSubsolver;
+	//return;
 
 	//RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &StieX);
 	//RBFGSLPSubsolver->Debug = FINALRESULT;
@@ -165,15 +166,15 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 
 	//// test RNewton
 	//printf("********************************Check all line search algorithm in RNewton*************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
+	//for (integer i = INPUTFUN; i < LSALGOLENGTH; i++)
 	//{
 	//	RNewton *RNewtonsolver = new RNewton(&Prob, &StieX);
 	//	RNewtonsolver->LineSearch_LS = static_cast<LSAlgo> (i);
 	//	RNewtonsolver->Debug = ITERRESULT;
 	//	/*Uncomment following two lines to use the linesearch algorithm defined by the function "LinesearchInput".*/
-	//	//RNewtonsolver->LineSearch_LS = INPUTFUN;
-	//	//RNewtonsolver->LinesearchInput = &LinesearchInput;
-	//	RNewtonsolver->Max_Iteration = 10;
+	//	RNewtonsolver->LineSearch_LS = INPUTFUN;
+	//	RNewtonsolver->LinesearchInput = &LinesearchInput;
+	//	RNewtonsolver->Max_Iteration = 100;
 	//	RNewtonsolver->CheckParams();
 	//	RNewtonsolver->Run();
 	//	delete RNewtonsolver;
@@ -236,9 +237,13 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 	{
 		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &StieX);
 		LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-		LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
+		LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
 		LRBFGSsolver->OutputGap = 1;
-		LRBFGSsolver->Max_Iteration = 100;
+		LRBFGSsolver->Max_Iteration = 1000;
+		LRBFGSsolver->Accuracy = 1e-12;
+		LRBFGSsolver->Tolerance = 1e-12;
+		LRBFGSsolver->Finalstepsize = 1;
+		LRBFGSsolver->Num_pre_funs = 10;
 		LRBFGSsolver->CheckParams();
 		LRBFGSsolver->Run();
 		//// Check the correctness of gradient and Hessian at the initial iterate
