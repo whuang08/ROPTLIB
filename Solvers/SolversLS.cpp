@@ -89,7 +89,7 @@ namespace ROPTLIB{
 					}
 					else
 					{
-						f2 = h(); nf++;
+						f2 = h();
 						Prob->Grad(x2, gf2); ng++;
 					}
 				}
