@@ -31,7 +31,7 @@ namespace ROPTLIB{
 		//virtual void RieHessianEta(Variable *x, Vector *etax, Vector *xix) const;
 
 		virtual void EucGrad(Variable *x, Vector *egf) const;
-		//virtual void EucHessianEta(Variable *x, Vector *etax, Vector *exix) const;
+		virtual void EucHessianEta(Variable *x, Vector *etax, Vector *exix) const;
 
 		double *B;
 		double *D;
