@@ -42,6 +42,11 @@ namespace ROPTLIB{
     
 		/*Apply given rotation, reparameterization and m to any closed curve q2*/
 		static void Apply_Oml(const double *O, const double *m, const double *l, integer innumP, integer indim, const double *q_2_spline_coeff, double *q2_new);
+        
+        mutable PSCVariable *finalPSCV;
+        //        //===================== For Splines =====================
+        mutable double *log_map;
+        //        //===================== For Splines =====================
 
     
 	private:

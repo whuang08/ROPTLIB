@@ -1,4 +1,4 @@
-
+﻿
 #include "test/TestSparsePCA.h"
 
 using namespace ROPTLIB;
@@ -13,7 +13,7 @@ int main(void)
 	CheckMemoryDeleted = new std::map<integer *, integer>;
 
 	integer p = 10, r = 3, n = 5;
-	double mu = 5e-2;
+	double mu = 1e-2;
 
 	double *B = new double[p * n + r + 2 * p * r];
 	double *Dsq = B + n * p;
@@ -102,15 +102,17 @@ std::map<integer *, integer> *CheckMemoryDeleted;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    if(nrhs < 3)
+    if(nrhs < 7)
     {
-        mexErrMsgTxt("The number of arguments should be at least three.\n");
+        mexErrMsgTxt("The number of arguments should be at least seven.\n");
     }
 	double *B, *D, *X, *Xopt;
 	B = mxGetPr(prhs[0]);
 	D = mxGetPr(prhs[1]);
 	X = mxGetPr(prhs[2]);
 	double mu = mxGetScalar(prhs[3]);
+	integer HasHHR = static_cast<integer> (mxGetScalar(prhs[4]));
+	integer Paramset = static_cast<integer> (mxGetScalar(prhs[5]));
 	/* dimensions of input matrices */
 	integer p, n, r;
 	p = mxGetM(prhs[0]);
@@ -134,7 +136,47 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	genrandseed(0);
 
 	CheckMemoryDeleted = new std::map<integer *, integer>;
-	testSparsePCA(B, D, p, n, r, mu, X, Xopt);
+
+	// Obtain an initial iterate
+	ObliqueVariable OBX(p, r);
+	double *OBXptr = OBX.ObtainWriteEntireData();
+	for (integer i = 0; i < p * r; i++)
+		OBXptr[i] = X[i];
+
+	ObliqueVariable *Obsoln = nullptr;
+	if (nrhs >= 8)
+	{
+		double *soln = mxGetPr(prhs[7]);
+		Obsoln = new ObliqueVariable(p, r);
+		double *OBsolnptr = Obsoln->ObtainWriteEntireData();
+		for (integer i = 0; i < p * r; i++)
+		{
+			OBsolnptr[i] = soln[i];
+		}
+	}
+	// Define the manifold
+	Oblique Domain(p, r);
+	if (Paramset == 1)
+		Domain.ChooseObliqueParamsSet1();
+	else if (Paramset == 2)
+		Domain.ChooseObliqueParamsSet2();
+	else if (Paramset == 3)
+		Domain.ChooseObliqueParamsSet3();
+	else if (Paramset == 4)
+		Domain.ChooseObliqueParamsSet4();
+	else if (Paramset == 5)
+		Domain.ChooseObliqueParamsSet5();
+
+	// Define the Brockett problem
+	ObliqueSparsePCA Prob(B, D, mu, p, n, r);
+	Prob.SetDomain(&Domain);
+
+	Domain.SetHasHHR(HasHHR != 0);
+	//Domain.CheckParams();
+
+	// Call the function defined in DriverMexProb.h
+	ParseSolverParamsAndOptimizing(prhs[6], &Prob, &OBX, Obsoln, plhs);
+
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
 	{
@@ -146,12 +188,45 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 }
 #endif
 
+/*This function defines the stopping criterion that may be used in the C++ solver*/
+bool InnerStopSPCA(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob)
+{
+	const double *xptr = x->ObtainReadData();
+	const double *gfptr = gf->ObtainReadData();
+	Vector *mingf = gf->ConstructEmpty();
+	integer length = gf->Getlength();
+	double *minngf = mingf->ObtainWriteEntireData();
+	for (integer i = 0; i < gf->Getlength(); i++)
+	{
+		if (xptr[i] == 0)
+		{
+			minngf[i] = (gfptr[i] > -1 && gfptr[i] < 1) ? 0 : ((gfptr[i] <= -1) ? gfptr[i] + 1 : gfptr[i] - 1);
+		}
+		else
+		if(xptr[i] > 0)
+		{
+			minngf[i] = gfptr[i] + 1;
+		}
+		else
+		if(xptr[i] < 0)
+		{
+			minngf[i] = gfptr[i] - 1;
+		}
+	}
+	prob->GetDomain()->ExtrProjection(x, mingf, mingf);
+	double normminngf = sqrt(prob->GetDomain()->Metric(x, mingf, mingf));
+	delete mingf;
+	printf("minnormgf:%.2e\n", normminngf);
+	return (normminngf < 1e-9);
+};
+
 void testSparsePCA(double *B, double *Dsq, integer p, integer n, integer r, double mu, double *X, double *Xopt)
 {
 	// reduce n to r
 	ObliqueVariable ObliqueX(p, r);
 
 	Oblique Mani(p, r);
+	Mani.ChooseObliqueParamsSet5();
 	Mani.CheckParams();
 	//Mani.CheckIntrExtr(&ObliqueX);
 	//Mani.CheckRetraction(&ObliqueX);
@@ -167,31 +242,32 @@ void testSparsePCA(double *B, double *Dsq, integer p, integer n, integer r, doub
 	double *ObliqueXptr = ObliqueX.ObtainWriteEntireData();
 	for (integer i = 0; i < ObliqueX.Getlength(); i++)
 		ObliqueXptr[i] = X[i];
-	ObliqueX.Print("initialX:");//---
 	ObliqueSparsePCA Prob(B, Dsq, mu, p, n, r);
 	Prob.SetDomain(&Mani);
 
+	//ObliqueX.RandInManifold();
 	//Prob.CheckGradHessian(&ObliqueX);
 
 	// test LRBFGS
 	printf("********************************Check all line search algorithm in LRBFGSLPsub*************************************\n");
-	RBFGSLPSub *LRBFGSLPSubsolver = new RBFGSLPSub(&Prob, &ObliqueX);
+	RSD *LRBFGSLPSubsolver = new RSD(&Prob, &ObliqueX);
 	LRBFGSLPSubsolver->Debug = ITERRESULT;
 	//LRBFGSLPSubsolver->Tolerance = 1e-12;
 	//LRBFGSLPSubsolver->InitSteptype = QUADINTMOD;
-	LRBFGSLPSubsolver->NumExtraGF = Mani.GetIntrDim() * 5;
-	LRBFGSLPSubsolver->lambdaLower = 1e-3;
-	LRBFGSLPSubsolver->lambdaUpper = 1e3;
-	LRBFGSLPSubsolver->Eps = 1e-3;
-	LRBFGSLPSubsolver->Max_Iteration = 1000;
-	LRBFGSLPSubsolver->OutputGap = 10;
-	//LRBFGSLPSubsolver->CheckParams();
+	LRBFGSLPSubsolver->Max_Iteration = 300;
+	LRBFGSLPSubsolver->OutputGap = 1;
+	LRBFGSLPSubsolver->Accuracy = 1e50;
+	LRBFGSLPSubsolver->Finalstepsize = -1;
+	LRBFGSLPSubsolver->Initstepsize = 1.0 / p / n / 10;
+	LRBFGSLPSubsolver->StopPtr = &InnerStopSPCA;
+	LRBFGSLPSubsolver->InitSteptype = EXTRBBSTEP;
+	LRBFGSLPSubsolver->CheckParams();
 	LRBFGSLPSubsolver->Run();
 	const Element *xopt = LRBFGSLPSubsolver->GetXopt();
 	printf("[0:0.0005)  :%d\n", GetNumberBetweenC1andC2(xopt, 0, 0.0005));
 	printf("[0.0005:0.1):%d\n", GetNumberBetweenC1andC2(xopt, 0.0005, 0.1));
 	printf("[0.1:1)    :%d\n", GetNumberBetweenC1andC2(xopt, 0.1, 1));
-	xopt->Print("Xopt:");//---
+	xopt->Print("Xopt:");
 	if (Xopt != nullptr)
 	{
 		const double *xoptptr = xopt->ObtainReadData();

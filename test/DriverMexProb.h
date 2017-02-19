@@ -122,7 +122,7 @@ Element *GetAnElement(const char *name, integer n, integer m, integer p = 1);
 namespace RMEX{
 	mxArray *isstopped = nullptr;
 	/*This function defines the stopping criterion that may be used in the C++ solver*/
-	bool mexInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0)
+	bool mexInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob)
 	{
 		mxArray *Xmx, *gfmx, *fmx, *ngfmx, *ngf0mx;
 		mexProblem::ObtainMxArrayFromElement(Xmx, x);
@@ -130,7 +130,6 @@ namespace RMEX{
 		fmx = mxCreateDoubleScalar(f);
 		ngfmx = mxCreateDoubleScalar(ngf);
 		ngf0mx = mxCreateDoubleScalar(ngf0);
-
 
 		mxArray *lhs[1], *rhs[6];
 		rhs[0] = const_cast<mxArray *> (isstopped);

@@ -147,7 +147,6 @@ namespace ROPTLIB{
 		if (Soln != nullptr)
 		{
 			const Variable *Xopt = RTRNewtonsolver->GetXopt();
-			//Xopt->Print("Xopt:");//----
 			const SharedSpace *SharedWxsq = Xopt->ObtainReadTempData("Wxsq");
 			SharedWxsq->GetSharedElement()->CopyTo(Soln);
 		}

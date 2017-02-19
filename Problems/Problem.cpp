@@ -1,4 +1,4 @@
-
+﻿
 #include "Problems/Problem.h"
 
 /*Define the namespace*/
@@ -50,7 +50,7 @@ namespace ROPTLIB{
 		Y = X + length;
 		for (integer i = 0; i < length; i++)
 		{
-			Domain->Retraction(x, xi, y);
+			Domain->Retraction(x, xi, y, 0);
 			fy = f(y);
 			//y->Print("y:");//----
 			HessianEta(x, xi, Hv);

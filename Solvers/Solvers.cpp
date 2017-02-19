@@ -50,7 +50,7 @@ namespace ROPTLIB{
 				{
 					Vector *exgf2 = Prob->GetDomain()->GetEMPTYEXTR()->ConstructEmpty();
 					Prob->GetDomain()->ObtainExtr(x2, gf2, exgf2);
-					bool flag = StopPtr(x2, exgf2, f2, ngf, ngf0);
+					bool flag = StopPtr(x2, exgf2, f2, ngf, ngf0, Prob);
 					delete exgf2;
 					return flag;
 				}
@@ -58,7 +58,7 @@ namespace ROPTLIB{
 			}
 			else
 			{
-				return StopPtr(x2, gf2, f2, ngf, ngf0);
+				return StopPtr(x2, gf2, f2, ngf, ngf0, Prob);
 			}
 		}
 

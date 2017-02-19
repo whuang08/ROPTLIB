@@ -40,7 +40,7 @@ namespace ROPTLIB{
 	[Hua2013]:W. Huang. Optimization algorithms on Riemannian manifolds with applications.
 	PhD thesis, Florida State University, Department of Mathematics, 2013.
 	[Zhu2016]: Xiaojing Zhu, A Riemannian conjugate gradient method for optimization on the Stiefel Manifold */
-	enum StieRetraction{ QF, POLAR, EXP, CONSTRUCTED, CAYLEYR, STIERETRACTIONLENGTH };
+	enum StieRetraction{ QF, POLAR, EXP, CONSTRUCTED, CAYLEYR, PROXSTIE, STIERETRACTIONLENGTH };
 
 	/*Vector transport for the Stiefel manifold
 	PARALLELIZATION: Vector transport by parallelization, See [HAG2015, Section 2.3.1]

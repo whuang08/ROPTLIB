@@ -85,7 +85,7 @@ namespace ROPTLIB{
 	void Stiefel::CheckParams(void) const
 	{
 		std::string StieMetricnames[STIEMETRICLENGTH] = { "EUCLIDEAN", "CANONICAL" };
-		std::string StieRetractionnames[STIERETRACTIONLENGTH] = { "QF", "POLAR", "EXP", "CONSTRUCTED", "CAYLEYR" };
+		std::string StieRetractionnames[STIERETRACTIONLENGTH] = { "QF", "POLAR", "EXP", "CONSTRUCTED", "CAYLEYR", "PROXSTIE" };
 		std::string StieVectorTransportnames[STIEVECTORTRANSPORTLENGTH] = { "PARALLELIZATION", "RIGGING", "PARALLELTRANSLATION", "PROJECTION", "CAYLEYVT" };
 		Manifold::CheckParams();
 		printf("%s PARAMETERS:\n", name.c_str());
@@ -392,29 +392,28 @@ namespace ROPTLIB{
 
 	void Stiefel::ObtainIntr(Variable *x, Vector *etax, Vector *result) const
 	{
-		if (retraction == QF)
+		if (retraction == QF || retraction == PROXSTIE)
 			ObtainIntrHHR(x, etax, result);
 		else
 			if (retraction == CONSTRUCTED)
 				ObtainIntrSquare(x, etax, result);
 			else
-				printf("Warning: computing intrinsinc representation from extrinsic has not been implemented!\n");
+				printf("Warning: computing intrinsic representation from extrinsic has not been implemented!\n");
 	};
 
 	void Stiefel::ObtainExtr(Variable *x, Vector *intretax, Vector *result) const
 	{
-		if (retraction == QF)
+		if (retraction == QF || retraction == PROXSTIE)
 			ObtainExtrHHR(x, intretax, result);
 		else
 			if (retraction == CONSTRUCTED)
 				ObtainExtrSquare(x, intretax, result);
 			else
-				printf("Warning: computing extrinsic representation from intrinsinc has not been implemented!\n");
+				printf("Warning: computing extrinsic representation from intrinsic has not been implemented!\n");
 	};
 
 	void Stiefel::qfRetraction(Variable *x, Vector *etax, Variable *result) const
 	{
-		//x->Print("x in qf:");//---
 		const double *U = x->ObtainReadData();
 		const double *V;
 		Vector *exetax = nullptr;
@@ -423,7 +422,6 @@ namespace ROPTLIB{
 			exetax = EMPTYEXTR->ConstructEmpty();
 			ObtainExtr(x, etax, exetax);
 			V = exetax->ObtainReadData();
-			//exetax->Print("exetax:");//---
 		}
 		else
 		{
@@ -476,7 +474,7 @@ namespace ROPTLIB{
 		//double *FullOrth = new double[N * N];
 		//dcopy_(&Length, ptrHHR, &inc, FullOrth, &inc);
 		//dorgqr_(&N, &N, &P, FullOrth, &N, tau, work, &lwork, &info);
-		//ForDebug::Print("FullOrth:", FullOrth, N, N);//----
+		//ForDebug::Print("FullOrth:", FullOrth, N, N);
 		//delete[] FullOrth;
 		///*end for debug*/
 
@@ -491,7 +489,6 @@ namespace ROPTLIB{
 		delete[] signs;
 		if (exetax != nullptr)
 			delete exetax;
-		//result->Print("result in qf:");//---
 	};
 
 	void Stiefel::qfcoTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const

@@ -56,7 +56,7 @@ namespace ROPTLIB{
 		/*Compute the extrinsic representation of a tagnent vector intretax. Inverse operation of the function ObtainIntr */
 		virtual void ObtainExtr(Variable *x, Vector *intretax, Vector *result) const;
 
-		/*Not done yet. Temporarily use: gf <-- egf*/
+		/*gf = x * egf * x */
 		virtual void EucGradToGrad(Variable *x, Vector *egf, Vector *gf, const Problem *prob) const;
 
 		/*Not done yet. Temporarily use: xix <-- exix*/

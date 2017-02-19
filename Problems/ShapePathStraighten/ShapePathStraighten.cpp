@@ -28,10 +28,18 @@ namespace ROPTLIB{
 		{
 			Spline::FirstDeri(q2_coefs+i*4*(numP-1), numP, dq2_coefs+i*3*(numP-1));
 		}
+        //===================== For Splines =====================
+        finalPSCV = nullptr;
+        log_map = new double[numP*dim];
+        //===================== For Splines =====================
 	};
 
 	ShapePathStraighten::~ShapePathStraighten(void)
 	{
+        if(finalPSCV != nullptr)
+        delete finalPSCV;
+        delete [] log_map;
+        delete [] q2_coefs;
 	};
 
 	double ShapePathStraiLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
@@ -73,6 +81,13 @@ namespace ROPTLIB{
 	//    RSDsolver->CheckParams();
 		RSDsolver->Run();
     
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% store the geodesic %%%%%%%%%%%%%%%%%%%%%%
+        //===================== For Splines =====================
+        if(finalPSCV == nullptr)
+            finalPSCV = PSCV.ConstructEmpty();
+        RSDsolver->GetXopt()->CopyTo(finalPSCV);
+        //===================== For Splines =====================
+        
 		//store preshape geodesic to compute distance and eta
 		//current preshape geodesic between q1 and q2_new stored in PreGeodesic
 		PSCVariable *PreGeodesic = PSCV.ConstructEmpty();
@@ -139,6 +154,14 @@ namespace ROPTLIB{
 		coeff = 1.0/std::sqrt(PreShapePathStraighten::InnerProd_Q(Dalpha+(numC-1)*numP*dim, Dalpha+(numC-1)*numP*dim, numP, dim));
 		dscal_(&NXD, &coeff, eta, &GLOBAL::IONE);
     
+        //===================== For Splines =====================
+        //===================== For Splines =====================
+//        if(log_map == nullptr)
+//            log_map = new double[numP*dim];
+        dcopy_(&NXD, const_cast<double *>(Dalpha+numP*dim), &GLOBAL::IONE, log_map, &GLOBAL::IONE);
+        
+        
+        
 
 		x->AddToTempData("eta", SharedEta);
         x->AddToTempData("q2_new", Shared_q2_new);
@@ -150,6 +173,7 @@ namespace ROPTLIB{
 		//delete [] q2_new;
 		delete [] Dalpha;
 		delete [] temp;
+        delete PreGeodesic;
 		return distance;
 	}
 

@@ -23,10 +23,10 @@ namespace ROPTLIB{
 		const double *xptr = x->ObtainReadData();
 
 		double result = 0;
-		for (integer i = 0; i < p * r; i++)
-		{
-			result += fabs(xptr[i]);
-		}
+		//for (integer i = 0; i < p * r; i++)
+		//{
+		//	result += fabs(xptr[i]);
+		//}
 		double *BtX = new double[n * r];
 
 		char *transn = const_cast<char *> ("n"), *transt = const_cast<char *> ("t");
@@ -67,18 +67,21 @@ namespace ROPTLIB{
 		double *egfptr = egf->ObtainWriteEntireData();
 
 		for (integer i = 0; i < p * r; i++)
-		{
-			egfptr[i] = (xptr[i] > 0 ? 1 : -1);
-			//if (xptr[i] > 1e-8)
-			//	egfptr[i] = 1;
-			//else
-			//if (xptr[i] < -1e-8)
-			//	egfptr[i] = -1;
-			//else
-			//{
-			//	egfptr[i] = (genrandreal() < 0.5 ? 1 : -1);
-			//}
-		}
+			egfptr[i] = 0;
+
+		//for (integer i = 0; i < p * r; i++)
+		//{
+		//	egfptr[i] = (xptr[i] > 0 ? 1 : -1);
+		//	//if (xptr[i] > 1e-8)
+		//	//	egfptr[i] = 1;
+		//	//else
+		//	//if (xptr[i] < -1e-8)
+		//	//	egfptr[i] = -1;
+		//	//else
+		//	//{
+		//	//	egfptr[i] = (genrandreal() < 0.5 ? 1 : -1);
+		//	//}
+		//}
 
 		const SharedSpace *SharedXtBBtX = x->ObtainReadTempData("XtBBtX");
 		const double *XtBBtX = SharedXtBBtX->ObtainReadData();

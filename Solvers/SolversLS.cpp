@@ -31,7 +31,6 @@ namespace ROPTLIB{
 			distSeries[iter] = ((soln == nullptr) ? 0 : Mani->Dist(x1, soln));
 		}
 		bool isstop = IsStopped();
-
 		/*If the intrinsic representation is used, then exeta1 and exeta2 are used to store the extrinsic representations of eta1 and eta2 respectively*/
 		if (Prob->GetDomain()->GetIsIntrinsic())
 		{
@@ -49,7 +48,6 @@ namespace ROPTLIB{
 			InitialStepSize();
 
 			initiallength = stepsize;
-
 			/*Start a line search algorithm. If the intrinsic representation is used for the search direction, then converting it into the extrinsic representation.*/
 			if (Prob->GetDomain()->GetIsIntrinsic())
 			{
@@ -98,7 +96,6 @@ namespace ROPTLIB{
 					(this->*Linesearch)();
 				}
 			}
-
 			/*Output debug information if necessary.*/
 			if (LSstatus < SUCCESS && Debug >= FINALRESULT )
 			{
@@ -230,7 +227,7 @@ namespace ROPTLIB{
 	{
 		Vector *s = nullptr, *y = nullptr;
 		if (iter == 0)
-            stepsize = Initstepsize / ngf;
+			stepsize = Initstepsize;// / ngf;
 		else
 		{
 			switch (InitSteptype)
@@ -246,6 +243,29 @@ namespace ROPTLIB{
 				Mani->VectorTransport(x2, eta2, x1, eta2, s);
 				Mani->VectorTransport(x2, eta2, x1, gf2, y);
 				Mani->VectorMinusVector(x2, gf1, y, y);
+				stepsize = Mani->Metric(x2, s, s) / Mani->Metric(x2, s, y);
+				delete s;
+				delete y;
+				break;
+			case EXTRBBSTEP:
+				s = x1->ConstructEmpty();
+				y = x1->ConstructEmpty();
+				/*Since x1 and x2 are swapped, we have the following formula.*/
+				Mani->VectorMinusVector(x1, x1, x2, s);
+				if (Mani->GetIsIntrinsic())
+				{
+					Vector *gf1extr = Mani->GetEMPTYEXTR()->ConstructEmpty();
+					Vector *gf2extr = Mani->GetEMPTYEXTR()->ConstructEmpty();
+					Mani->ObtainExtr(x1, gf1, gf1extr);
+					Mani->ObtainExtr(x2, gf2, gf2extr);
+					Mani->VectorMinusVector(x1, gf1extr, gf2extr, y);
+					delete gf1extr;
+					delete gf2extr;
+				}
+				else
+				{
+					Mani->VectorMinusVector(x1, gf1, gf2, y);
+				}
 				stepsize = Mani->Metric(x2, s, s) / Mani->Metric(x2, s, y);
 				delete s;
 				delete y;
@@ -494,12 +514,12 @@ namespace ROPTLIB{
 		{
 			Mani->ScaleTimesVector(x1, stepsize, exeta1, exeta2);
 			Mani->SetIsIntrApproach(false);
-			Mani->Retraction(x1, exeta2, x2); nR++;
+			Mani->Retraction(x1, exeta2, x2, stepsize); nR++;
 			Mani->SetIsIntrApproach(true);
 		}
 		else
 		{
-			Mani->Retraction(x1, eta2, x2); nR++;
+			Mani->Retraction(x1, eta2, x2, stepsize); nR++;
 		}
 		nf++;
 		return Prob->f(x2);
@@ -603,7 +623,7 @@ namespace ROPTLIB{
 		Solvers::CheckParams();
 
 		std::string LSALGOnames[LSALGOLENGTH] = { "ARMIJO", "WOLFE", "STRONGWOLFE", "EXACT", "WOLFELP", "INPUTFUN" };
-		std::string INITSTEPnames[INITSTEPSIZESETLENGTH] = { "ONESTEP", "BBSTEP", "QUADINT", "QUADINTMOD" };
+		std::string INITSTEPnames[INITSTEPSIZESETLENGTH] = { "ONESTEP", "BBSTEP", "QUADINT", "QUADINTMOD", "EXTRBBSTEP" };
 
 		char YES[] = "YES";
 		char NO[] = "NO";

@@ -277,7 +277,7 @@ namespace ROPTLIB{
 	{
 	};
 
-	void ProductManifold::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void ProductManifold::Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const
 	{
 #ifdef TESTELASTICCURVESRO
 		if (x->TempDataExist("w"))
@@ -301,7 +301,7 @@ namespace ROPTLIB{
 			{
 				for (integer j = powsinterval[i]; j < powsinterval[i + 1]; j++)
 				{
-					manifolds[i]->Retraction(prodx->GetElement(j), prodetax->GetElement(j), prodresult->GetElement(j));
+					manifolds[i]->Retraction(prodx->GetElement(j), prodetax->GetElement(j), prodresult->GetElement(j), instepsize);
 				}
 			}
 		}
@@ -314,7 +314,7 @@ namespace ROPTLIB{
 					for (integer j = powsinterval[i]; j < powsinterval[i + 1]; j++)
 					{
 						manifolds[i]->SetIsIntrApproach(false);
-						manifolds[i]->Retraction(prodx->GetElement(j), prodetax->GetElement(j), prodresult->GetElement(j));
+						manifolds[i]->Retraction(prodx->GetElement(j), prodetax->GetElement(j), prodresult->GetElement(j), instepsize);
 						manifolds[i]->SetIsIntrApproach(true);
 					}
 				}
@@ -322,7 +322,7 @@ namespace ROPTLIB{
 				{
 					for (integer j = powsinterval[i]; j < powsinterval[i + 1]; j++)
 					{
-						manifolds[i]->Retraction(prodx->GetElement(j), prodetax->GetElement(j), prodresult->GetElement(j));
+						manifolds[i]->Retraction(prodx->GetElement(j), prodetax->GetElement(j), prodresult->GetElement(j), instepsize);
 					}
 				}
 			}
@@ -331,6 +331,11 @@ namespace ROPTLIB{
 #ifdef CHECKMEMORY
 		prodresult->CheckMemory("ProductManifold::Retraction");
 #endif
+	};
+
+	void ProductManifold::Retraction(Variable *x, Vector *etax, Variable *result) const
+	{
+		Retraction(x, etax, result, 1);
 	};
 
 	void ProductManifold::coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const

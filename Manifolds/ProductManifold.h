@@ -104,11 +104,15 @@ namespace ROPTLIB{
 		This is used for the gradient sampling method, which is not supported yet.*/
 		virtual void RandomTangentVectors(Variable *x, integer N, Vector **result_arr) const;
 
-		/*Compute the retraction result = R_x(etax)
+		/*Compute the retraction result = R_x(etax). A stepsize is also input for information.
+		Default: Let x = (x_1, dots, x_n), etax=(etax_1, dots, etax_n), result = (r_1, dots, r_n).
+		r_i = R_{x_i}(eta_i), for all i. */
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const;
+
+		/*Compute the retraction result = R_x(etax).
 		Default: Let x = (x_1, dots, x_n), etax=(etax_1, dots, etax_n), result = (r_1, dots, r_n).
 		r_i = R_{x_i}(eta_i), for all i. */
 		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
-
 
 		/*Compute the tangent vector result satisfying
 		g_y(\mathcal{T}_{R_etax}(xix), xiy) = g_x(xix, result) for all xix \in T_x M,

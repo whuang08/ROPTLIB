@@ -59,7 +59,7 @@ namespace ROPTLIB{
 	};
 
 	namespace MRA{
-		bool InnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0)
+		bool InnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob)
 		{
 			// If either ngf is small enough using Reps3 or the singular values of x has significant bias using MRA::RDelta,
 			// then stop.

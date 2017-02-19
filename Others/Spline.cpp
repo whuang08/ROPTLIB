@@ -351,19 +351,14 @@ namespace ROPTLIB{
 		double output;
 		nn = N - 1;
 		i = 0;
-		//     printf("p1\n");//---
-		//     printf("%f\n", breaks[N - 1]);//--
+
 		while (i < N && t - (breaks[i] - breaks[0]) >= -std::numeric_limits<double>::epsilon())
 			i++;
-		//     printf("p2\n");//---
 		i--;
 		i = (i < 0) ? 0 : i;
 		i = (i > nn - 1) ? nn - 1 : i;
-		//     printf("p3\n");//---
 		t -= breaks[i];
-		//     printf("p4\n");//---
 		output = (dericoefs[0 * nn + i] * t + dericoefs[1 * nn + i]) * t + dericoefs[2 * nn + i];
-		//     printf("p5\n");//---
 		return output;
 	};
 

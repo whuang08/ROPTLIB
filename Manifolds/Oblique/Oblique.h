@@ -42,6 +42,11 @@ namespace ROPTLIB{
 		Beta \neq 1 is used and the locking conidition is satisfied*/
 		void ChooseObliqueParamsSet4();
 
+		/* choose proximal mapping, parallelization and intrinsic approach and no householder reflections
+		the locking conidition is not satisfied. This is used to minimize f(X) + ||X||_1, where f(X) is
+		the original cost function defined on a manifold*/
+		void ChooseObliqueParamsSet5();
+
 		/*PARAMSMAP is defined in "def.h" and it is a map from string to double, i.e., std::map<std::string, double> .
 		This function is used to set the parameters by the mapping*/
 		virtual void SetParams(PARAMSMAP params);

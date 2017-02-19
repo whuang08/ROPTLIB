@@ -136,6 +136,11 @@ namespace ROPTLIB{
 		daxpy_(&N, &one, const_cast<double *> (v), &inc, resultM, &inc);
 	};
 
+	void Manifold::Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const
+	{
+		Retraction(x, etax, result);
+	};
+
 	void Manifold::coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const
 	{
 		xiy->CopyTo(result);

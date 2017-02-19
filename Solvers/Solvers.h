@@ -122,7 +122,7 @@ namespace ROPTLIB{
 		/*Beside the three stopping criterion specified by the member variable "Stop_Criterion",
 		user also can define a stopping criterion by assigning the following function pointer.
 		The code always run this function pointer first if it is not a null pointer. */
-		bool(*StopPtr) (Variable *x, Vector *gf, double f, double ngf, double ngf0);
+		bool(*StopPtr) (Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob);
 
 		/*Destructor. It is a pure virtual function*/
 		virtual ~Solvers(void) = 0;

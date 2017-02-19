@@ -35,6 +35,8 @@ This is the test file to run the problem defined in ObliqueTestSparsePCA.h and O
 #include "Solvers/RTRSR1.h"
 #include "Solvers/LRTRSR1.h"
 
+#include "test/DriverMexProb.h"
+
 #include "Others/def.h"
 
 using namespace ROPTLIB;

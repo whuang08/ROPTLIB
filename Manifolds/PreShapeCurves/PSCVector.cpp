@@ -7,7 +7,7 @@ namespace ROPTLIB{
 	{
 		Element::Initialization(3, r, c, n);
 	};
-
+    
 	PSCVector *PSCVector::ConstructEmpty(void) const
 	{
 		return new PSCVector(size[0], size[1], size[2]);

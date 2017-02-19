@@ -295,9 +295,6 @@ namespace ROPTLIB{
 
 	void L2Sphere::EucGradToGrad(Variable *x, Vector *egf, Vector *gf, const Problem *prob) const
 	{
-		//egf->CopyTo(gf);//--
-		//return;//--
-
 		if (prob->GetUseHess())
 		{
 			Vector *segf = egf->ConstructEmpty();
@@ -311,8 +308,6 @@ namespace ROPTLIB{
 
 	void L2Sphere::EucHvToHv(Variable *x, Vector *etax, Vector *exix, Vector* xix, const Problem *prob) const
 	{
-		//exix->CopyTo(xix);//---
-		//return; //---
 		const double *xptr = x->ObtainReadData();
 		Variable *xcubed = x->ConstructEmpty();
 		SharedSpace *Sharedxcubed = new SharedSpace(xcubed);

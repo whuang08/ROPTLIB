@@ -52,7 +52,7 @@ namespace ROPTLIB{
 	QUADINTMOD: t0 = [page 60, NW06]
 	[NW06]: J. Nocedal and S. J. Wright. Numerical optimization. Springer, second edition, 2006
 	*/
-	enum InitStepsizeSet{ ONESTEP, BBSTEP, QUADINT, QUADINTMOD, INITSTEPSIZESETLENGTH };
+	enum InitStepsizeSet{ ONESTEP, BBSTEP, QUADINT, QUADINTMOD, EXTRBBSTEP, INITSTEPSIZESETLENGTH };
 
 	class SolversLS : public QuasiNewton{
 	public:

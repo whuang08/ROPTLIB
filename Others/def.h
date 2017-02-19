@@ -22,13 +22,15 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTSTIESPARSEBROCKETT
 //#define TESTGRASSRQ
 //#define TESTCSO
-#define TESTSTIESOFTICA
+//#define TESTSTIESOFTICA
+#define TESTSPARSEPCA
 //#define TESTTESTSPARSEPCA
 //#define TESTWEIGHTEDLOWRANK
 //#define TESTELASTICCURVESRO
 //#define TESTMYMATRIX
 //#define TESTSPDMEAN
 //#define TESTPRESHAPEPATHSTRAIGHTEN
+//#define TESTSHAPEPATHSTRAIGHTEN
 //#define TESTSPDTENSORDL
 //#define TESTEUCPOSSPCD
 //#define TESTORTHBOUNDINGBOX

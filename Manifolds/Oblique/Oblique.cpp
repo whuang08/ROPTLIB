@@ -30,7 +30,7 @@ namespace ROPTLIB{
 	void Oblique::ChooseObliqueParamsSet2(void)
 	{
 		Sphere *S = dynamic_cast<Sphere *> (manifolds[0]);
-		S->ChooseSphereParamsSet1();
+		S->ChooseSphereParamsSet2();
 		integer n = S->GetExtrDim();
 		integer num = numoftotalmani;
 		delete EMPTYINTR;
@@ -41,7 +41,7 @@ namespace ROPTLIB{
 	void Oblique::ChooseObliqueParamsSet3(void)
 	{
 		Sphere *S = dynamic_cast<Sphere *> (manifolds[0]);
-		S->ChooseSphereParamsSet2();
+		S->ChooseSphereParamsSet3();
 		integer n = S->GetExtrDim();
 		integer num = numoftotalmani;
 		delete EMPTYINTR;
@@ -52,11 +52,18 @@ namespace ROPTLIB{
 	void Oblique::ChooseObliqueParamsSet4(void)
 	{
 		Sphere *S = dynamic_cast<Sphere *> (manifolds[0]);
-		S->ChooseSphereParamsSet3();
+		S->ChooseSphereParamsSet4();
 		integer n = S->GetExtrDim();
 		integer num = numoftotalmani;
 		delete EMPTYINTR;
 		EMPTYINTR = new ObliqueVector(n, num);
+		//SetEMPTYINTR();
+	};
+
+	void Oblique::ChooseObliqueParamsSet5(void)
+	{
+		Sphere *S = dynamic_cast<Sphere *> (manifolds[0]);
+		S->ChooseSphereParamsSet5();
 		//SetEMPTYINTR();
 	};
 
@@ -81,6 +88,9 @@ namespace ROPTLIB{
 					break;
 				case 4:
 					ChooseObliqueParamsSet4();
+					break;
+				case 5:
+					ChooseObliqueParamsSet5();
 					break;
 				default:
 					break;

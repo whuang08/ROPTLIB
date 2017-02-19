@@ -67,6 +67,61 @@ namespace ROPTLIB{
 		HasLockCon = true;
 	};
 
+	/* choose proximal mapping, parallelization and intrinsic approach and no householder reflections
+	the locking conidition is not satisfied*/
+	void Sphere::ChooseSphereParamsSet5(void)
+	{
+		metric = EUCLIDEAN;
+		retraction = PROXSTIE;
+		VecTran = PARALLELIZATION;
+		IsIntrApproach = true;
+		HasHHR = false;
+		UpdBetaAlone = false;
+		HasLockCon = false;
+	};
+
+	void Sphere::ProxRetraction(Variable *x, Vector *etax, Variable *result, double instepsize) const
+	{
+		if (!GetIsIntrinsic())
+		{
+			VectorAddVector(x, x, etax, result);
+		}
+		else
+		{
+			Vector *exetax = EMPTYEXTR->ConstructEmpty();
+			ObtainExtr(x, etax, exetax);
+			VectorAddVector(x, x, exetax, result);
+			delete exetax;
+		}
+		
+		double *resultptr = result->ObtainWritePartialData();
+		double maxv = 0;
+		integer maxi = 0;
+		for (integer i = 0; i < result->Getlength(); i++)
+		{
+			if (abs(resultptr[i]) > abs(maxv))
+			{
+				maxv = resultptr[i];
+				maxi = i;
+			}
+		}
+		for (integer i = 0; i < result->Getlength(); i++)
+		{
+			resultptr[i] = (abs(resultptr[i]) < instepsize) ? 0 : ((resultptr[i] > instepsize) ? resultptr[i] - instepsize : resultptr[i] + instepsize);
+		}
+		double rnorm = sqrt(Metric(x, result, result));
+		if (rnorm != 0)
+			ScaleTimesVector(x, 1.0 / rnorm, result, result);
+		else
+		{
+			for (integer i = 0; i < result->Getlength(); i++)
+			{
+				resultptr[i] = 0;
+			}
+			resultptr[maxi] = (maxv >= 0) ? 1 : -1;
+		}
+	};
+
 	void Sphere::ExpRetraction(Variable *x, Vector *etax, Variable *result) const
 	{
 		double normetax = sqrt(Metric(x, etax, etax));
@@ -180,11 +235,22 @@ namespace ROPTLIB{
 
 	void Sphere::Retraction(Variable *x, Vector *etax, Variable *result) const
 	{
+		Retraction(x, etax, result, 1.0);
+	};
+
+	void Sphere::Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const
+	{
 		if (retraction == EXP)
 		{
 			ExpRetraction(x, etax, result);
 			return;
 		}
+		if (retraction == PROXSTIE)
+		{
+			ProxRetraction(x, etax, result, instepsize);
+			return;
+		}
+
 		Stiefel::Retraction(x, etax, result);
 	};
 
@@ -269,16 +335,19 @@ namespace ROPTLIB{
 				switch (static_cast<integer> (iter->second))
 				{
 				case 1:
-					ChooseStieParamsSet1();
-					break;
-				case 2:
 					ChooseSphereParamsSet1();
 					break;
-				case 3:
+				case 2:
 					ChooseSphereParamsSet2();
 					break;
-				case 4:
+				case 3:
 					ChooseSphereParamsSet3();
+					break;
+				case 4:
+					ChooseSphereParamsSet4();
+					break;
+				case 5:
+					ChooseSphereParamsSet5();
 					break;
 				default:
 					break;

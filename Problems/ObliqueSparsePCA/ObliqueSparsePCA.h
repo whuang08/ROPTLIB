@@ -1,8 +1,11 @@
 /*
 This file defines the class for the problem 
-\min_{diag(X^T X) = I_r} \|X\|_1 + \mu \|X^T B B^T X - D^2\|_F^2
+\min_{diag(X^T X) = I_r} \mu \|X^T B B^T X - D^2\|_F^2
 \|X\|_1
-X \in R^{p \times r}, B \in R^{p \times n}. X is a loading matrix. p > n > r
+X \in R^{p \times r}, B \in R^{p \times n}. X is a loading matrix. p > n > r.
+When proximal update in Oblique class is used, we essentially solve
+\min_{diag(X^T X) = I_r} ||X||_1 \mu \|X^T B B^T X - D^2\|_F^2
+which is a sparse PCA problem.
 
 Problem --> ObliqueSparsePCA
 

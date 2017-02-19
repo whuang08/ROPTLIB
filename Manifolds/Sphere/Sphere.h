@@ -40,8 +40,16 @@ namespace ROPTLIB{
 		Beta \neq 1 is used and the locking conidition is satisfied*/
 		void ChooseSphereParamsSet4();
 
+		/* choose proximal mapping, parallelization and intrinsic approach and no householder reflections
+		the locking conidition is not satisfied. This is used to minimize f(X) + ||X||_1, where f(X) is
+		the original cost function defined on a manifold*/
+		void ChooseSphereParamsSet5();
+
 		/*Beside the exponential mapping of the sphere, the retractions defined in Stiefel.h also can be used.*/
 		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+
+		/*Beside the exponential mapping of the sphere, the retractions defined in Stiefel.h also can be used.*/
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const;
 
 		/*Beside the cotangent vector of exponential mapping of the sphere, the retractions defined in Stiefel.h also can be used.*/
 		virtual void coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const;
@@ -72,6 +80,10 @@ namespace ROPTLIB{
 		This function is used to set the parameters by the mapping*/
 		virtual void SetParams(PARAMSMAP params);
 	private:
+		/*Define the proximal update for problems f(x) + ||X||_1.
+		The update is result = prox_instepsize(x - etax).*/
+		virtual void ProxRetraction(Variable *x, Vector *etax, Variable *result, double instepsize) const;
+
 		/* exponential mapping using extrinsic approach*/
 		virtual void ExpRetraction(Variable *x, Vector *etax, Variable *result) const;
 
