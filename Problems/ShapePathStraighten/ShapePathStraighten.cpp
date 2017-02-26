@@ -42,7 +42,7 @@ namespace ROPTLIB{
         delete [] q2_coefs;
 	};
 
-	double ShapePathStraiLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+	double ShapePathStraiLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 	{
 		return 1;
 	}

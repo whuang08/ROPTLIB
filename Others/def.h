@@ -18,12 +18,12 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTEUCQUADRATIC
 //#define TESTPRODUCT
 //#define TESTSPHERERAYQUO
-//#define TESTSTIEBROCKETT
+#define TESTSTIEBROCKETT
 //#define TESTSTIESPARSEBROCKETT
 //#define TESTGRASSRQ
 //#define TESTCSO
 //#define TESTSTIESOFTICA
-#define TESTSPARSEPCA
+//#define TESTSPARSEPCA
 //#define TESTTESTSPARSEPCA
 //#define TESTWEIGHTEDLOWRANK
 //#define TESTELASTICCURVESRO
@@ -40,7 +40,7 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTSIMPLEEXAMPLE
 //#define TESTPRODUCTEXAMPLE
 
-#include <cmath> /*for MAC*/
+#include <cmath>
 
 
 /*std library*/
@@ -98,8 +98,6 @@ are included.*/
 	#include <zgetrs.h>
 	#include <zpotrf.h>
 #endif // end of ifndef MATLAB_MEX_FILE
-
-//#include <cmath> for others
 
 #ifdef _WIN64 // The following code is compiled only when this library is compiled in Windows (64-bit only)
 	/*If the code is compile under DEBUG mode, then test wheter there is memory leakage or not*/

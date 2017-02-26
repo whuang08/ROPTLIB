@@ -18,7 +18,7 @@ int main(void)
 	genrandseed(tt);
 
 	// size of the Stiefel manifold
-	integer n = 6, p = 3;
+	integer n = 128, p = 8;
 
 	// Generate the matrices in the Brockett problem.
 	double *B = new double[n * n + p];
@@ -56,7 +56,7 @@ int main(void)
 
 /*We don't have to a line search algorithm defined in the solvers. The line seach algorithm can be defined 
 here:*/
-double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 { /*For example, simply use one to be the stepsize*/
 
 	const StieBrockett *P = dynamic_cast<StieBrockett *> (const_cast<Problem*> (prob));
@@ -232,7 +232,7 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 
 	// test LRBFGS
 	printf("********************************Check all line search algorithm in LRBFGS*************************************\n");
-	Domain.ChooseStieParamsSet4();
+	//Domain.ChooseStieParamsSet4();
 	for (integer i = 0; i < 1; i++)//INPUTFUN
 	{
 		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &StieX);
@@ -240,10 +240,14 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 		LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
 		LRBFGSsolver->OutputGap = 1;
 		LRBFGSsolver->Max_Iteration = 1000;
-		LRBFGSsolver->Accuracy = 1e-12;
-		LRBFGSsolver->Tolerance = 1e-12;
+		LRBFGSsolver->Accuracy = 1e-6;
+		LRBFGSsolver->Tolerance = 1e-6;
 		LRBFGSsolver->Finalstepsize = 1;
-		LRBFGSsolver->Num_pre_funs = 10;
+		LRBFGSsolver->Num_pre_funs = 0;
+		LRBFGSsolver->BBratio = 1;
+		LRBFGSsolver->Num_pre_BB = 0;
+		LRBFGSsolver->InitSteptype = ONESTEP;
+		LRBFGSsolver->LengthSY = 0;
 		LRBFGSsolver->CheckParams();
 		LRBFGSsolver->Run();
 		//// Check the correctness of gradient and Hessian at the initial iterate

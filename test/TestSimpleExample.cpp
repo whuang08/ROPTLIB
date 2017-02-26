@@ -48,7 +48,7 @@ using namespace ROPTLIB;
 
 /*If the file is compiled in Matlab , then the following mexFunction() function is the entrance. */
 #ifdef MATLAB_MEX_FILE
-#define TESTSIMPLEEXAMPLE
+
 int main(void);
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {

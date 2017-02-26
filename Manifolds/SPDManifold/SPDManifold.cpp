@@ -194,6 +194,56 @@ namespace ROPTLIB{
 		delete[] E;
 	};
 
+	double SPDManifold::Dist(Variable *x1, Variable *x2) const
+	{
+		// dis(x, y) = |log(Lx^{-1} y Lx^{-T})|_F
+		if (!x1->TempDataExist("L"))
+		{
+			CholeskyRepresentation(x1);
+		}
+		const SharedSpace *SharedLx1 = x1->ObtainReadTempData("L");
+		Variable *LElementx1 = SharedLx1->GetSharedElement();
+		const double *Lx1 = LElementx1->ObtainReadData();
+
+		if (!x2->TempDataExist("L"))
+		{
+			CholeskyRepresentation(x2);
+		}
+		const SharedSpace *SharedLx2 = x2->ObtainReadTempData("L");
+		Variable *LElementx2 = SharedLx2->GetSharedElement();
+		const double *Lx2 = LElementx2->ObtainReadData();
+
+		integer N = n, info, length = n * n;
+		double *LxLy = new double[N * N];
+
+		dcopy_(&length, const_cast<double *> (Lx2), &GLOBAL::IONE, LxLy, &GLOBAL::IONE);
+		/*Solve the linear system Lx X = Ly, i.e., X = Lx^{-1}Ly. The solution X is stored in LxLy*/
+		dtrtrs_(GLOBAL::L, GLOBAL::N, GLOBAL::N, &N, &N, const_cast<double *> (Lx1), &N, LxLy, &N, &info);
+
+		/* compute temp = LxLy*(LxLy)^T  */
+		double *temp = new double[N * N];
+		dgemm_(GLOBAL::N, GLOBAL::T, &N, &N, &N, &GLOBAL::DONE, LxLy, &N, LxLy, &N, &GLOBAL::DZERO, temp, &N);
+
+		double *eigenvalues = new double[n + n * n];
+		double *eigenvectors = eigenvalues + n;
+		Matrix E(eigenvalues, n, 1), V(eigenvectors, n, n);
+		Matrix MMt(temp, n, n);
+		Matrix::EigenSymmetricM(GLOBAL::L, MMt, E, V);
+
+		double result = 0.0;
+		for (integer i = 0; i < N; i++)
+		{
+			result = result + log(eigenvalues[i])*log(eigenvalues[i]);
+		}
+
+		result = sqrt(result);
+
+		delete[] eigenvalues;
+		delete[] temp;
+		delete[] LxLy;
+		return result;
+	};
+
 	void SPDManifold::Retraction(Variable *x, Vector *etax, Variable *result) const
 	{
 		if (!x->TempDataExist("L"))

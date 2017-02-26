@@ -19,7 +19,7 @@ int main(void)
     return 0;
 }
 
-double LinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope)
+double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 {
     return 1;
 }

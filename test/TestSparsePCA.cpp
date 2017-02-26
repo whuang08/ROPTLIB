@@ -189,7 +189,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 #endif
 
 /*This function defines the stopping criterion that may be used in the C++ solver*/
-bool InnerStopSPCA(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob)
+bool InnerStopSPCA(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver)
 {
 	const double *xptr = x->ObtainReadData();
 	const double *gfptr = gf->ObtainReadData();

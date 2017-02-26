@@ -93,7 +93,7 @@ void testSPDMean(void)
 	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &SPDX);
 	LRBFGSsolver->LineSearch_LS = ARMIJO;
 	LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
-	LRBFGSsolver->Max_Iteration = 20;
+	LRBFGSsolver->Max_Iteration = 2000;
 	LRBFGSsolver->Tolerance = 1e-10;
 	LRBFGSsolver->Accuracy = 1e-4;
 	LRBFGSsolver->Finalstepsize = 1;
@@ -103,6 +103,19 @@ void testSPDMean(void)
 	//Prob.CheckGradHessian(&SPDX);
 	//const Variable *xopt = LRBFGSsolver->GetXopt();
 	//Prob.CheckGradHessian(xopt);
+
+	LRBFGS *LRBFGSsolver2 = new LRBFGS(&Prob, &SPDX, LRBFGSsolver->GetXopt());
+	LRBFGSsolver2->LineSearch_LS = ARMIJO;
+	LRBFGSsolver2->Debug = ITERRESULT; //ITERRESULT;// 
+	LRBFGSsolver2->Max_Iteration = 500;
+	LRBFGSsolver2->Tolerance = 1e-5;
+	LRBFGSsolver2->Accuracy = 1e-4;
+	LRBFGSsolver2->Finalstepsize = 1;
+	LRBFGSsolver2->CheckParams();
+	LRBFGSsolver2->Run();
+	double *dists = LRBFGSsolver2->GetdistSeries();
+	ForDebug::Print("Dist:", dists, LRBFGSsolver2->GetlengthSeries());
+	delete LRBFGSsolver2;
 	delete LRBFGSsolver;
 
 	delete[] Ls;

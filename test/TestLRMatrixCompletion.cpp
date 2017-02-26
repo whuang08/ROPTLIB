@@ -53,7 +53,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	X = mxGetPr(prhs[1]);
 	/* dimensions of input matrices */
 	integer m, n, HasHHR, nzmax, r;
-	unsigned long long *ir, *jc;
+	size_t *ir, *jc;
 	nzmax = mxGetNzmax(prhs[0]);
 	ir = mxGetIr(prhs[0]);
 	jc = mxGetJc(prhs[0]);

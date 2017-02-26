@@ -50,7 +50,7 @@ int main(void)
 
 /*We don't have to a line search algorithm defined in the solvers. The line seach algorithm can be defined 
 here:*/
-double LinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 { /*For example, simply use one to be the stepsize*/
 	return 1;
 }

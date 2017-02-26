@@ -69,7 +69,7 @@ namespace ROPTLIB{
 		/*Beside the four line search algorithms provided in this library and specified by the member variable "LineSearch_LS",
 		user also can define a line search algorithm by assigning the following function pointer.
 		User needs to assign LineSearch_LS to be INPUTFUN to call this function. */
-		double(*LinesearchInput)(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob);
+		double(*LinesearchInput)(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver);
 
 		/* ===============public parameters below================= */
 
@@ -131,6 +131,10 @@ namespace ROPTLIB{
 		Default: QUADINTMOD (It may alter based on the derived algorithm class) */
 		InitStepsizeSet InitSteptype;
 	protected:
+
+		/*initial Hessian approximation in limited-memory BFGS method. It is a scalar times identity.*/
+		virtual double InitialHessian(double inpss, double inpsy, double inpyy);
+
 		/*Choose what line search algorithm is used*/
 		virtual void ChooseLinesearch(void);
 

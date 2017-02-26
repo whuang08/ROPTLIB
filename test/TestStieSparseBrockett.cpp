@@ -64,7 +64,7 @@ int main(void)
 
 /*We don't have to a line search algorithm defined in the solvers. The line seach algorithm can be defined
 here:*/
-double LinesearchInput(Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 { /*For example, simply use one to be the stepsize*/
 
 	const StieSparseBrockett *P = dynamic_cast<StieSparseBrockett *> (const_cast<Problem*> (prob));
@@ -328,12 +328,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	X = mxGetPr(prhs[2]);
 	/* dimensions of input matrices */
 	integer p, n, HasHHR, Paramset, nzmax;
-	unsigned long long *ir, *jc;
+	size_t *inir, *injc;
+
 	nzmax = mxGetNzmax(prhs[0]);
-	ir = mxGetIr(prhs[0]);
-	jc = mxGetJc(prhs[0]);
+	inir = mxGetIr(prhs[0]);
+	injc = mxGetJc(prhs[0]);
 	n = mxGetM(prhs[0]);
 	p = mxGetM(prhs[1]);
+	unsigned long long *ir = new unsigned long long[nzmax + n + 1];
+	unsigned long long *jc = ir + nzmax;
+	for (integer i = 0; i < nzmax; i++)
+		ir[i] = inir[i];
+	for (integer i = 0; i < n + 1; i++)
+		jc[i] = injc[i];
 
 	/*Check the correctness of the inputs*/
 	if (mxGetN(prhs[0]) != n)
@@ -405,6 +412,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	}
 	delete CheckMemoryDeleted;
 	delete Stiesoln;
+	delete[] ir;
 	return;
 }
 

@@ -55,7 +55,7 @@ namespace ROPTLIB{
 			}
 			
 			/*If accurate enough, then a fixed stepsize is chosen.*/
-			if (ngf / ngf0 < Accuracy)
+			if (ngf / (ngf0 + Tolerance) < Accuracy)
 			{
 				if (Finalstepsize > 0)
 					stepsize = Finalstepsize;
@@ -73,11 +73,11 @@ namespace ROPTLIB{
 				{
 					if (Prob->GetDomain()->GetIsIntrinsic())
 					{
-						stepsize = LinesearchInput(iter, x1, exeta1, stepsize, initialslope, Prob);
+						stepsize = LinesearchInput(iter, x1, exeta1, stepsize, initialslope, Prob, this);
 					}
 					else
 					{
-						stepsize = LinesearchInput(iter, x1, eta1, stepsize, initialslope, Prob);
+						stepsize = LinesearchInput(iter, x1, eta1, stepsize, initialslope, Prob, this);
 					}
 					stepsize = (stepsize < std::numeric_limits<double>::epsilon()) ? initiallength : stepsize;
 					initiallength = stepsize;
@@ -97,7 +97,7 @@ namespace ROPTLIB{
 				}
 			}
 			/*Output debug information if necessary.*/
-			if (LSstatus < SUCCESS && Debug >= FINALRESULT )
+			if (LSstatus < SUCCESS && Debug >= FINALRESULT)
 			{
 				printf("Linesearch fails! LSstatus:%s\n", LSstatusSetnames[LSstatus].c_str());
 			}
@@ -223,11 +223,39 @@ namespace ROPTLIB{
 		}
 	};
 
+	double SolversLS::InitialHessian(double inpss, double inpsy, double inpyy)
+	{
+		double BB1 = inpss / inpsy, BB2 = inpsy / inpyy;
+		pre_BBs.push_front((BB2 < std::numeric_limits<double>::epsilon()) ? Initstepsize / ngf : BB2);
+		if (pre_BBs.size() > Num_pre_BB)
+			pre_BBs.pop_back();
+
+		if (BBratio == 0)
+			return BB1;
+		
+		if (BBratio == 1 && Num_pre_BB == 0)
+		{
+			return BB2;
+		}
+		double minpreBB = BB2;
+		std::list<double>::iterator j = pre_BBs.begin();
+		for (integer i = 0; i < Num_pre_BB && j != pre_BBs.end(); i++, j++)
+		{
+			if (minpreBB > *j)
+				minpreBB = *j;
+		}
+		if (minpreBB / BB1 < BBratio)
+			return minpreBB;
+		
+		return BB1;
+	};
+
 	void SolversLS::InitialStepSize(void)
 	{
 		Vector *s = nullptr, *y = nullptr;
+		double BB1 = 0, BB2 = 0;
 		if (iter == 0)
-			stepsize = Initstepsize;// / ngf;
+			stepsize = Initstepsize / ngf;
 		else
 		{
 			switch (InitSteptype)
@@ -243,7 +271,35 @@ namespace ROPTLIB{
 				Mani->VectorTransport(x2, eta2, x1, eta2, s);
 				Mani->VectorTransport(x2, eta2, x1, gf2, y);
 				Mani->VectorMinusVector(x2, gf1, y, y);
-				stepsize = Mani->Metric(x2, s, s) / Mani->Metric(x2, s, y);
+				BB1 = Mani->Metric(x2, s, s) / Mani->Metric(x2, s, y);
+				BB2 = Mani->Metric(x2, s, y) / Mani->Metric(x2, y, y);
+
+				pre_BBs.push_front((BB2 < std::numeric_limits<double>::epsilon()) ? Initstepsize / ngf : BB2);
+				if (pre_BBs.size() > Num_pre_BB)
+					pre_BBs.pop_back();
+
+				if(BBratio == 0)
+					stepsize = BB1;
+				else
+				if (BBratio == 1 && Num_pre_BB == 0)
+				{
+					stepsize = BB2;
+				}
+				else
+				{
+					double minpreBB = BB2;
+					std::list<double>::iterator j = pre_BBs.begin();
+					for (integer i = 0; i < Num_pre_BB && j != pre_BBs.end(); i++, j++)
+					{
+						if (minpreBB > *j)
+							minpreBB = *j;
+					}
+					if (minpreBB / BB1 < BBratio)
+						stepsize = minpreBB;
+					else
+						stepsize = BB1;
+				}
+
 				delete s;
 				delete y;
 				break;
@@ -266,7 +322,34 @@ namespace ROPTLIB{
 				{
 					Mani->VectorMinusVector(x1, gf1, gf2, y);
 				}
-				stepsize = Mani->Metric(x2, s, s) / Mani->Metric(x2, s, y);
+				BB1 = Mani->Metric(x2, s, s) / Mani->Metric(x2, s, y);
+				BB2 = Mani->Metric(x2, s, y) / Mani->Metric(x2, y, y);
+
+				pre_BBs.push_front((BB2 < std::numeric_limits<double>::epsilon()) ? Initstepsize / ngf : BB2);
+				if (pre_BBs.size() > Num_pre_BB)
+					pre_BBs.pop_back();
+
+				if(BBratio == 0)
+					stepsize = BB1;
+				else
+				if (BBratio == 1 && Num_pre_BB == 0)
+				{
+					stepsize = BB2;
+				}
+				else
+				{
+					double minpreBB = BB2;
+					std::list<double>::iterator j = pre_BBs.begin();
+					for (integer i = 0; i < Num_pre_BB && j != pre_BBs.end(); i++, j++)
+					{
+						if (minpreBB > *j)
+							minpreBB = *j;
+					}
+					if (minpreBB / BB1 < BBratio)
+						stepsize = minpreBB;
+					else
+						stepsize = BB1;
+				}
 				delete s;
 				delete y;
 				break;
@@ -660,6 +743,10 @@ namespace ROPTLIB{
 		printf("Num_pre_funs  :%15d[%s],\t", Num_pre_funs, status);
 		status = (InitSteptype >= 0 && InitSteptype < INITSTEPSIZESETLENGTH) ? YES : NO;
 		printf("InitSteptype  :%15s[%s]\n", INITSTEPnames[InitSteptype].c_str(), status);
+		status = (Num_pre_BB >= 0) ? YES : NO;
+		printf("Num_pre_BB    :%15d[%s],\t", Num_pre_BB, status);
+		status = (BBratio >= 0 && BBratio <= 1) ? YES : NO;
+		printf("BBratio       :%15g[%s]\n", BBratio, status);
 		if (LineSearch_LS == INPUTFUN)
 		{
 			status = YES;
@@ -696,6 +783,8 @@ namespace ROPTLIB{
 		Initstepsize = 1;
 		Accuracy = 0;
 		Finalstepsize = 1;
+		Num_pre_BB = 0;
+		BBratio = 0;
 		IsPureLSInput = false;
 		LSstatusSetnames = new std::string[LSSTATUSSETLENGTH];
 		LSstatusSetnames[NOCURVATURE].assign("NOCURVATURE");

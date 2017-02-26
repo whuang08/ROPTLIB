@@ -150,29 +150,29 @@ function test(C, w, r)
     QNcomtime
     
     
-% %%==================plot geodesic==================================
-%     set(0,'defaultaxesfontsize',10, ...
-%        'defaultaxeslinewidth',0.7, ...
-%        'defaultlinelinewidth',.8,'defaultpatchlinewidth',0.8);
-%     set(0,'defaultlinemarkersize',10)
-%     
-%     q1 = curve_to_q(C1')';
-%     h2 = figure(2);clf
-%     ppC2best = (spline((0:(N-1))/(N-1), (C2 * CDO')'));
-%     for i = 1 : N
-%         C2best(i, :) = ppval(ppC2best, gammaCD(i))';
-%     end
-%     CDq2best = curve_to_q(C2best')';
-%     plot_geodesic(q1', CDq2best', C2best', 6, 'geodesic approximation of CD1H');
-%     
-%     h3 = figure(3);clf
-%     ppC2best = spline((0:(N-1))/(N-1), (C2 * QNO')');
-%     for i = 1 : N
-%         DPC2best(i, :) = ppval(ppC2best, gammaQN(i))';
-%     end
-%     DPq2best = curve_to_q(DPC2best')';
-%     plot_geodesic(q1', DPq2best', DPC2best', 6, 'geodesic approximation of ROPT');
-%     fprintf('first shape:%d, second shape:%d\n', first_shape, second_shape);
+%%==================plot geodesic==================================
+    set(0,'defaultaxesfontsize',10, ...
+       'defaultaxeslinewidth',0.7, ...
+       'defaultlinelinewidth',.8,'defaultpatchlinewidth',0.8);
+    set(0,'defaultlinemarkersize',10)
+    
+    q1 = curve_to_q(C1')';
+    h2 = figure(2);clf
+    ppC2best = (spline((0:(N-1))/(N-1), (C2 * CDO')'));
+    for i = 1 : N
+        C2best(i, :) = ppval(ppC2best, gammaCD(i))';
+    end
+    CDq2best = curve_to_q(C2best')';
+    plot_geodesic(q1', CDq2best', C2best', 6, 'geodesic approximation of CD1H');
+    
+    h3 = figure(3);clf
+    ppC2best = spline((0:(N-1))/(N-1), (C2 * QNO')');
+    for i = 1 : N
+        DPC2best(i, :) = ppval(ppC2best, gammaQN(i))';
+    end
+    DPq2best = curve_to_q(DPC2best')';
+    plot_geodesic(q1', DPq2best', DPC2best', 6, 'geodesic approximation of ROPT');
+    fprintf('first shape:%d, second shape:%d\n', first_shape, second_shape);
     
 end
 

@@ -95,7 +95,7 @@ double *DriverJuliaProb(struct FunHandles *Handles, struct SolverParams *Sparams
 namespace RJULIA{
     jl_function_t *isstopped = nullptr;
     /*This function defines the stopping criterion that may be used in the C++ solver*/
-    bool juliaInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0)
+    bool juliaInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver)
     {
         jl_value_t *args[5] = {nullptr};
         jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
@@ -128,7 +128,7 @@ namespace RJULIA{
 
     jl_function_t *LinesearchInput = nullptr;
     /*This function defines the line search algorithm that may be used in the C++ solver*/
-    double juliaLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+    double juliaLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
     {
         jl_value_t *args[4] = {nullptr};
         jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);

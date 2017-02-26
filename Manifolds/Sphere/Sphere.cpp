@@ -99,7 +99,7 @@ namespace ROPTLIB{
 		integer maxi = 0;
 		for (integer i = 0; i < result->Getlength(); i++)
 		{
-			if (abs(resultptr[i]) > abs(maxv))
+			if (fabs(resultptr[i]) > fabs(maxv))
 			{
 				maxv = resultptr[i];
 				maxi = i;
@@ -107,7 +107,7 @@ namespace ROPTLIB{
 		}
 		for (integer i = 0; i < result->Getlength(); i++)
 		{
-			resultptr[i] = (abs(resultptr[i]) < instepsize) ? 0 : ((resultptr[i] > instepsize) ? resultptr[i] - instepsize : resultptr[i] + instepsize);
+			resultptr[i] = (fabs(resultptr[i]) < instepsize) ? 0 : ((resultptr[i] > instepsize) ? resultptr[i] - instepsize : resultptr[i] + instepsize);
 		}
 		double rnorm = sqrt(Metric(x, result, result));
 		if (rnorm != 0)

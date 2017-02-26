@@ -11,9 +11,9 @@ function MTestStieBrockett()
     B = B + B';
     
     D = ones(p, 1);%(p:-1:1)'; %
-    SolverParams.method = 'LRBFGS';
-%     SolverParams.method = 'RTRSR1';
-%     SolverParams.method = 'RTRNewton';
+%     SolverParams.method = 'LRBFGS';
+%     SolverParams.method = 'LRTRSR1';
+    SolverParams.method = 'RCG';
     SolverParams.IsCheckParams = 1;
     SolverParams.Max_Iteration = 2000;
     SolverParams.LengthSY = 4;

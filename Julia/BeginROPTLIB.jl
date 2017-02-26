@@ -75,6 +75,8 @@ addHeaderDir(path_to_lib * "/cwrapper/lapack/", kind=C_System)
 
 Libdl.dlopen(path_to_lib * "/DriverJuliaProb.so", Libdl.RTLD_GLOBAL)
 
+cxx"""#define DRIVERJULIAPROB"""
+
 cxxinclude("DriverJuliaProb.h")
 
 # define the struct of parameters of solvers

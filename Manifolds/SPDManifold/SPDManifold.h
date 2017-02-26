@@ -39,6 +39,10 @@ namespace ROPTLIB{
 		Default: beta <-- 1*/
 		virtual double Beta(Variable *x, Vector *etax) const;
 
+		/*compute the distance between two points on the manifold.
+		Default: the distance under affine invariant metric: ||log(x1^{-1/2) x2 x1^{-1/2}||_F*/
+		virtual double Dist(Variable *x1, Variable *x2) const;
+
 		/*The vector transport by differentiated the retraction, which is R_x(etax) = x + etax + 0.5 etax x^{-1} etax.
 		Therefore, it is xix + 0.5 xix x^{-1} etax + 0.5 etax x^{-1} xix */
 		virtual void DiffRetraction(Variable *x, Vector *etax, Variable *y, Vector *xix, Vector *result, bool IsEtaXiSameDir = false) const;

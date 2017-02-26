@@ -23,7 +23,7 @@ namespace ROPTLIB{
     {
     };
     
-    double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *Prob)
+    double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *Prob, const Solvers *solver)
     {
         return 1;
     }

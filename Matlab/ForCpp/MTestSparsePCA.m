@@ -41,6 +41,6 @@ function output = IsStopped(x, gf, f, ngf, ngf0, p, r)
     end
 
     Rmingf = mgf - x * diag(diag(x' * mgf));
-    fprintf('mingf:%.2e\n', norm(Rmingf, 'fro'));
+%     fprintf('mingf:%.2e\n', norm(Rmingf, 'fro'));
     output = norm(Rmingf, 'fro') < 1e-9;
 end

@@ -122,7 +122,7 @@ Element *GetAnElement(const char *name, integer n, integer m, integer p = 1);
 namespace RMEX{
 	mxArray *isstopped = nullptr;
 	/*This function defines the stopping criterion that may be used in the C++ solver*/
-	bool mexInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob)
+	bool mexInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver)
 	{
 		mxArray *Xmx, *gfmx, *fmx, *ngfmx, *ngf0mx;
 		mexProblem::ObtainMxArrayFromElement(Xmx, x);
@@ -150,7 +150,7 @@ namespace RMEX{
 	};
 	mxArray *LinesearchInput = nullptr;
 	/*This function defines the line search algorithm that may be used in the C++ solver*/
-	double mexLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob)
+	double mexLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 	{
 		mxArray *Xmx, *eta1mx, *tmx, *smx, *imx;
 		mexProblem::ObtainMxArrayFromElement(Xmx, x1);
