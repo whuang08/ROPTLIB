@@ -107,11 +107,11 @@ UPPER_TP  = $(shell echo $(TP) | tr a-z A-Z)
 
 # make a binary file, which is called in command line
 ROPTLIB:
-    $(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lm -o $(TP)
+	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lm -o $(TP)
 
 #make a library
 libropt.so:
-    $(CC) -w -std=c++0x -shared -fPIC -O3 $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -llapack -lblas -lm -o $@
+	$(CC) -w -std=c++0x -shared -fPIC -O3 $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -llapack -lblas -lm -o $@
 
 JULIA_LIB:=$(JULIA_DIR)/usr/lib
 JULIA_SRC:=$(JULIA_DIR)/src
@@ -123,4 +123,4 @@ export LD_LIBRARY_PATH:=$(JULIA_LIB):$(JULIA_LIB)/julia
 
 # make a shared library, which is used by Julia
 JuliaROPTLIB:
-    $(CC) -O3 -shared -fPIC -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) $(CPPFLAGS) $(LDFLAGS) -Wl,-rpath,$(JULIA_LIB) -lm $(LDLIBS) -DJULIA_LIB_DIR=\"$(JULIA_DIR)/lib/julia\" -llapack -lblas -o $(TP).so
+	$(CC) -O3 -shared -fPIC -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) $(CPPFLAGS) $(LDFLAGS) -Wl,-rpath,$(JULIA_LIB) -lm $(LDLIBS) -DJULIA_LIB_DIR=\"$(JULIA_DIR)/lib/julia\" -llapack -lblas -o $(TP).so
