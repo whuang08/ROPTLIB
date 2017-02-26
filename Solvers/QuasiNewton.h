@@ -12,6 +12,7 @@ Solvers --> QuasiNewton
 
 //#include <cmath>
 #include <iostream>
+#include <list>
 #include <iomanip>
 #include <ctime>
 #include "Manifolds/Manifold.h"
@@ -47,6 +48,18 @@ namespace ROPTLIB{
 		SIAM Journal on Optimization, 25(3):1660?685, 2015.
 		Default: 4*/
 		integer LengthSY;
+
+		/*the number of previous bb1 stepsize. Used in ABB_min stepsize. See details in [SRTZ2017]
+		[SRTZ2017]: On the steplength selection in gradient methods for unconstrained optimization.
+		stepsize * id can be used as the initial Hessian approximation in limite-memory quasi-Newton methods
+		Default: 0*/
+		integer Num_pre_BB;
+
+		/*ratio for step size selection. It is the same as \tau in [Algorithm2, SRTZ2017]
+		stepsize * id can be used as the initial Hessian approximation in limite-memory quasi-Newton methods
+		[SRTZ2017]: On the steplength selection in gradient methods for unconstrained optimization.
+		Default: 0, which defines ss/sy stepsize, if it is 1 and Num_pre_BB1 is 0, then it defines sy/yy stepsize.*/
+		double BBratio;
 
 		/*PARAMSMAP is defined in "def.h" and it is a map from string to double, i.e., std::map<std::string, double> .
 		This function is used to set the parameters by the mapping*/
@@ -115,6 +128,10 @@ namespace ROPTLIB{
 		double lambdaUpper;
 	protected:
 
+		/*===================LRBFGS====================*/
+		/*initial Hessian approximation in limited-memory BFGS method. It is a scalar times identity.*/
+		virtual double InitialHessian(double inpss, double inpsy, double inpyy);
+		std::list<double> pre_BBs; /* Store a few computed BB stepsize ss/sy for initial Hessian approximation using adaptive BB min (ABB_min) idea*/
 
 		/*===================RBFGS, RBroydenfamily, RTRSR1====================*/
 		bool isupdated; /*Mark whether the (inverse) Hessian approximation is updated*/

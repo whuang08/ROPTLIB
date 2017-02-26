@@ -235,6 +235,11 @@ namespace ROPTLIB{
 		delete[] xi;
 	};
 
+	double QuasiNewton::InitialHessian(double inpss, double inpsy, double inpyy)
+	{ /*Suggested in NW2006*/
+		return inpsy / inpyy;
+	};
+
 	void QuasiNewton::UpdateDataLRBFGS(void)
 	{
 #ifdef TESTEUCPOSSPCD
@@ -267,8 +272,7 @@ namespace ROPTLIB{
 		if (inpsy / inpss >= nu * pow(ngf, mu) && (ngf / ngf0 < 1e-3 ||
 			(inpss > std::numeric_limits<double>::epsilon() && inpsy > std::numeric_limits<double>::epsilon())))
 		{
-			gamma = inpsy / inpyy; /*Suggested in NW2006*/
-			//gamma = inpss / inpsy; /*BB stepsize*/
+			gamma = InitialHessian(inpss, inpsy, inpyy);
 			if (Currentlength < LengthSY)
 			{
 				y->CopyTo(Y[Currentlength]);
@@ -545,6 +549,16 @@ namespace ROPTLIB{
 			if (iter->first == static_cast<std::string> ("lambdaUpper"))
 			{
 				lambdaUpper = iter->second;
+			}
+			else
+			if (iter->first == static_cast<std::string> ("Num_pre_BB"))
+			{
+				Num_pre_BB = static_cast<integer> (iter->second);
+			}
+			else
+			if (iter->first == static_cast<std::string> ("BBratio"))
+			{
+				BBratio = static_cast<double> (iter->second);
 			}
 		}
 	};

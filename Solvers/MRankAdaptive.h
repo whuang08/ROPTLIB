@@ -27,7 +27,7 @@ namespace ROPTLIB{
 
 	namespace MRA{
 		double RDelta;
-		bool InnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob);
+		bool InnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver);
 	};
 }; /*end of ROPTLIB namespace*/
 #endif // end of RSD_H
