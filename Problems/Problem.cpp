@@ -25,10 +25,10 @@ namespace ROPTLIB{
 		Vector *Hv = etax->ConstructEmpty();
         Variable *y = x->ConstructEmpty();
         fx = f(x);
+		printf("f:%f\n", fx);
 		Grad(x, gfx);
         //gfx->Print("gfx:");//---
 		gfx->CopyTo(etax);//--
-
 		//double *etaxTV = etax->ObtainWriteEntireData();///---
 		//integer nnn = etax->Getlength();
 		//for (integer i = 0; i < nnn; i++)//--
@@ -50,7 +50,7 @@ namespace ROPTLIB{
 		Y = X + length;
 		for (integer i = 0; i < length; i++)
 		{
-			Domain->Retraction(x, xi, y, 0);
+			Domain->Retraction(x, xi, y, 1);
 			fy = f(y);
 			//y->Print("y:");//----
 			HessianEta(x, xi, Hv);

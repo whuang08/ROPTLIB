@@ -135,7 +135,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 void testLRMatrixCompletion(void)
 {
-	integer m = 5, n = 4, r = 2;
+	integer m = 4, n = 4, r = 3;
 
 	LowRank Domain(m, n, r);
 	Domain.SetHasHHR(true);
@@ -216,12 +216,11 @@ void testLRMatrixCompletion(void)
 	//Vector *gf = Domain.GetEMPTYINTR()->ConstructEmpty();//---
 	//Prob.Grad(&InitialX, gf);//---
 	//delete gf;
-
-	//Prob.CheckGradHessian(&InitialX);//--
+	Prob.CheckGradHessian(&InitialX);
 
 	//RSD *RSDsolver = new RSD(&Prob, &InitialX);
-	RTRNewton *RSDsolver = new RTRNewton(&Prob, &InitialX);
-	//LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
+	//RTRNewton *RSDsolver = new RTRNewton(&Prob, &InitialX);
+	LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
 	//->LineSearch_LS = ARMIJO;
 	//RSDsolver->LS_beta = 0.01;
 	//RSDsolver->RCGmethod = DAI_YUAN;
@@ -233,7 +232,7 @@ void testLRMatrixCompletion(void)
 	RSDsolver->Tolerance = 1e-10;
 	RSDsolver->Run();
 	//Prob.CheckGradHessian(&InitialX);//--
-	//Prob.CheckGradHessian(RSDsolver->GetXopt());//--
+	Prob.CheckGradHessian(RSDsolver->GetXopt());//--
 
 	RTRNewton *LRBFGSsolver = new RTRNewton(&Prob, &InitialX, RSDsolver->GetXopt());
 	LRBFGSsolver->Debug = ITERRESULT;

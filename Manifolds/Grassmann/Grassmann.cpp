@@ -62,7 +62,7 @@ namespace ROPTLIB{
 		delete[] UtV;
 	};
 
-	void Grassmann::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void Grassmann::Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{ // qf retraction: result = R_x(etax) = qf(x + etax)
 		const double *U = x->ObtainReadData();
 		const double *V;
@@ -285,7 +285,7 @@ namespace ROPTLIB{
 		{ /*In case that beta is not computed, then compute it.*/
 			Variable *y = x->ConstructEmpty();
 			Vector *xiy = etax->ConstructEmpty();
-			Retraction(x, etax, y);
+			Retraction(x, etax, y, 1);
 			DiffRetraction(x, etax, y, etax, xiy, true);
 			delete y;
 			delete xiy;

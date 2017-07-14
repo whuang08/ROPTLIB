@@ -51,6 +51,7 @@ ROPTLIB.
   /* pair defined here */
 
 #include "Others/SparseBLAS/blas_sparse.h"
+#include "Others/def.h"
 
 
 
@@ -999,7 +1000,7 @@ int Table_remove(unsigned int i)
   if (i < Table.size() && Table[i] != NULL)
   {
     Table[i] = NULL;
-    Table_active_matrices--;
+    Table_active_matrices--;	
     return 0;
   }
   else
@@ -1277,8 +1278,8 @@ int BLAS_usgp(blas_sparse_matrix A, int pname)
 int BLAS_usds(int A)
 {
   Sp_mat *S  = Table[A];
-
   S->destroy();
+  delete S; // Added to avoid memory leaks --- by WH
   Table_remove(A);
 
   return 0;
@@ -1561,8 +1562,7 @@ int BLAS_DOUBLE_NAME(uscr_begin)(int M, int N)
 {
   TSp_mat<DOUBLE> *A = new TSp_mat<DOUBLE>(M, N);
   TSp_MAT_SET_DOUBLE(A);
-
-  return Table_insert(A);
+  return Table_insert(A);;
 }
 
 blas_sparse_matrix BLAS_DOUBLE_NAME(uscr_block_begin)( 

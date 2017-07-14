@@ -784,7 +784,7 @@ namespace ROPTLIB{
 		Accuracy = 0;
 		Finalstepsize = 1;
 		Num_pre_BB = 0;
-		BBratio = 0;
+		BBratio = 1;
 		IsPureLSInput = false;
 		LSstatusSetnames = new std::string[LSSTATUSSETLENGTH];
 		LSstatusSetnames[NOCURVATURE].assign("NOCURVATURE");

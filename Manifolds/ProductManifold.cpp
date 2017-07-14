@@ -333,11 +333,6 @@ namespace ROPTLIB{
 #endif
 	};
 
-	void ProductManifold::Retraction(Variable *x, Vector *etax, Variable *result) const
-	{
-		Retraction(x, etax, result, 1);
-	};
-
 	void ProductManifold::coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const
 	{
 		ProdVariable *prodx = dynamic_cast<ProdVariable *> (x);

@@ -81,7 +81,7 @@ namespace ROPTLIB{
 		virtual void Projection(Variable *x, Vector *v, Vector *result) const;
 
 		/*Call a member function "qfRetraction" or "ConRetraction" based on member variable "retraction". */
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*Call a member function "qfcoTangentVector" or "ConcoTangentVector" based on member variable "retraction". */
 		virtual void coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const;
@@ -170,7 +170,7 @@ namespace ROPTLIB{
 		/*qf retraction defined in [AMS2008, (4.8)]
 			[AMS2008]P.-A. Absil, R. Mahony, and R. Sepulchre. Optimization algorithms on matrix manifolds.
 			Princeton University Press, Princeton, NJ, 2008.*/
-		virtual void qfRetraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void qfRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*the cotangent vector for the qf retraction in [Hua2013, Section 10.2.4]
 			[Hua2013]:W. Huang. Optimization algorithms on Riemannian manifolds with applications.
@@ -187,7 +187,7 @@ namespace ROPTLIB{
 			SIAM Journal on Optimization, 25(3):1660?685,2015.
 			[Hua2013]:W. Huang. Optimization algorithms on Riemannian manifolds with applications.
 			PhD thesis, Florida State University, Department of Mathematics, 2013.*/
-		virtual void ConRetraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void ConRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*the cotangent vector for the constructed retraction in [Hua2013, Section 10.2.4]
 			[Hua2013]:W. Huang. Optimization algorithms on Riemannian manifolds with applications.
@@ -201,7 +201,7 @@ namespace ROPTLIB{
 
 		/*Cayley retraction defined in [Zhu2016, (15)]
 		[Zhu2016]: Xiaojing Zhu, A Riemannian conjugate gradient method for optimization on the Stiefel Manifold.*/
-		virtual void CayleyRetraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void CayleyRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*the cotangent vector for the Cayley retraction
 		[Zhu2016]: Xiaojing Zhu, A Riemannian conjugate gradient method for optimization on the Stiefel Manifold.*/

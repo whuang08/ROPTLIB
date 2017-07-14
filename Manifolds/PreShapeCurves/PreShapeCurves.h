@@ -34,7 +34,7 @@ namespace ROPTLIB{
 		virtual void CheckParams(void) const;
 
 		virtual double Metric(Variable *x, Vector *etax, Vector *xix) const;
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
     
 		/*When the metric is Euclidean, the Riemannian gradient is obtained by projecting the Euclidean onto the tangent space of x.*/
 		virtual void EucGradToGrad(Variable *x, Vector *egf, Vector *gf, const Problem *prob) const;

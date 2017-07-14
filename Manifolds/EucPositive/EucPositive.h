@@ -35,7 +35,7 @@ namespace ROPTLIB{
 
 		/*Compute the retraction result = R_x(etax)
 		Default: result = P (x + etax);*/
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*We project the Euclidean gradient to the tangent cone at $x$, i.e., gf <-- P egf*/
 		virtual void EucGradToGrad(Variable *x, Vector *egf, Vector *gf, const Problem *prob) const;

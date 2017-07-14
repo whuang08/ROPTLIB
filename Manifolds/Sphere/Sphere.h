@@ -46,9 +46,6 @@ namespace ROPTLIB{
 		void ChooseSphereParamsSet5();
 
 		/*Beside the exponential mapping of the sphere, the retractions defined in Stiefel.h also can be used.*/
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
-
-		/*Beside the exponential mapping of the sphere, the retractions defined in Stiefel.h also can be used.*/
 		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const;
 
 		/*Beside the cotangent vector of exponential mapping of the sphere, the retractions defined in Stiefel.h also can be used.*/
@@ -85,7 +82,7 @@ namespace ROPTLIB{
 		virtual void ProxRetraction(Variable *x, Vector *etax, Variable *result, double instepsize) const;
 
 		/* exponential mapping using extrinsic approach*/
-		virtual void ExpRetraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void ExpRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/* the cotangent vector using exponential mapping and extrinsic approach*/
 		virtual void ExpcoTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const;

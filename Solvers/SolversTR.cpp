@@ -33,7 +33,7 @@ namespace ROPTLIB{
 		{
 			InitialVector(); // Obtain initial guess, eta1, for local model
 			tCG_TR(); // obtain eta2
-			Mani->Retraction(x1, eta2, x2);	nR++;
+			Mani->Retraction(x1, eta2, x2, Delta);	nR++;
 			f2 = Prob->f(x2); nf++;
 			HessianEta(eta2, zeta); nH++; // Hessian * eta2
 
@@ -254,7 +254,7 @@ namespace ROPTLIB{
 		status = (Min_Inner_Iter >= 0 && Min_Inner_Iter <= Max_Inner_Iter) ? YES : NO;
 		printf("Min_Inner_Iter:%15d[%s],\t", Min_Inner_Iter, status);
 		status = (Max_Inner_Iter >= 0 && Max_Inner_Iter >= Min_Inner_Iter) ? YES : NO;
-		printf("Max_Inner_Iter:%15d[%s],\t", Max_Inner_Iter, status);
+		printf("Max_Inner_Iter:%15d[%s],\n", Max_Inner_Iter, status);
 		status = (theta >= 0) ? YES : NO;
 		printf("theta         :%15g[%s],\t", theta, status);
 		status = (kappa > 0 && kappa < 1) ? YES : NO;

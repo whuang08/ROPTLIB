@@ -2,7 +2,7 @@ function MTestSPDMean()
     rand('state', 1);
     randn('state', 1);
     n = 100;
-    k = 10;
+    k = 1000;
     
     As = matrix_data(n, k, 2);
     Ls = zeros(n, n, k);

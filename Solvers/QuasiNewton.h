@@ -58,7 +58,7 @@ namespace ROPTLIB{
 		/*ratio for step size selection. It is the same as \tau in [Algorithm2, SRTZ2017]
 		stepsize * id can be used as the initial Hessian approximation in limite-memory quasi-Newton methods
 		[SRTZ2017]: On the steplength selection in gradient methods for unconstrained optimization.
-		Default: 0, which defines ss/sy stepsize, if it is 1 and Num_pre_BB1 is 0, then it defines sy/yy stepsize.*/
+		Default: 1, value 0 defines ss/sy stepsize, if the value is 1 and Num_pre_BB is 0, then it defines sy/yy stepsize.*/
 		double BBratio;
 
 		/*PARAMSMAP is defined in "def.h" and it is a map from string to double, i.e., std::map<std::string, double> .

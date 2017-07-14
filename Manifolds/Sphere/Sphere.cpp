@@ -122,7 +122,7 @@ namespace ROPTLIB{
 		}
 	};
 
-	void Sphere::ExpRetraction(Variable *x, Vector *etax, Variable *result) const
+	void Sphere::ExpRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
 		double normetax = sqrt(Metric(x, etax, etax));
 		VectorLinearCombination(x, cos(normetax), x, sin(normetax) / normetax, etax, result);
@@ -233,16 +233,11 @@ namespace ROPTLIB{
 		ExpTranH(x, etax, y, result, 0, etax->Getlength(), result);
 	};
 
-	void Sphere::Retraction(Variable *x, Vector *etax, Variable *result) const
-	{
-		Retraction(x, etax, result, 1.0);
-	};
-
 	void Sphere::Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const
 	{
 		if (retraction == EXP)
 		{
-			ExpRetraction(x, etax, result);
+			ExpRetraction(x, etax, result, 1);
 			return;
 		}
 		if (retraction == PROXSTIE)
@@ -251,7 +246,7 @@ namespace ROPTLIB{
 			return;
 		}
 
-		Stiefel::Retraction(x, etax, result);
+		Stiefel::Retraction(x, etax, result, 1);
 	};
 
 	void Sphere::coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const

@@ -35,7 +35,7 @@ namespace ROPTLIB{
 
 		virtual void EucHvToHv(Variable *x, Vector *etax, Vector *exix, Vector* result, const Problem *prob) const;
 
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 	private:
 		integer numP;

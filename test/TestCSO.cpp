@@ -54,15 +54,15 @@ void testCSO()
 	Domain.CheckParams();
 
 	Domain.CheckIntrExtr(&SCOX);
-	Domain.CheckRetraction(&SCOX);
-	Domain.CheckDiffRetraction(&SCOX);
-	Domain.CheckIsometryofVectorTransport(&SCOX);
-	Domain.CheckIsometryofInvVectorTransport(&SCOX);
-	Domain.CheckLockingCondition(&SCOX);
-	Domain.CheckcoTangentVector(&SCOX);
-	Domain.CheckVecTranComposeInverseVecTran(&SCOX);
-	Domain.CheckTranHInvTran(&SCOX);
-	Domain.CheckHaddScaledRank1OPE(&SCOX);
+	//Domain.CheckRetraction(&SCOX);
+	//Domain.CheckDiffRetraction(&SCOX);
+	//Domain.CheckIsometryofVectorTransport(&SCOX);
+	//Domain.CheckIsometryofInvVectorTransport(&SCOX);
+	//Domain.CheckLockingCondition(&SCOX);
+	//Domain.CheckcoTangentVector(&SCOX);
+	//Domain.CheckVecTranComposeInverseVecTran(&SCOX);
+	//Domain.CheckTranHInvTran(&SCOX);
+	//Domain.CheckHaddScaledRank1OPE(&SCOX);
 }
 
 #ifdef MATLAB_MEX_FILE

@@ -22,12 +22,14 @@ This is the test file for the Brocokett problem defined in StieBrockett.h and St
 /*Problem related classes*/
 #include "Problems/Problem.h"
 #include "Problems/StieBrockett/StieBrockett.h"
+#include "Problems/SphereTxRQ/SphereTxRQ.h"
 
 /*Manifold related classes*/
 #include "Manifolds/Manifold.h"
 #include "Manifolds/Stiefel/StieVector.h"
 #include "Manifolds/Stiefel/StieVariable.h"
 #include "Manifolds/Stiefel/Stiefel.h"
+#include "Manifolds/SphereTx/SphereTx.h"
 
 /*Linesearch based solvers*/
 #include "Solvers/SolversLS.h"

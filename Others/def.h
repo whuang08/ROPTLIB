@@ -1,4 +1,4 @@
-/*
+﻿/*
 This is the global head file. Every file in ROPTLIB will include this file.
 
 ---- WH
@@ -18,7 +18,7 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTEUCQUADRATIC
 //#define TESTPRODUCT
 //#define TESTSPHERERAYQUO
-#define TESTSTIEBROCKETT
+//#define TESTSTIEBROCKETT
 //#define TESTSTIESPARSEBROCKETT
 //#define TESTGRASSRQ
 //#define TESTCSO
@@ -36,6 +36,11 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTORTHBOUNDINGBOX
 //#define TESTKARCHERMEAN
 //#define TESTLRMATRIXCOMPLETION
+//#define TESTLRBLINDDECONVOLUTION
+//#define TESTEUCBLINDDECONVOLUTION
+#define TESTCFR2BLINDDECONVOLUTION
+//#define TESTCSOPHASERETRIEVAL
+
 
 //#define TESTSIMPLEEXAMPLE
 //#define TESTPRODUCTEXAMPLE
@@ -97,6 +102,8 @@ are included.*/
 	#include <zpotrs.h>
 	#include <zgetrs.h>
 	#include <zpotrf.h>
+	#include <zpotri.h>
+	#include <zgesvd.h>
 #endif // end of ifndef MATLAB_MEX_FILE
 
 #ifdef _WIN64 // The following code is compiled only when this library is compiled in Windows (64-bit only)
@@ -208,6 +215,8 @@ are included.*/
 #define zpotrs_ zpotrs
 #define zgetrs_ zgetrs
 #define zpotrf_ zpotrf
+#define zpotri_ zpotri
+#define zgesvd_ zgesvd
 #endif // end of ifdef MATLAB_MEX_FILE
 
 /*Help to debug the code*/

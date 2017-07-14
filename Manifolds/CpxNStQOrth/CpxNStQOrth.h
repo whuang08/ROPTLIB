@@ -37,7 +37,7 @@ namespace ROPTLIB{
 		virtual void Projection(Variable *x, Vector *v, Vector *result) const;
 
 		/*Only support intrinsic representataion for etax. The retraction is result = x + etax.*/
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*This is not done yet. */
 		virtual void coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const;
@@ -75,9 +75,10 @@ namespace ROPTLIB{
 			[HGZ2015]:W. Huang, Kyle A. Gallivan, and Xiangxiong Zhang. Solving PhaseLift by low rank Riemannian optimization methods for complex semidefinite constraints.
 			U.C.Louvain, UCL-INMA-2015.01, 2015.*/
 		virtual void EucHvToHv(Variable *x, Vector *etax, Vector *exix, Vector* xix, const Problem *prob) const;
-	protected:
+
 		/*Compute the units vectors in Hourseholder transformations, which can be used in the member functions "ObtainIntr" and "ObtainExtr". */
-		void ComputeHHR(Variable *x) const;
+		static void ComputeHHR(Variable *x);
+	protected:
 
 		integer n; /*The row*/
 		integer p; /*The column*/

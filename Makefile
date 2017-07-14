@@ -19,6 +19,7 @@ INCDIRS += -I$(ROOTPATH)/BinaryFiles/
 INCDIRS += -I$(ROOTPATH)/Julia/
 INCDIRS += -I$(ROOTPATH)/Julia/useless/
 INCDIRS += -I$(ROOTPATH)/Manifolds/
+INCDIRS += -I$(ROOTPATH)/Manifolds/CFixedRank2Factors/
 INCDIRS += -I$(ROOTPATH)/Manifolds/CpxNStQOrth/
 INCDIRS += -I$(ROOTPATH)/Manifolds/ElasticShape/
 INCDIRS += -I$(ROOTPATH)/Manifolds/EucPositive/
@@ -32,16 +33,22 @@ INCDIRS += -I$(ROOTPATH)/Manifolds/PreShapeCurves/
 INCDIRS += -I$(ROOTPATH)/Manifolds/SPDManifold/
 INCDIRS += -I$(ROOTPATH)/Manifolds/SPDTensor/
 INCDIRS += -I$(ROOTPATH)/Manifolds/Sphere/
+INCDIRS += -I$(ROOTPATH)/Manifolds/SphereTx/
 INCDIRS += -I$(ROOTPATH)/Manifolds/Stiefel/
 INCDIRS += -I$(ROOTPATH)/Others/
 INCDIRS += -I$(ROOTPATH)/Others/SparseBLAS/
+INCDIRS += -I$(ROOTPATH)/Others/fftw/
 INCDIRS += -I$(ROOTPATH)/Problems/
+INCDIRS += -I$(ROOTPATH)/Problems/CFR2BlindDeconvolution/
+INCDIRS += -I$(ROOTPATH)/Problems/CSOPhaseRetrieval/
 INCDIRS += -I$(ROOTPATH)/Problems/ElasticCurvesRO/
+INCDIRS += -I$(ROOTPATH)/Problems/EucBlindDeconvolution/
 INCDIRS += -I$(ROOTPATH)/Problems/EucFrechetMean/
 INCDIRS += -I$(ROOTPATH)/Problems/EucPosSpCd/
 INCDIRS += -I$(ROOTPATH)/Problems/EucQuadratic/
 INCDIRS += -I$(ROOTPATH)/Problems/GrassRQ/
 INCDIRS += -I$(ROOTPATH)/Problems/KarcherMean/
+INCDIRS += -I$(ROOTPATH)/Problems/LRBlindDeconvolution/
 INCDIRS += -I$(ROOTPATH)/Problems/LRMatrixCompletion/
 INCDIRS += -I$(ROOTPATH)/Problems/ObliqueSparsePCA/
 INCDIRS += -I$(ROOTPATH)/Problems/ObliqueTestSparsePCA/
@@ -51,6 +58,7 @@ INCDIRS += -I$(ROOTPATH)/Problems/SPDMean/
 INCDIRS += -I$(ROOTPATH)/Problems/SPDTensorDL/
 INCDIRS += -I$(ROOTPATH)/Problems/ShapePathStraighten/
 INCDIRS += -I$(ROOTPATH)/Problems/SphereConvexHull/
+INCDIRS += -I$(ROOTPATH)/Problems/SphereTxRQ/
 INCDIRS += -I$(ROOTPATH)/Problems/StieBrockett/
 INCDIRS += -I$(ROOTPATH)/Problems/StieSoftICA/
 INCDIRS += -I$(ROOTPATH)/Problems/StieSparseBrockett/
@@ -63,6 +71,7 @@ INCDIRS += -I$(ROOTPATH)/cwrapper/lapack/
 INCDIRS += -I$(ROOTPATH)/test/
 # ROPTLIB C++ files
 CPPS += $(ROOTPATH)/Manifolds/Element.cpp $(ROOTPATH)/Manifolds/LinearOPE.cpp $(ROOTPATH)/Manifolds/Manifold.cpp $(ROOTPATH)/Manifolds/ProductElement.cpp $(ROOTPATH)/Manifolds/ProductManifold.cpp $(ROOTPATH)/Manifolds/SharedSpace.cpp $(ROOTPATH)/Manifolds/SmartSpace.cpp 
+CPPS += $(ROOTPATH)/Manifolds/CFixedRank2Factors/CFR2Variable.cpp $(ROOTPATH)/Manifolds/CFixedRank2Factors/CFR2Vector.cpp $(ROOTPATH)/Manifolds/CFixedRank2Factors/CFixedRank2Factors.cpp 
 CPPS += $(ROOTPATH)/Manifolds/CpxNStQOrth/CSOVariable.cpp $(ROOTPATH)/Manifolds/CpxNStQOrth/CSOVector.cpp $(ROOTPATH)/Manifolds/CpxNStQOrth/CpxNStQOrth.cpp 
 CPPS += $(ROOTPATH)/Manifolds/ElasticShape/ElasticShape.cpp $(ROOTPATH)/Manifolds/ElasticShape/ShapeVariable.cpp $(ROOTPATH)/Manifolds/ElasticShape/ShapeVector.cpp 
 CPPS += $(ROOTPATH)/Manifolds/EucPositive/EucPosVariable.cpp $(ROOTPATH)/Manifolds/EucPositive/EucPosVector.cpp $(ROOTPATH)/Manifolds/EucPositive/EucPositive.cpp 
@@ -76,16 +85,21 @@ CPPS += $(ROOTPATH)/Manifolds/PreShapeCurves/PSCVariable.cpp $(ROOTPATH)/Manifol
 CPPS += $(ROOTPATH)/Manifolds/SPDManifold/SPDManifold.cpp $(ROOTPATH)/Manifolds/SPDManifold/SPDVariable.cpp $(ROOTPATH)/Manifolds/SPDManifold/SPDVector.cpp 
 CPPS += $(ROOTPATH)/Manifolds/SPDTensor/SPDTVariable.cpp $(ROOTPATH)/Manifolds/SPDTensor/SPDTVector.cpp $(ROOTPATH)/Manifolds/SPDTensor/SPDTensor.cpp 
 CPPS += $(ROOTPATH)/Manifolds/Sphere/Sphere.cpp $(ROOTPATH)/Manifolds/Sphere/SphereVariable.cpp $(ROOTPATH)/Manifolds/Sphere/SphereVector.cpp 
+CPPS += $(ROOTPATH)/Manifolds/SphereTx/SphereTx.cpp 
 CPPS += $(ROOTPATH)/Manifolds/Stiefel/StieVariable.cpp $(ROOTPATH)/Manifolds/Stiefel/StieVector.cpp $(ROOTPATH)/Manifolds/Stiefel/Stiefel.cpp 
 CPPS += $(ROOTPATH)/Others/ForDebug.cpp $(ROOTPATH)/Others/MinPNormConHull.cpp $(ROOTPATH)/Others/MyMatrix.cpp $(ROOTPATH)/Others/Spline.cpp $(ROOTPATH)/Others/Timer.cpp $(ROOTPATH)/Others/randgen.cpp 
 CPPS += $(ROOTPATH)/Others/SparseBLAS/nist_spblas.cpp 
 CPPS += $(ROOTPATH)/Problems/Problem.cpp $(ROOTPATH)/Problems/juliaProblem.cpp $(ROOTPATH)/Problems/mexProblem.cpp 
+CPPS += $(ROOTPATH)/Problems/CFR2BlindDeconvolution/CFR2BlindDeconvolution.cpp 
+CPPS += $(ROOTPATH)/Problems/CSOPhaseRetrieval/CSOPhaseRetrieval.cpp 
 CPPS += $(ROOTPATH)/Problems/ElasticCurvesRO/DriverElasticCurvesRO.cpp $(ROOTPATH)/Problems/ElasticCurvesRO/ElasticCurvesRO.cpp 
+CPPS += $(ROOTPATH)/Problems/EucBlindDeconvolution/EucBlindDeconvolution.cpp 
 CPPS += $(ROOTPATH)/Problems/EucFrechetMean/EucFrechetMean.cpp 
 CPPS += $(ROOTPATH)/Problems/EucPosSpCd/EucPosSpCd.cpp 
 CPPS += $(ROOTPATH)/Problems/EucQuadratic/EucQuadratic.cpp 
 CPPS += $(ROOTPATH)/Problems/GrassRQ/GrassRQ.cpp 
 CPPS += $(ROOTPATH)/Problems/KarcherMean/KarcherMean.cpp 
+CPPS += $(ROOTPATH)/Problems/LRBlindDeconvolution/LRBlindDeconvolution.cpp 
 CPPS += $(ROOTPATH)/Problems/LRMatrixCompletion/LRMatrixCompletion.cpp 
 CPPS += $(ROOTPATH)/Problems/ObliqueSparsePCA/ObliqueSparsePCA.cpp 
 CPPS += $(ROOTPATH)/Problems/ObliqueTestSparsePCA/ObliqueTestSparsePCA.cpp 
@@ -95,6 +109,7 @@ CPPS += $(ROOTPATH)/Problems/SPDMean/SPDMean.cpp
 CPPS += $(ROOTPATH)/Problems/SPDTensorDL/SPDTensorDL.cpp 
 CPPS += $(ROOTPATH)/Problems/ShapePathStraighten/ShapePathStraighten.cpp 
 CPPS += $(ROOTPATH)/Problems/SphereConvexHull/SphereConvexHull.cpp 
+CPPS += $(ROOTPATH)/Problems/SphereTxRQ/SphereTxRQ.cpp 
 CPPS += $(ROOTPATH)/Problems/StieBrockett/StieBrockett.cpp 
 CPPS += $(ROOTPATH)/Problems/StieSoftICA/StieSoftICA.cpp 
 CPPS += $(ROOTPATH)/Problems/StieSparseBrockett/StieSparseBrockett.cpp 
@@ -107,11 +122,11 @@ UPPER_TP  = $(shell echo $(TP) | tr a-z A-Z)
 
 # make a binary file, which is called in command line
 ROPTLIB:
-	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lm -o $(TP)
+	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lfftw3 -lm -o $(TP)
 
 #make a library
 libropt.so:
-	$(CC) -w -std=c++0x -shared -fPIC -O3 $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -llapack -lblas -lm -o $@
+	$(CC) -w -std=c++0x -shared -fPIC -O3 $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -llapack -lblas -lfftw3 -lm -o $@
 
 JULIA_LIB:=$(JULIA_DIR)/usr/lib
 JULIA_SRC:=$(JULIA_DIR)/src
@@ -123,4 +138,4 @@ export LD_LIBRARY_PATH:=$(JULIA_LIB):$(JULIA_LIB)/julia
 
 # make a shared library, which is used by Julia
 JuliaROPTLIB:
-	$(CC) -O3 -shared -fPIC -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) $(CPPFLAGS) $(LDFLAGS) -Wl,-rpath,$(JULIA_LIB) -lm $(LDLIBS) -DJULIA_LIB_DIR=\"$(JULIA_DIR)/lib/julia\" -llapack -lblas -o $(TP).so
+	$(CC) -O3 -shared -fPIC -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) $(CPPFLAGS) $(LDFLAGS) -Wl,-rpath,$(JULIA_LIB) -lm $(LDLIBS) -DJULIA_LIB_DIR=\"$(JULIA_DIR)/lib/julia\" -llapack -lblas -lfftw3 -o $(TP).so

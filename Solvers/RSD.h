@@ -3,7 +3,7 @@ This file defines the class of the Riemannian steepest descent method. See [AMS2
 	[AMS2008]: P.-A. Absil, R. Mahony, and R. Sepulchre. Optimization algorithms on matrix manifolds.
 	Princeton University Press, Princeton, NJ, 2008.
 
-Solvers --> SolversLS --> RNewton
+Solvers --> QuasiNewton --> SolversLS --> RSD
 
 ---- WH
 */

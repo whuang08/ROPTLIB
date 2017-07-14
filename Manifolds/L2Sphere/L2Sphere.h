@@ -46,7 +46,7 @@ namespace ROPTLIB{
 		virtual void Projection(Variable *x, Vector *v, Vector *result) const;
 
 		/*Exponential mapping is used*/
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*This is not done yet*/
 		virtual void coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const;

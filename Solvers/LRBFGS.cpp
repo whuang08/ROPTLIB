@@ -27,6 +27,8 @@ namespace ROPTLIB{
 	{
 		SolversLS::SetDefaultParams();
 		isconvex = false;
+		BBratio = 1;
+		Num_pre_BB = 0;
 		nu = 1e-4;
 		mu = 1;
 		LengthSY = 4;
@@ -77,7 +79,7 @@ namespace ROPTLIB{
 		status = YES;
 		printf("isconvex      :%15d[%s],\t", isconvex, status);
 		status = (LengthSY >= 0) ? YES : NO;
-		printf("LengthSY      :%d[%s]\n", LengthSY, status);
+		printf("LengthSY      :%15d[%s]\n", LengthSY, status);
 	};
 
 	void LRBFGS::GetSearchDir(void)
@@ -93,7 +95,7 @@ namespace ROPTLIB{
 
 	void LRBFGS::PrintInfo(void)
 	{
-		printf("\n\tbetay:%.3e,rho:%.3e,gamma:%.3e,inpss:%.3e,inpsy:%.3e,IsUpdateHessian:%d,", betay, rho, gamma, inpss, inpsy, isupdated);
+		printf("\n\tbetay:%.3e,rho:%.3e,gamma:%.3e,inpss:%.3e,inpsy:%.3e,inpyy:%.3e,IsUpdateHessian:%d,", betay, rho, gamma, inpss, inpsy, inpyy, isupdated);
 		printf("\n");
 	};
 }; /*end of ROPTLIB namespace*/

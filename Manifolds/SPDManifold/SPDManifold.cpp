@@ -244,7 +244,7 @@ namespace ROPTLIB{
 		return result;
 	};
 
-	void SPDManifold::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void SPDManifold::Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
 		if (!x->TempDataExist("L"))
 		{
@@ -390,7 +390,7 @@ namespace ROPTLIB{
 		{ /*In case that beta is not computed, then compute it.*/
 			Variable *y = x->ConstructEmpty();
 			Vector *xiy = etax->ConstructEmpty();
-			Retraction(x, etax, y);
+			Retraction(x, etax, y, 1);
 			DiffRetraction(x, etax, y, etax, xiy, true);
 			delete y;
 			delete xiy;

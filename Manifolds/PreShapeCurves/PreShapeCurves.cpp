@@ -96,7 +96,7 @@ namespace ROPTLIB{
 		return result;
 	};
 
-	void PreShapeCurves::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void PreShapeCurves::Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
 		// x is the Path, etax is update direction, result stores the updated Path.
 		const double *Path_x = x->ObtainReadData();

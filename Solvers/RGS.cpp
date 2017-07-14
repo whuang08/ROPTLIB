@@ -42,7 +42,7 @@ namespace ROPTLIB{
 		/*Compute gradients at Xs[i] and transport them to the tangent space at x1*/
 		for (integer i = 1; i < Lengthgfs; i++)
 		{
-			Mani->Retraction(x1, gfs[i], Xs[i]); nR++;
+			Mani->Retraction(x1, gfs[i], Xs[i], 1); nR++;
 			Prob->f(Xs[i]); nf++;
 			Prob->Grad(Xs[i], zeta); ng++;
 			Mani->InverseVectorTransport(x1, gfs[i], Xs[i], zeta, zeta);

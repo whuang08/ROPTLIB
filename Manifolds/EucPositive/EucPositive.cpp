@@ -56,9 +56,9 @@ namespace ROPTLIB{
 		}
 	};
 
-	void EucPositive::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void EucPositive::Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
-		Manifold::Retraction(x, etax, result);
+		Manifold::Retraction(x, etax, result, 1);
 		double *resultptr = result->ObtainWritePartialData();
 		for (integer i = 0; i < result->Getlength(); i++)
 		{

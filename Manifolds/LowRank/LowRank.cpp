@@ -25,6 +25,21 @@ namespace ROPTLIB{
 		}
 	};
 
+	//double LowRank::Metric(Variable *x, Vector *etax, Vector *xix) const
+	//{
+	//	Vector *exetax = EMPTYEXTR->ConstructEmpty();
+	//	Vector *exxix = EMPTYEXTR->ConstructEmpty();
+
+	//	ObtainExtr(x, etax, exetax);
+	//	ObtainExtr(x, xix, exxix);
+
+	//	double result = ExtrMetric(x, exetax, exxix);
+
+	//	delete exetax;
+	//	delete exxix;
+	//	return result;
+	//};
+
 	double LowRank::ExtrMetric(Variable *x, Vector *etax, Vector *xix) const
 	{
 		LowRankVector *LRetax = dynamic_cast<LowRankVector *> (etax);
@@ -79,14 +94,21 @@ namespace ROPTLIB{
 
 		integer MmR = m - r, NmR = n - r, R = r, RR = r * r, inc = 1, MmRR = (m - r) * r, NmRR = (n - r) * r;
 		double one = 1, zero = 0;
-		// UKD <- UK * D, details: http://www.netlib.org/lapack/explore-html/d7/d2b/dgemm_8f.html
-		dgemm_(GLOBAL::N, GLOBAL::N, &MmR, &R, &R, &one, UK, &MmR, const_cast<double *> (D), &R, &zero, UKD, &MmR);
-		// VKD <- VK * D^T, details: http://www.netlib.org/lapack/explore-html/d7/d2b/dgemm_8f.html
-		dgemm_(GLOBAL::N, GLOBAL::T, &NmR, &R, &R, &one, VK, &NmR, const_cast<double *> (D), &R, &zero, VKD, &NmR);
-		// UK <- UKD, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-		dcopy_(&MmRR, UKD, &inc, UK, &inc);
-		// VK <- VKD, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-		dcopy_(&NmRR, VKD, &inc, VK, &inc);
+		if (MmR > 0)
+		{
+			// UKD <- UK * D, details: http://www.netlib.org/lapack/explore-html/d7/d2b/dgemm_8f.html
+			dgemm_(GLOBAL::N, GLOBAL::N, &MmR, &R, &R, &one, UK, &MmR, const_cast<double *> (D), &R, &zero, UKD, &MmR);
+			// UK <- UKD, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
+			dcopy_(&MmRR, UKD, &inc, UK, &inc);
+		}
+
+		if (NmR > 0)
+		{
+			// VKD <- VK * D^T, details: http://www.netlib.org/lapack/explore-html/d7/d2b/dgemm_8f.html
+			dgemm_(GLOBAL::N, GLOBAL::T, &NmR, &R, &R, &one, VK, &NmR, const_cast<double *> (D), &R, &zero, VKD, &NmR);
+			// VK <- VKD, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
+			dcopy_(&NmRR, VKD, &inc, VK, &inc);
+		}
 
 		delete[] UKD;
 	};
@@ -147,20 +169,20 @@ namespace ROPTLIB{
 		delete LRintretaxDinv;
 	};
 
-	void LowRank::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void LowRank::Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
 		if (IsIntrApproach)
 		{
 			Vector *exetax = EMPTYEXTR->ConstructEmpty();
 			ObtainExtr(x, etax, exetax);
 			SetIsIntrApproach(false);
-			ProductManifold::Retraction(x, exetax, result);
+			ProductManifold::Retraction(x, exetax, result, stepsize);
 			SetIsIntrApproach(true);
 			delete exetax;
 		}
 		else
 		{
-			ProductManifold::Retraction(x, etax, result);
+			ProductManifold::Retraction(x, etax, result, stepsize);
 		}
 	};
 
@@ -441,9 +463,19 @@ namespace ROPTLIB{
 			/*MTdU = M^T * dU*/
 			dgemm_(GLOBAL::T, GLOBAL::N, &nn, &rr, &mm, &GLOBAL::DONE, const_cast<double *> (M), &mm, const_cast<double *> (dU), &mm, &GLOBAL::DZERO, MTdU, &nn);
 		}
+		MTdUMdVtoExtr(x, MTdU, MdV, mm, nn, rr, xix);
+		delete[] MdV;
+		delete[] MTdU;
+	};
+
+	void LowRank::MTdUMdVtoExtr(Variable *x, double *MTdU, double *MdV, integer mm, integer nn, integer rr, Vector* xix) const
+	{
+		LowRankVariable *LRx = dynamic_cast<LowRankVariable *> (x);
+		const double *U = LRx->GetElement(0)->ObtainReadData();
+		const double *D = LRx->GetElement(1)->ObtainReadData();
+		const double *V = LRx->GetElement(2)->ObtainReadData();
 
 		double *tmp = new double[r * r + r * ((m > n) ? m : n)];
-		
 		/*Get LU decomposition of D, which has been done*/
 		LUofDinx(x);
 		const SharedSpace *SharedSpacetmp = x->ObtainReadTempData("LUofD");
@@ -474,7 +506,7 @@ namespace ROPTLIB{
 			for (integer j = 0; j < r; j++)
 				MdV[i + j * m] = tmp[r * r + j + i * r];
 		if (info != 0)
-			printf("Warning: dgetrs in LowRank::EucHvToHv failed!\n");
+			printf("Warning: dgetrs in LowRank::MTdUMdVtoExtr failed!\n");
 		/*dU_xix = dU_xix + dU_R*/
 		LowRankVector *LRxix = dynamic_cast<LowRankVector *> (xix);
 		LRxix->CopyOnWrite();
@@ -505,13 +537,10 @@ namespace ROPTLIB{
 			for (integer j = 0; j < r; j++)
 				MTdU[i + j * n] = tmp[r * r + j + i * r];
 		if (info != 0)
-			printf("Warning: dgetrs in LowRank::EucHvToHv failed!\n");
+			printf("Warning: dgetrs in LowRank::MTdUMdVtoExtr failed!\n");
 
 		/*dV_xix = dV_xix + dV_R*/
 		daxpy_(&length, &GLOBAL::DONE, MTdU, &GLOBAL::IONE, dV_xix, &GLOBAL::IONE);
-
-		delete[] MdV;
-		delete[] MTdU;
 		delete[] P;
 		delete[] tmp;
 	};
@@ -603,6 +632,25 @@ namespace ROPTLIB{
 			/*MTU = M^T * U*/
 			dgemm_(GLOBAL::T, GLOBAL::N, &nn, &rr, &mm, &GLOBAL::DONE, const_cast<double *> (M), &mm, const_cast<double *> (U), &mm, &GLOBAL::DZERO, MTU, &nn);
 		}
+		
+		MTUMVtoExtr(x, MTU, MV, mm, nn, rr, result);
+
+		if (EucRepptr[0]) // if it is sparse, then attached the sparse matrix to result.
+		{
+			SharedSpace *SparseMatrix = new SharedSpace(1, 1);
+			SparseMatrix->ObtainWriteEntireData()[0] = static_cast<blas_sparse_matrix> (sM);
+			result->AddToTempData("SparseMatrix", SparseMatrix);
+		}
+		delete[] MV;
+		delete[] MTU;
+	};
+
+	void LowRank::MTUMVtoExtr(Variable *x, double *MTU, double *MV, integer mm, integer nn, integer rr, Vector *result) const
+	{
+		LowRankVariable *LRx = dynamic_cast<LowRankVariable *> (x);
+		const double *U = LRx->GetElement(0)->ObtainReadData();
+		const double *D = LRx->GetElement(1)->ObtainReadData();
+		const double *V = LRx->GetElement(2)->ObtainReadData();
 
 		LowRankVector *LRresult = dynamic_cast<LowRankVector *> (result);
 		LRresult->NewMemoryOnWrite();
@@ -624,7 +672,7 @@ namespace ROPTLIB{
 
 		/*compute MTU - V dotD^T*/
 		dgemm_(GLOBAL::N, GLOBAL::T, &nn, &rr, &rr, &GLOBAL::DNONE, const_cast<double *> (V), &nn, dotD, &rr, &GLOBAL::DONE, dotV, &nn);
-		
+
 		/*Compute the LU docomposition of D for solving a linear system*/
 		LUofDinx(x);
 		const SharedSpace *SharedSpacetmp = x->ObtainReadTempData("LUofD");
@@ -635,7 +683,7 @@ namespace ROPTLIB{
 			P[i] = static_cast<integer> (tmp[r * r + i]);
 
 		/*Compute dotU = (MV - U dotD) D^{-1} by solving the linear system
-			D^T X^T = (MV - U dotD)^T. */
+		D^T X^T = (MV - U dotD)^T. */
 		/*Compute the transpose of the right hand side*/
 		double *tmpM = new double[r * ((m > n) ? m : n)];
 		for (integer i = 0; i < m; i++)
@@ -649,10 +697,10 @@ namespace ROPTLIB{
 				dotU[i + j * m] = tmpM[j + i * r];
 
 		if (info != 0)
-			printf("Warning: dgetrs in LowRank::EucRepToExtr failed!\n");
+			printf("Warning: dgetrs in LowRank::MTUMVtoExtr failed!\n");
 
 		/*Compute dotV = (MTU - V dotD) D^{-T} by solving the linear system
-			D X^T = (MTU - V dotD)^T */
+		D X^T = (MTU - V dotD)^T */
 
 		/*Compute the transpose of the right hand side*/
 		for (integer i = 0; i < n; i++)
@@ -666,20 +714,11 @@ namespace ROPTLIB{
 				dotV[i + j * n] = tmpM[j + i * r];
 
 		if (info != 0)
-			printf("Warning: dgetrs in LowRank::ProjectionM failed!\n");
+			printf("Warning: dgetrs in LowRank::MTUMVtoExtr failed!\n");
 
 		delete[] tmpM;
-
-		if (EucRepptr[0]) // if it is sparse, then attached the sparse matrix to result.
-		{
-			SharedSpace *SparseMatrix = new SharedSpace(1, 1);
-			SparseMatrix->ObtainWriteEntireData()[0] = static_cast<blas_sparse_matrix> (sM);
-			result->AddToTempData("SparseMatrix", SparseMatrix);
-		}
-
-		delete[] MV;
-		delete[] MTU;
 		delete[] P;
+
 	};
 
 	void LowRank::LUofDinx(Variable *x) const

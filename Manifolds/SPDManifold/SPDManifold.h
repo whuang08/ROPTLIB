@@ -33,7 +33,7 @@ namespace ROPTLIB{
 		virtual void CheckParams(void) const;
 
 		/*The second order approximation of the exponential mapping, i.e., result = x + etax + 0.5 etax x^{-1} etax */
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*computes beta = \|etax\| / \|\mathcal{T}_{R_etax} etax\|
 		Default: beta <-- 1*/

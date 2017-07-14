@@ -18,7 +18,7 @@ int main(void)
 	genrandseed(tt);
 
 	// size of the Stiefel manifold
-	integer n = 128, p = 8;
+	integer n = 4, p = 2;
 
 	// Generate the matrices in the Brockett problem.
 	double *B = new double[n * n + p];
@@ -97,6 +97,7 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 
 	// Define the manifold
 	Stiefel Domain(n, p);
+	//Grassmann Domain(n, p);
 	//Domain.SetHasHHR(true); /*set whether the manifold uses the idea in [HGA2015, Section 4.3] or not*/
 
 	// Define the Brockett problem
@@ -106,6 +107,20 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 
 	/*Output the parameters of the domain manifold*/
 	Domain.CheckParams();
+
+
+	//SphereTx DomainPH(&Domain, &StieX);
+	//SphereTxRQ ProbHess(&Domain, &StieX, &Prob);
+	//ProbHess.SetDomain(&DomainPH);
+	//Variable *TV0 = DomainPH.RandominManifold();
+	//ProbHess.CheckGradHessian(TV0);
+	//RTRNewton RTRNewtonsolver(&ProbHess, TV0);
+	//RTRNewtonsolver.Debug = FINALRESULT;
+	//RTRNewtonsolver.Run();
+	//delete TV0;
+
+
+
 
 	//Domain.CheckRetraction(&StieX);
 	//Domain.CheckDiffRetraction(&StieX);
@@ -166,17 +181,32 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 
 	//// test RNewton
 	//printf("********************************Check all line search algorithm in RNewton*************************************\n");
-	//for (integer i = INPUTFUN; i < LSALGOLENGTH; i++)
+	//for (integer i = 0; i < 1; i++) //LSALGOLENGTH
 	//{
 	//	RNewton *RNewtonsolver = new RNewton(&Prob, &StieX);
 	//	RNewtonsolver->LineSearch_LS = static_cast<LSAlgo> (i);
 	//	RNewtonsolver->Debug = ITERRESULT;
 	//	/*Uncomment following two lines to use the linesearch algorithm defined by the function "LinesearchInput".*/
-	//	RNewtonsolver->LineSearch_LS = INPUTFUN;
-	//	RNewtonsolver->LinesearchInput = &LinesearchInput;
+	//	//RNewtonsolver->LineSearch_LS = INPUTFUN;
+	//	//RNewtonsolver->LinesearchInput = &LinesearchInput;
 	//	RNewtonsolver->Max_Iteration = 100;
 	//	RNewtonsolver->CheckParams();
 	//	RNewtonsolver->Run();
+
+
+	//		// Compute the smallest eigenvalue of the Hessian at root.
+	//		Variable *root = StieX.ConstructEmpty();
+	//		RNewtonsolver->GetXopt()->CopyTo(root);
+	//		SphereTx DomainPH(&Domain, root);
+	//		SphereTxRQ ProbHess(&Domain, root, &Prob, true);
+	//		ProbHess.SetDomain(&DomainPH);
+	//		Variable *TV0 = DomainPH.RandominManifold();
+	//		RTRNewton RTRNewtonsolver(&ProbHess, TV0);
+	//		RTRNewtonsolver.Debug = FINALRESULT;
+	//		RTRNewtonsolver.Run();
+	//		delete root;
+	//		delete TV0;
+
 	//	delete RNewtonsolver;
 	//}
 
@@ -237,9 +267,9 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 	{
 		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &StieX);
 		LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-		LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
+		LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
 		LRBFGSsolver->OutputGap = 1;
-		LRBFGSsolver->Max_Iteration = 1000;
+		LRBFGSsolver->Max_Iteration = 3;
 		LRBFGSsolver->Accuracy = 1e-6;
 		LRBFGSsolver->Tolerance = 1e-6;
 		LRBFGSsolver->Finalstepsize = 1;
@@ -247,9 +277,23 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 		LRBFGSsolver->BBratio = 1;
 		LRBFGSsolver->Num_pre_BB = 0;
 		LRBFGSsolver->InitSteptype = ONESTEP;
-		LRBFGSsolver->LengthSY = 0;
+		LRBFGSsolver->LengthSY = 16;
 		LRBFGSsolver->CheckParams();
 		LRBFGSsolver->Run();
+
+		// Compute the smallest eigenvalue of the Hessian at root.
+		Variable *root = StieX.ConstructEmpty();
+		LRBFGSsolver->GetXopt()->CopyTo(root);
+		SphereTx DomainPH(&Domain, root);
+		SphereTxRQ ProbHess(&Domain, root, &Prob, true);
+		ProbHess.SetDomain(&DomainPH);
+		Variable *TV0 = DomainPH.RandominManifold();
+		RTRNewton RTRNewtonsolver(&ProbHess, TV0);
+		RTRNewtonsolver.Debug = FINALRESULT;
+		RTRNewtonsolver.Run();
+		delete root;
+		delete TV0;
+
 		//// Check the correctness of gradient and Hessian at the initial iterate
 		//Prob.CheckGradHessian(&StieX);
 		//const Variable *xopt = LRBFGSsolver->GetXopt();

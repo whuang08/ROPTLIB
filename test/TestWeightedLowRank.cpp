@@ -60,7 +60,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 void testWeightedLowRank(void)
 {
-	integer m = 5, n = 4, r = 2;
+	integer m = 5, n = 4, r = 3;
 	//integer m = 100, n = 15, r = 5;
 	LowRank Domain(m, n, r);
 	Domain.SetHasHHR(true);
@@ -127,11 +127,10 @@ void testWeightedLowRank(void)
 	Stiefel mani1(m, r);
 	Euclidean mani2(r, r);
 	Stiefel mani3(n, r);
-	
     WeightedLowRank Prob(A, W, m, n, r);
     Prob.SetDomain(&Domain);
-	
-	//Prob.CheckGradHessian(&InitialX);
+
+	Prob.CheckGradHessian(&InitialX);
 
 	RTRNewton *RSDsolver = new RTRNewton(&Prob, &InitialX);
 	//->LineSearch_LS = ARMIJO;

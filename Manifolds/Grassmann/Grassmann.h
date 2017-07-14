@@ -33,7 +33,7 @@ namespace ROPTLIB{
 		/*Compute the qf retraction defined in [AMS2008, (4.8)].
 			[AMS2008]P.-A. Absil, R. Mahony, and R. Sepulchre. Optimization algorithms on matrix manifolds.
 			Princeton University Press, Princeton, NJ, 2008.*/
-		virtual void Retraction(Variable *x, Vector *etax, Variable *result) const;
+		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
 
 		/*This cotangent vector is used in the RBFGS defined in [RW2012]
 			[RW2012]: W. Ring and B. Wirth. Optimization methods on Riemannian manifolds and their application to shape space.

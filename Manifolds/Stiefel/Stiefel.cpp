@@ -148,16 +148,16 @@ namespace ROPTLIB{
 			ExtrProjection(x, v, result);
 	};
 
-	void Stiefel::Retraction(Variable *x, Vector *etax, Variable *result) const
+	void Stiefel::Retraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
 		if (retraction == QF)
-			return qfRetraction(x, etax, result);
+			return qfRetraction(x, etax, result, stepsize);
 
 		if (retraction == CONSTRUCTED)
-			return ConRetraction(x, etax, result);
+			return ConRetraction(x, etax, result, stepsize);
 
 		if (retraction == CAYLEYR)
-			return CayleyRetraction(x, etax, result);
+			return CayleyRetraction(x, etax, result, stepsize);
 
 		printf("Error: Retraction has not been done!\n");
 	};
@@ -199,7 +199,7 @@ namespace ROPTLIB{
 		{ /*In case that beta is not computed, then compute it.*/
 			Variable *y = x->ConstructEmpty();
 			Vector *xiy = etax->ConstructEmpty();
-			Retraction(x, etax, y);
+			Retraction(x, etax, y, 1);
 			DiffRetraction(x, etax, y, etax, xiy, true);
 			delete y;
 			delete xiy;
@@ -412,7 +412,7 @@ namespace ROPTLIB{
 				printf("Warning: computing extrinsic representation from intrinsic has not been implemented!\n");
 	};
 
-	void Stiefel::qfRetraction(Variable *x, Vector *etax, Variable *result) const
+	void Stiefel::qfRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{
 		const double *U = x->ObtainReadData();
 		const double *V;
@@ -828,7 +828,7 @@ namespace ROPTLIB{
 		delete[] work;
 	};
 
-	void Stiefel::ConRetraction(Variable *x, Vector *etax, Variable *result) const
+	void Stiefel::ConRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{ // only accept intrinsic approach
 		const double *V = nullptr;
 		Vector *inetax = EMPTYINTR->ConstructEmpty();
@@ -1000,7 +1000,7 @@ namespace ROPTLIB{
 		xix->CopyTo(result);
 	};
 
-	void Stiefel::CayleyRetraction(Variable *x, Vector *etax, Variable *result) const
+	void Stiefel::CayleyRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const
 	{//assume extrinsic representation is used for etax
 		const double *xptr = x->ObtainReadData();
 		const double *etaxptr = etax->ObtainReadData();
