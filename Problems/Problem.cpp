@@ -190,6 +190,12 @@ namespace ROPTLIB{
 		delete gfy;
 	};
 
+	void Problem::PreConditioner(Variable *x, Vector *eta, Vector *result) const
+	{
+		// default one means no preconditioner.
+		eta->CopyTo(result);
+	};
+
 	void Problem::SetDomain(Manifold *inDomain)
 	{
 		Domain = inDomain;

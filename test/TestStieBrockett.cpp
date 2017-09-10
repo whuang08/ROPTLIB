@@ -260,47 +260,47 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 	//	delete RBFGSsolver;
 	//}
 
-	// test LRBFGS
-	printf("********************************Check all line search algorithm in LRBFGS*************************************\n");
-	//Domain.ChooseStieParamsSet4();
-	for (integer i = 0; i < 1; i++)//INPUTFUN
-	{
-		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &StieX);
-		LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-		LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
-		LRBFGSsolver->OutputGap = 1;
-		LRBFGSsolver->Max_Iteration = 3;
-		LRBFGSsolver->Accuracy = 1e-6;
-		LRBFGSsolver->Tolerance = 1e-6;
-		LRBFGSsolver->Finalstepsize = 1;
-		LRBFGSsolver->Num_pre_funs = 0;
-		LRBFGSsolver->BBratio = 1;
-		LRBFGSsolver->Num_pre_BB = 0;
-		LRBFGSsolver->InitSteptype = ONESTEP;
-		LRBFGSsolver->LengthSY = 16;
-		LRBFGSsolver->CheckParams();
-		LRBFGSsolver->Run();
+	//// test LRBFGS
+	//printf("********************************Check all line search algorithm in LRBFGS*************************************\n");
+	////Domain.ChooseStieParamsSet4();
+	//for (integer i = 0; i < 1; i++)//INPUTFUN
+	//{
+	//	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &StieX);
+	//	LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
+	//	LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
+	//	LRBFGSsolver->OutputGap = 1;
+	//	LRBFGSsolver->Max_Iteration = 3;
+	//	LRBFGSsolver->Accuracy = 1e-6;
+	//	LRBFGSsolver->Tolerance = 1e-6;
+	//	LRBFGSsolver->Finalstepsize = 1;
+	//	LRBFGSsolver->Num_pre_funs = 0;
+	//	LRBFGSsolver->BBratio = 1;
+	//	LRBFGSsolver->Num_pre_BB = 0;
+	//	LRBFGSsolver->InitSteptype = ONESTEP;
+	//	LRBFGSsolver->LengthSY = 16;
+	//	LRBFGSsolver->CheckParams();
+	//	LRBFGSsolver->Run();
 
-		// Compute the smallest eigenvalue of the Hessian at root.
-		Variable *root = StieX.ConstructEmpty();
-		LRBFGSsolver->GetXopt()->CopyTo(root);
-		SphereTx DomainPH(&Domain, root);
-		SphereTxRQ ProbHess(&Domain, root, &Prob, true);
-		ProbHess.SetDomain(&DomainPH);
-		Variable *TV0 = DomainPH.RandominManifold();
-		RTRNewton RTRNewtonsolver(&ProbHess, TV0);
-		RTRNewtonsolver.Debug = FINALRESULT;
-		RTRNewtonsolver.Run();
-		delete root;
-		delete TV0;
+	//	// Compute the smallest eigenvalue of the Hessian at root.
+	//	Variable *root = StieX.ConstructEmpty();
+	//	LRBFGSsolver->GetXopt()->CopyTo(root);
+	//	SphereTx DomainPH(&Domain, root);
+	//	SphereTxRQ ProbHess(&Domain, root, &Prob, true);
+	//	ProbHess.SetDomain(&DomainPH);
+	//	Variable *TV0 = DomainPH.RandominManifold();
+	//	RTRNewton RTRNewtonsolver(&ProbHess, TV0);
+	//	RTRNewtonsolver.Debug = FINALRESULT;
+	//	RTRNewtonsolver.Run();
+	//	delete root;
+	//	delete TV0;
 
-		//// Check the correctness of gradient and Hessian at the initial iterate
-		//Prob.CheckGradHessian(&StieX);
-		//const Variable *xopt = LRBFGSsolver->GetXopt();
-		//// Check the correctness of gradient and Hessian at the final iterate of RTRNewton method
-		//Prob.CheckGradHessian(xopt);
-		delete LRBFGSsolver;
-	}
+	//	//// Check the correctness of gradient and Hessian at the initial iterate
+	//	//Prob.CheckGradHessian(&StieX);
+	//	//const Variable *xopt = LRBFGSsolver->GetXopt();
+	//	//// Check the correctness of gradient and Hessian at the final iterate of RTRNewton method
+	//	//Prob.CheckGradHessian(xopt);
+	//	delete LRBFGSsolver;
+	//}
 
 	//// test RTRSD
 	//printf("********************************Check RTRSD*************************************\n");
@@ -310,12 +310,12 @@ void testStieBrockett(double *B, double *D, integer n, integer p, double *X, dou
 	//RTRSDsolver.CheckParams();
 	//RTRSDsolver.Run();
 
-	//// test RTRNewton
-	//printf("********************************Check RTRNewton*************************************\n");
-	//RTRNewton RTRNewtonsolver(&Prob, &StieX);
-	//RTRNewtonsolver.Debug = FINALRESULT;
-	//RTRNewtonsolver.CheckParams();
-	//RTRNewtonsolver.Run();
+	// test RTRNewton
+	printf("********************************Check RTRNewton*************************************\n");
+	RTRNewton RTRNewtonsolver(&Prob, &StieX);
+	RTRNewtonsolver.Debug = FINALRESULT;
+	RTRNewtonsolver.CheckParams();
+	RTRNewtonsolver.Run();
 
 	//// test RTRSR1
 	//printf("********************************Check RTRSR1*************************************\n");

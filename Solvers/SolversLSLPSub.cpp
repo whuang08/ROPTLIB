@@ -13,7 +13,7 @@ namespace ROPTLIB{
 
 		LSstatus = SUCCESS;
 		f1 = Prob->f(x1); nf++;
-		f2 = f1;
+		f2 = f1 + 1;
 		Prob->Grad(x1, gf1); ng++;
 		ngf0 = sqrt(Mani->Metric(x1, gf1, gf1));
 		ngf = ngf0;
@@ -28,6 +28,7 @@ namespace ROPTLIB{
 			distSeries[iter] = ((soln == nullptr) ? 0 : Mani->Dist(x1, soln));
 		}
 		bool isstop = false;
+		double ftmp = 0;
 
 		/*If the intrinsic representation is used, then exeta1 and exeta2 are used to store the extrinsic representations of eta1 and eta2 respectively*/
 		if (Prob->GetDomain()->GetIsIntrinsic())
@@ -142,7 +143,9 @@ namespace ROPTLIB{
 			pre_funs.push_front(f1);
 			if (pre_funs.size() > Num_pre_funs && pre_funs.size() > 1)
 				pre_funs.pop_back();
+			ftmp = f1;
 			f1 = f2;
+			f2 = ftmp;
 		}
 		if (Prob->GetDomain()->GetIsIntrinsic())
 		{
@@ -172,6 +175,12 @@ namespace ROPTLIB{
 	{
 		if (ngf < Tolerance && Eps <= Min_Eps + std::numeric_limits<double>::epsilon() * 10)// (Eps <= ((Tolerance < Min_Eps) ? Min_Eps : Tolerance)))
 			return true;
+
+		if (Stop_Criterion != GRAD_F)
+		{
+			return SolversLS::IsStopped();
+		}
+
 		return false;
 	};
 
@@ -194,6 +203,7 @@ namespace ROPTLIB{
 	void SolversLSLPSub::SetDefaultParams(void)
 	{
 		SolversLS::SetDefaultParams();
+		Stop_Criterion = GRAD_F;
 		Theta_eps = 0.01;
 		Theta_del = 0.01;
 		Eps = 1;

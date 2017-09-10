@@ -67,6 +67,9 @@ namespace ROPTLIB{
 		is illegal. */
 		virtual void EucHessianEta(Variable *x, Vector *etax, Vector *exix) const;
 
+		/*The preconditioner in the Trust-region method.*/
+		virtual void PreConditioner(Variable *x, Vector *eta, Vector *result) const;
+
 		/*Check the correctness of the Riemannian gradient and Riemannian Hessian.
 		See details in the user manual*/
 		virtual void CheckGradHessian(const Variable *x) const;

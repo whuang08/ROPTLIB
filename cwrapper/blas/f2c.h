@@ -4,16 +4,16 @@
 
 	- From The Shogakukan DICTIONARY OF NEW ENGLISH (Second edition) */
 
-#ifndef F2C_INCLUDE
-#define F2C_INCLUDE
+#ifndef ROPTLIB_F2C_INCLUDE
+#define ROPTLIB_F2C_INCLUDE
 
-typedef int integer;
+typedef long int integer;
 typedef unsigned long int uinteger;
 typedef char *address;
 typedef short int shortint;
-typedef float real;
+typedef float f2c_real;
 typedef double doublereal;
-typedef struct { real r, i; } complex;
+typedef struct { f2c_real r, i; } f2c_complex;
 typedef struct { doublereal r, i; } doublecomplex;
 typedef long int logical;
 typedef short int shortlogical;
@@ -28,6 +28,7 @@ typedef unsigned long long ulongint;	/* system-dependent */
 
 #define TRUE_ (1)
 #define FALSE_ (0)
+
 
 /* Extern is for use with -E */
 #ifndef Extern
@@ -129,9 +130,9 @@ union Multitype {	/* for multiple entry points */
 	shortint h;
 	integer i;
 	/* longint j; */
-	real r;
+	f2c_real r;
 	doublereal d;
-	complex c;
+	f2c_complex c;
 	doublecomplex z;
 	};
 
@@ -156,8 +157,8 @@ typedef struct Namelist Namelist;
 
 #define abs(x) ((x) >= 0 ? (x) : -(x))
 #define dabs(x) (doublereal)abs(x)
-/*#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))*/
+#define min(a,b) ((a) <= (b) ? (a) : (b))
+#define max(a,b) ((a) >= (b) ? (a) : (b))
 #define dmin(a,b) (doublereal)min(a,b)
 #define dmax(a,b) (doublereal)max(a,b)
 #define bit_test(a,b)	((a) >> (b) & 1)
@@ -171,7 +172,7 @@ typedef struct Namelist Namelist;
 typedef int /* Unknown procedure type */ (*U_fp)(...);
 typedef shortint (*J_fp)(...);
 typedef integer (*I_fp)(...);
-typedef real (*R_fp)(...);
+typedef f2c_real (*R_fp)(...);
 typedef doublereal (*D_fp)(...), (*E_fp)(...);
 typedef /* Complex */ VOID (*C_fp)(...);
 typedef /* Double Complex */ VOID (*Z_fp)(...);
@@ -183,7 +184,7 @@ typedef /* Subroutine */ int (*S_fp)(...);
 typedef int /* Unknown procedure type */ (*U_fp)();
 typedef shortint (*J_fp)();
 typedef integer (*I_fp)();
-typedef real (*R_fp)();
+typedef f2c_real (*R_fp)();
 typedef doublereal (*D_fp)(), (*E_fp)();
 typedef /* Complex */ VOID (*C_fp)();
 typedef /* Double Complex */ VOID (*Z_fp)();
@@ -219,5 +220,19 @@ typedef doublereal E_f;	/* real function with -R not specified */
 #undef u3b5
 #undef unix
 #undef vax
+
+#undef TRUE_
+#undef FALSE_
+#undef Extern
+#undef VOID
+#undef abs
+#undef dabs
+#undef min
+#undef max
+#undef dmin
+#undef dmax
+#undef bit_test
+#undef bit_clear
+#undef bit_set
 #endif
 #endif

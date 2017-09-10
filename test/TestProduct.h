@@ -24,6 +24,7 @@ This is the test file to check the correctenss of classes: ProductElement and Pr
 #include "Manifolds/Stiefel/StieVector.h"
 #include "Manifolds/Stiefel/StieVariable.h"
 #include "Manifolds/Stiefel/Stiefel.h"
+#include "Manifolds/OrthGroup/OrthGroup.h"
 
 #include "Solvers/RSD.h"
 #include "Solvers/RNewton.h"

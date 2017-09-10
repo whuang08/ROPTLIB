@@ -1,8 +1,8 @@
-﻿#include "test/TestCFR2BlindDeconvolution.h"
+﻿#include "test/TestCFR2BlindDecon2D.h"
 using namespace ROPTLIB;
 
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCFR2BLINDDECONVOLUTION)
+#if !defined(MATLAB_MEX_FILE) && defined(TESTCFR2BLINDDECON2D)
 
 std::map<integer *, integer> *CheckMemoryDeleted;
 
@@ -18,7 +18,7 @@ int main(void)
 	CheckMemoryDeleted = new std::map<integer *, integer>;
 
 	//testCFR2BlindDeconvolution();
-	testCFR2BlindDeconvolutionSparse();
+	testCFR2BlindDecon2DSparse();
 
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
@@ -44,9 +44,9 @@ std::map<integer *, integer> *CheckMemoryDeleted;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-	if (nrhs < 10)
+	if (nrhs < 12)
 	{
-		mexErrMsgTxt("The number of arguments should be at least ten.\n");
+		mexErrMsgTxt("The number of arguments should be at least twelve.\n");
 	}
 	double *yr, *yi, *y, *Br, *Bi, *B, *Cr, *Ci, *C, *X, *Xopt;
 	yr = mxGetPr(prhs[0]);
@@ -57,27 +57,34 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	Ci = mxGetPi(prhs[2]);
 	X = mxGetPr(prhs[3]);
 	/* dimensions of input matrices */
-	integer L, K, N, HasHHR, r;
+	integer L, K, N, HasHHR, n1, n2, r;
 	L = mxGetM(prhs[0]);
 	K = mxGetN(prhs[1]);
 	N = mxGetN(prhs[2]);
 	bool isWaveLet = (N == 1);
-	if (mxGetM(prhs[1]) != L || (mxGetM(prhs[2]) != L && !isWaveLet))
+	if (K != L || mxGetM(prhs[1]) != L || (mxGetM(prhs[2]) != L && !isWaveLet))
 	{
 		mexErrMsgTxt("The size of B or the size of C is not correct.\n");
 	}
 	if (isWaveLet)
 	{
 		N = static_cast<integer> (mxGetScalar(prhs[2]));
+		if(L != N)
+		{
+			mexErrMsgTxt("The size of C is not correct.\n");
+		}
+
 		C = nullptr;
 	}
-	r = static_cast<integer> (mxGetScalar(prhs[4]));
+	n1 = static_cast<integer> (mxGetScalar(prhs[4]));
+	n2 = static_cast<integer> (mxGetScalar(prhs[5]));
+	r = static_cast<integer> (mxGetScalar(prhs[6]));
 	double rho, d, mu;
-	rho = mxGetScalar(prhs[7]);
-	d = mxGetScalar(prhs[8]);
-	mu = mxGetScalar(prhs[9]);
-	HasHHR = static_cast<integer> (mxGetScalar(prhs[5]));
-	if (mxGetM(prhs[3]) != 2 * (K + N) * r)
+	rho = mxGetScalar(prhs[9]);
+	d = mxGetScalar(prhs[10]);
+	mu = mxGetScalar(prhs[11]);
+	HasHHR = static_cast<integer> (mxGetScalar(prhs[7]));
+	if (mxGetM(prhs[3]) != 4 * L * r)
 	{
 		mexErrMsgTxt("The size of initial x is not correct.\n");
 	}
@@ -189,9 +196,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		LRXptr[i] = X[i];
 
 	CFR2Variable *LRsoln = nullptr;
-	if (nrhs >= 8)
+	if (nrhs >= 13)
 	{
-		double *soln = mxGetPr(prhs[7]); /*soln: n by p*/
+		double *soln = mxGetPr(prhs[12]); /*soln: n by p*/
 		LRsoln = new CFR2Variable(K, N, r);
 		double *LRsolnptr = LRsoln->ObtainWriteEntireData();
 		for (integer i = 0; i < 2 * (K + N) * r; i++)
@@ -204,14 +211,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	CFixedRank2Factors Domain(K, N, r);
 
 	// Define the matrix completion problem
-	CFR2BlindDeconvolution Prob(y, B, nzmaxB, inirB, injcB, isBsparse, C, nzmaxC, inirC, injcC, isCsparse, L, K, N, r, rho, d, mu);
+	CFR2BlindDecon2D Prob(y, B, nzmaxB, inirB, injcB, isBsparse, C, nzmaxC, inirC, injcC, isCsparse, n1, n2, r, rho, d, mu);
 	Prob.SetDomain(&Domain);
 
 	Domain.SetHasHHR(HasHHR != 0);
 	//Domain.CheckParams();
 
 	// Call the function defined in DriverMexProb.h
-	ParseSolverParamsAndOptimizing(prhs[6], &Prob, &LRX, LRsoln, plhs);
+	ParseSolverParamsAndOptimizing(prhs[8], &Prob, &LRX, LRsoln, plhs);
 
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
@@ -253,67 +260,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 //	delete rdata;
 //}
 
-void testCFR2BlindDeconvolution(void)
-{
-	integer L = 8, K = 2, N = 2, r = 1;
-
-	CFixedRank2Factors Domain(K, N, r);
-	Domain.SetHasHHR(false);
-	CFR2Variable InitialX(K, N, r);
-	InitialX.RandInManifold();
-	Domain.CheckParams();
-
-	//Domain.CheckIntrExtr(&InitialX);
-	//Domain.CheckRetraction(&InitialX);
-	//Domain.CheckcoTangentVector(&InitialX);
-	//Domain.CheckDiffRetraction(&InitialX, false);
-	//Domain.CheckIsometryofVectorTransport(&InitialX);
-
-	//Domain.CheckLockingCondition(&InitialX);
-	//Domain.CheckIsometryofInvVectorTransport(&InitialX);
-	//Domain.CheckVecTranComposeInverseVecTran(&InitialX);
-	//Domain.CheckTranHInvTran(&InitialX);
-
-
-
-
-	// Generate the matrices in the Low rank approximation problem.
-	double *y = new double[L * 2 + K * L * 2 + L * N * 2];
-	double *B = y + L * 2;
-	double *C = nullptr;//-- B + K * L * 2;
-	for (integer i = 0; i < L * 2 + K * L * 2 + L * N * 2; i++)
-		y[i] = genrandnormal();
-
-	//ForDebug::Print("y:", y, L * 2);
-	//ForDebug::Print("B:", B, L * 2, K);
-	//ForDebug::Print("C:", C, L * 2, N);
-	//InitialX.Print("InitX:");//---
-
-	CFR2BlindDeconvolution Prob(y, B, 0, nullptr, nullptr, false, C, 0, nullptr, nullptr, 0, L, K, N, r, 0, 1, 1);
-	Prob.SetDomain(&Domain);
-
-	Prob.CheckGradHessian(&InitialX);
-	//LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
-	//RSDsolver->Debug = DETAILED;
-	//RSDsolver->OutputGap = 100;
-	//RSDsolver->Max_Iteration = 500;
-	//RSDsolver->CheckParams();
-	//RSDsolver->Accuracy = 1e-6;
-	//RSDsolver->Finalstepsize = 1;
-	//RSDsolver->Tolerance = 1e-10;
-	//RSDsolver->Run();
-	//Prob.CheckGradHessian(&InitialX);
-	//Prob.CheckGradHessian(RSDsolver->GetXopt());
-	//delete RSDsolver;
-
-	delete[] y;
-
-
-	return;
-
-};
-
-void testCFR2BlindDeconvolutionSparse(void)
+void testCFR2BlindDecon2DSparse(void)
 {
 	//integer n = 8;
 	//double *v = new double[n * 2];
@@ -331,50 +278,50 @@ void testCFR2BlindDeconvolutionSparse(void)
 	//delete[] v;
 	//return;
 
-	integer n1 = 4, n2 = 4;
+	integer nn1 = 4, nn2 = 4;
 	doublecomplex *vv = new doublecomplex[4 * 4];
-	for (integer i = 0; i < n1 * n2; i++)
+	for (integer i = 0; i < nn1 * nn2; i++)
 	{
 		vv[i].r = i;
 		vv[i].i = i;
 	}
 	std::cout << "original:" << std::endl;//---
-	for (integer i = 0; i < n1; i++)
+	for (integer i = 0; i < nn1; i++)
 	{
-		for (integer j = 0; j < n2; j++)
+		for (integer j = 0; j < nn2; j++)
 		{
-			std::cout << vv[i + j * n1].r << "+ i " << vv[i + j * n1].i << "\t";
+			std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
 		}
 		std::cout << std::endl;//---
 	}
 	haarFWT_2d(4, 4, vv);
 	std::cout << "Haar transform:" << std::endl;//---
-	for (integer i = 0; i < n1; i++)
+	for (integer i = 0; i < nn1; i++)
 	{
-		for (integer j = 0; j < n2; j++)
+		for (integer j = 0; j < nn2; j++)
 		{
-			std::cout << vv[i + j * n1].r << "+ i " << vv[i + j * n1].i << "\t";
+			std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
 		}
 		std::cout << std::endl;//---
 	}
 	std::cout << "Haar inverse transform:" << std::endl;//---
-	haarFWT_2d_inverse(n1, n2, vv);
+	haarFWT_2d_inverse(nn1, nn2, vv);
 
-	for (integer i = 0; i < n1; i++)
+	for (integer i = 0; i < nn1; i++)
 	{
-		for (integer j = 0; j < n2; j++)
+		for (integer j = 0; j < nn2; j++)
 		{
-			std::cout << vv[i + j * n1].r << "+ i " << vv[i + j * n1].i << "\t";
+			std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
 		}
 		std::cout << std::endl;//---
 	}
 	return;
 
-	integer K = 2, N = 4, r = 1, L = 16;//-- 3 * (K + N);
+	integer n1 = 4, n2 = 4, r = 1, L = n1 * n2;
 
-	CFixedRank2Factors Domain(K, N, r);
+	CFixedRank2Factors Domain(L, L, r);
 	Domain.SetHasHHR(false);
-	CFR2Variable InitialX(K, N, r);
+	CFR2Variable InitialX(L, L, r);
 	InitialX.RandInManifold();
 	Domain.CheckParams();
 
@@ -393,18 +340,18 @@ void testCFR2BlindDeconvolutionSparse(void)
 	//InitialX.Print("initialX:");
 
 	// Generate the matrices in the Low rank approximation problem.
-	double *y = new double[L * 2 + K * L * 2 + L * N * 2];
+	double *y = new double[L * 2 + L * L * 2 + L * L * 2];
 	double *B = y + L * 2;
-	double *C = B + K * L * 2;
-	for (integer i = 0; i < L * 2 + K * L * 2 + L * N * 2; i++)
+	double *C = B + L * L * 2;
+	for (integer i = 0; i < L * 2 + L * L * 2 + L * L * 2; i++)
 		y[i] = genrandnormal();
-	integer nzmaxB = L * K;
-	integer nzmaxC = L * N;
-	int *irB = new int[2 * L * K + 2 * L * N];
-	int *jcB = irB + L * K;
-	int *irC = jcB + L * K;
-	int *jcC = irC + L * N;
-	for (integer i = 0; i < K; i++)
+	integer nzmaxB = L * L;
+	integer nzmaxC = L * L;
+	int *irB = new int[2 * L * L + 2 * L * L];
+	int *jcB = irB + L * L;
+	int *irC = jcB + L * L;
+	int *jcC = irC + L * L;
+	for (integer i = 0; i < L; i++)
 	{
 		for (integer j = 0; j < L; j++)
 		{
@@ -412,7 +359,7 @@ void testCFR2BlindDeconvolutionSparse(void)
 			jcB[j + i * L] = i;
 		}
 	}
-	for (integer i = 0; i < N; i++)
+	for (integer i = 0; i < L; i++)
 	{
 		for (integer j = 0; j < L; j++)
 		{
@@ -426,34 +373,33 @@ void testCFR2BlindDeconvolutionSparse(void)
 	////BLAS_duscr_insert_entries(sB, nzmaxB, B, irB, jcB);
 	////BLAS_duscr_end(sB);
 	//BLAS_usds(sB);
-
-	CFR2BlindDeconvolution Prob(y, B, nzmaxB, irB, jcB, true, C, nzmaxC, irC, jcC, true, L, K, N, r, 0, 1, 1);
+	CFR2BlindDecon2D Prob(y, B, nzmaxB, irB, jcB, true, C, nzmaxC, irC, jcC, true, n1, n2, r, 0, 1, 1);
 	Prob.SetDomain(&Domain);
 
-	//Prob.CheckGradHessian(&InitialX);
+	Prob.CheckGradHessian(&InitialX);
 
-	LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
-	//RSD *RSDsolver = new RSD(&Prob, &InitialX);
-	//->LineSearch_LS = ARMIJO;
-	//RSDsolver->LS_beta = 0.01;
-	//RSDsolver->RCGmethod = DAI_YUAN;
-	RSDsolver->Debug = ITERRESULT;
-	RSDsolver->OutputGap = 1;
-	RSDsolver->Max_Iteration = 10;
-	RSDsolver->Accuracy = 1e-6;
-	RSDsolver->Finalstepsize = 1;
-	RSDsolver->Tolerance = 1e-6;
-	RSDsolver->LengthSY = 0;
-	RSDsolver->nu = 0;
-	RSDsolver->LS_ratio1 = 0.3;
-	RSDsolver->LS_ratio2 = 0.3;
-	RSDsolver->InitSteptype = ONESTEP;
-	RSDsolver->CheckParams();
-	RSDsolver->Run();
-	Prob.CheckGradHessian(&InitialX);//--
-	//Prob.CheckGradHessian(RSDsolver->GetXopt());//--
+	//LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
+	////RSD *RSDsolver = new RSD(&Prob, &InitialX);
+	////->LineSearch_LS = ARMIJO;
+	////RSDsolver->LS_beta = 0.01;
+	////RSDsolver->RCGmethod = DAI_YUAN;
+	//RSDsolver->Debug = ITERRESULT;
+	//RSDsolver->OutputGap = 1;
+	//RSDsolver->Max_Iteration = 100;
+	//RSDsolver->Accuracy = 1e-6;
+	//RSDsolver->Finalstepsize = 1;
+	//RSDsolver->Tolerance = 1e-6;
+	//RSDsolver->LengthSY = 0;
+	//RSDsolver->nu = 0;
+	//RSDsolver->LS_ratio1 = 0.3;
+	//RSDsolver->LS_ratio2 = 0.3;
+	//RSDsolver->InitSteptype = ONESTEP;
+	//RSDsolver->CheckParams();
+	//RSDsolver->Run();
+	//Prob.CheckGradHessian(&InitialX);//--
+	////Prob.CheckGradHessian(RSDsolver->GetXopt());//--
 
-	delete RSDsolver;
+	//delete RSDsolver;
 
 	delete[] y;
 	delete[] irB;

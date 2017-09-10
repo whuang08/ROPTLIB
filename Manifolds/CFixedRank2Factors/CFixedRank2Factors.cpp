@@ -11,6 +11,7 @@ namespace ROPTLIB{
 		n = inn;
 		r = inr;
 		name.assign("Complex fixed-rank manifold by 2-factor representation");
+		IsIntrApproach = true;
 		delete EMPTYEXTR;
 		delete EMPTYINTR;
 		EMPTYEXTR = new CFR2Vector(m, n, r);

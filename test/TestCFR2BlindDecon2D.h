@@ -4,8 +4,8 @@ This is the test file to run the problem defined in LRBlindDeconvolution.h and L
 ---- WH
 */
 
-#ifndef TESTCFR2BLINDDECONVOLUTION_H
-#define TESTCFR2BLINDDECONVOLUTION_H
+#ifndef TESTCFR2BLINDDECON2D_H
+#define TESTCFR2BLINDDECON2D_H
 
 
 #include <iostream>
@@ -20,6 +20,7 @@ This is the test file to run the problem defined in LRBlindDeconvolution.h and L
 #include "Problems/LRBlindDeconvolution/LRBlindDeconvolution.h"
 #include "Problems/EucBlindDeconvolution/EucBlindDeconvolution.h"
 #include "Problems/CFR2BlindDeconvolution/CFR2BlindDeconvolution.h"
+#include "Problems/CFR2BlindDecon2D/CFR2BlindDecon2D.h"
 #include "Problems/SphereTxRQ/SphereTxRQ.h"
 #include "Manifolds/LowRank/LowRank.h"
 #include "Manifolds/LowRank/LowRankVariable.h"
@@ -48,12 +49,11 @@ This is the test file to run the problem defined in LRBlindDeconvolution.h and L
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCFR2BLINDDECONVOLUTION)
+#if !defined(MATLAB_MEX_FILE) && defined(TESTCFR2BLINDDECON2D)
 int main(void);
 #endif
 
 //void testfft();
-void testCFR2BlindDeconvolution(void);
-void testCFR2BlindDeconvolutionSparse(void);
+void testCFR2BlindDecon2DSparse(void);
 
 #endif

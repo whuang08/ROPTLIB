@@ -220,8 +220,7 @@ namespace ROPTLIB{
 
 	void SolversTR::PreConditioner(Variable *x, Vector *eta, Vector *result)
 	{
-		// default one means no preconditioner.
-		eta->CopyTo(result);
+		Prob->PreConditioner(x, eta, result);
 	};
 
 	void SolversTR::PrintGenInfo(void)
