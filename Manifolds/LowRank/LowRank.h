@@ -105,6 +105,7 @@ namespace ROPTLIB{
 
 		/*This is used in EucHvToHv */
 		void MTdUMdVtoExtr(Variable *x, double *MTdU, double *MdV, integer mm, integer nn, integer rr, Vector* xix) const;
+
 	protected:
 		integer m; /*the number of row*/
 		integer n; /*the number of column*/

@@ -1,4 +1,9 @@
 function MTestTestSparsePCA()
+    seed = floor(rand() * 100000);
+    seed = 1;
+    fprintf('MTestTestSparsePCA seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     p = 500; r = 2; n = 100;
     epsilons = 1e-4;
     B = randn(p, n);

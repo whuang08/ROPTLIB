@@ -1,9 +1,9 @@
 function MTestStieBrockett()
-    r = rand() * 100000;
-    r = 1
-    fprintf('seed:%d\n', r);
-    rand('state', r);
-    randn('state', r);
+    seed = floor(rand() * 100000);
+    seed = 1;
+    fprintf('MTestStieBrockett seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     n = 100;
     p = 4;
     Xinitial = orth(randn(n, p));
@@ -14,7 +14,7 @@ function MTestStieBrockett()
     SolverParams.method = 'LRBFGS';
 %     SolverParams.method = 'RTRNewton';
 %     SolverParams.method = 'RCG';
-    SolverParams.IsCheckParams = 1;
+    SolverParams.IsCheckParams = 0;
     SolverParams.Max_Iteration = 2000;
     SolverParams.LengthSY = 4;
     SolverParams.DEBUG = 1;

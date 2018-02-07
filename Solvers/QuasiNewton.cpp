@@ -386,36 +386,8 @@ namespace ROPTLIB{
 
 		SS is the Q in (46), SY is the P in (46), PMGQ is the P - gamma Q in (46).
 		*/
-		integer idx;
-		double *v = new double[Currentlength];
 
-		/*if S and Y has been updated in function: UpdateData(void), then PMGQ is recomputed and
-		the LU decomposition of PMGQ is also recomputed. The LU decomposition is used to evaluate
-		the action of PMGQ^{-1}. */
-		if (ischangedSandY)
-		{
-			for (integer i = 0; i < Currentlength; i++)
-			{
-				idx = (i + beginidx) % LengthSY;
-				Mani->scalarVectorAddVector(x1, -gamma, S[idx], Y[idx], YMGS[i]);
-			}
-			for (integer i = 0; i < Currentlength; i++)
-			{
-				for (integer j = 0; j < Currentlength; j++)
-				{
-					PMGQ[i + j * Currentlength] = SY[i + j * LengthSY] - gamma * SS[i + j * LengthSY];
-				}
-			}
-			if (Currentlength > 0)
-			{
-				// compute LU
-				integer info, CurLen = Currentlength;
-				// LU decomposion for PMGQ, PMGQ = P * L * U, L and U are stored in PMGQ, the permutation matrix is in P
-				// details: http://www.netlib.org/lapack/explore-html/d3/d6a/dgetrf_8f.html
-				dgetrf_(&CurLen, &CurLen, PMGQ, &CurLen, P, &info);
-				ischangedSandY = false;
-			}
-		}
+		double *v = new double[Currentlength];
 
 		for (integer i = 0; i < Currentlength; i++)
 			v[i] = Mani->Metric(x1, YMGS[i], Eta);
@@ -426,7 +398,7 @@ namespace ROPTLIB{
 			integer info, one = 1, CurLen = Currentlength;
 			// solve linear system: PMGQ * X = v using the LU decomposition results from dgetrf, then solution is stored in v.
 			// details: http://www.netlib.org/lapack/explore-html/d6/d49/dgetrs_8f.html
-			dgetrs_(trans, &CurLen, &one, PMGQ, &CurLen, P, v, &CurLen, &info);
+			dgetrs_(trans, &CurLen, &one, LU_PMGQ, &CurLen, P, v, &CurLen, &info);
 		}
 
 		Mani->ScaleTimesVector(x1, gamma, Eta, result);
@@ -434,7 +406,6 @@ namespace ROPTLIB{
 		{
 			Mani->scalarVectorAddVector(x1, v[i], YMGS[i], result, result);
 		}
-
 		delete[] v;
 	};
 
@@ -506,8 +477,8 @@ namespace ROPTLIB{
 				}
 				beginidx = (++beginidx) % LengthSY;
 			}
+
 			isupdated = true;
-			ischangedSandY = true;
 		}
 		else
 		{

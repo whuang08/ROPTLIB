@@ -43,6 +43,26 @@ namespace ROPTLIB{
 		}
 	};
 
+	void Element::CopyTempDataTo(Element *eta)
+	{
+		MAP::const_iterator thisiter = TempData.begin();
+		MAP::const_iterator etaiter, etaiterpre;
+		for (thisiter = TempData.begin(); thisiter != TempData.end(); thisiter++)
+		{
+			etaiter = eta->TempData.find(thisiter->first);
+			if (etaiter != eta->TempData.end())
+			{
+				thisiter->second->CopyTo(etaiter->second);
+			}
+			else
+			{
+				SharedSpace *Temp = thisiter->second->ConstructEmpty();
+				thisiter->second->CopyTo(Temp);
+				eta->AddToTempData(thisiter->first, Temp);
+			}
+		}
+	};
+
 	void Element::RandUnform(double start, double end)
 	{
 		RemoveAllFromTempData();

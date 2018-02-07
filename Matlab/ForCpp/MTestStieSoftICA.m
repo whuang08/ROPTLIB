@@ -1,7 +1,9 @@
 function MTestStieSoftICA()
-
-    rand('state',1);
-    randn('state',1);
+    seed = floor(rand() * 100000);
+    seed = 1;
+    fprintf('MTestStieSoftICA seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
 %     n = 1000; p = 3; N = 5;
 %     Cs = randn(n, n, N);
 %     for i = 1 : N
@@ -20,6 +22,7 @@ function MTestStieSoftICA()
     end
     X = orth(rand(n, p));
     SolverParams.method = 'LRBFGS';
+    SolverParams.IsCheckParams = 0;
     SolverParams.DEBUG = 1;
     SolverParams.Max_Iteration = 2000;
     HasHHR = 0;

@@ -1,18 +1,12 @@
-
+﻿
 #include "test/TestSphereRayQuo.h"
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPHERERAYQUO)
-
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-int main(void)
+void testSphereRayQuo(void)
 {
-	genrandseed(0);
-
 	// size of the Sphere
-	integer n = 5;
+	integer n = 40;
 
 	// Generate the matrices in the problem.
 	double *B = new double[n * n + 1];
@@ -27,84 +21,14 @@ int main(void)
 	}
 	D[0] = 1;
 
-	CheckMemoryDeleted = new std::map<integer *, integer>;
-
 	testSphereRayQuo(B, D, n);
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
-	{
-		if (iter->second != 1)
-			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
-	}
-	delete CheckMemoryDeleted;
+
 	delete[] B;
 
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
 }
-#endif
-
-#ifdef MATLAB_MEX_FILE
-
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-    if(nrhs < 2)
-    {
-        mexErrMsgTxt("The number of arguments should be at least two.\n");
-    }
-    double Dv = 1;
-	double *B, *D = &Dv, *X, *Xopt;
-	B = mxGetPr(prhs[0]);
-	X = mxGetPr(prhs[1]);
-    
-	/* dimensions of input matrices */
-	integer n;
-	n = mxGetM(prhs[0]);
-    
-    if(mxGetN(prhs[0]) != n)
-    {
-        mexErrMsgTxt("The size of matrix is not correct.\n");
-    }
-    if(mxGetM(prhs[1]) != n || mxGetN(prhs[1]) != 1)
-    {
-        mexErrMsgTxt("The size of the initial X is not correct!\n");
-    }
-    
-	printf("n:%d\n", n);
-
-	/*create output matrix*/
-	plhs[0] = mxCreateDoubleMatrix(n, 1, mxREAL);
-	Xopt = mxGetPr(plhs[0]);
-
-	genrandseed(0);
-
-	CheckMemoryDeleted = new std::map<integer *, integer>;
-	testSphereRayQuo(B, D, n, X, Xopt);
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
-	{
-		if (iter->second != 1)
-			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
-	}
-	delete CheckMemoryDeleted;
-	return;
-}
-
-#endif
 
 void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 {
-	// choose a random seed
-	unsigned tt = (unsigned)time(NULL);
-	tt = 0;
-	genrandseed(tt);
-
 	// Obtain an initial iterate by taking the Q factor of qr decomposition
 	// lapack is used
 	SphereVariable SphereX(n);
@@ -130,8 +54,8 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	StieBrockett Prob(B, D, n, 1);
 	Prob.SetDomain(&Domain);
 
-	Domain.CheckParams();
-	Prob.CheckGradHessian(&SphereX);
+	//Domain.CheckParams();
+	//Prob.CheckGradHessian(&SphereX);
 
 	//Domain.CheckIntrExtr(&SphereX);
 	//Domain.CheckRetraction(&SphereX);
@@ -218,17 +142,22 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	//	delete RBFGSsolver;
 	//}
 
-	//// test LRBFGS
+	// test LRBFGS
 	//printf("********************************Check all line search algorithm in LRBFGS*************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
-	//{
-	//	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &SphereX);
-	//	LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-	//	LRBFGSsolver->Debug = FINALRESULT;
-	//	LRBFGSsolver->CheckParams();
-	//	LRBFGSsolver->Run();
-	//	delete LRBFGSsolver;
-	//}
+	for (integer i = 0; i < 1; i++) //INPUTFUN
+	{
+		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &SphereX);
+		LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
+		LRBFGSsolver->Debug = FINALRESULT;
+		//LRBFGSsolver->CheckParams();
+		LRBFGSsolver->Max_Iteration = 50;
+		LRBFGSsolver->Run();
+		if (LRBFGSsolver->Getnormgfgf0() < 1e-6)
+			printf("SUCCESS!\n");
+		else
+			printf("FAIL!\n");
+		delete LRBFGSsolver;
+	}
 
 	//// test RTRSD
 	//printf("********************************Check RTRSD*************************************\n");
@@ -237,12 +166,12 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	//RTRSDsolver.CheckParams();
 	//RTRSDsolver.Run();
 
-	// test RTRNewton
-	printf("********************************Check RTRNewton*************************************\n");
-	RTRNewton RTRNewtonsolver(&Prob, &SphereX);
-	RTRNewtonsolver.Debug = FINALRESULT;
-	RTRNewtonsolver.CheckParams();
-	RTRNewtonsolver.Run();
+	//// test RTRNewton
+	//printf("********************************Check RTRNewton*************************************\n");
+	//RTRNewton RTRNewtonsolver(&Prob, &SphereX);
+	//RTRNewtonsolver.Debug = FINALRESULT;
+	//RTRNewtonsolver.CheckParams();
+	//RTRNewtonsolver.Run();
 
 	//// test RTRSR1
 	//printf("********************************Check RTRSR1*************************************\n");
@@ -262,7 +191,7 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	//Prob.CheckGradHessian(&SphereX);
 	//const Variable *xopt = RTRNewtonsolver.GetXopt();
 	//Prob.CheckGradHessian(xopt);
- //   
+	//   
 	//if (Xopt != nullptr)
 	//{
 	//	const double *xoptptr = xopt->ObtainReadData();
@@ -270,3 +199,53 @@ void testSphereRayQuo(double *B, double *D, integer n, double *X, double *Xopt)
 	//		Xopt[i] = xoptptr[i];
 	//}
 };
+
+#ifdef MATLAB_MEX_FILE
+
+std::map<integer *, integer> *CheckMemoryDeleted;
+
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    if(nrhs < 2)
+    {
+        mexErrMsgTxt("The number of arguments should be at least two.\n");
+    }
+    double Dv = 1;
+	double *B, *D = &Dv, *X, *Xopt;
+	B = mxGetPr(prhs[0]);
+	X = mxGetPr(prhs[1]);
+    
+	/* dimensions of input matrices */
+	integer n;
+	n = mxGetM(prhs[0]);
+    
+    if(mxGetN(prhs[0]) != n)
+    {
+        mexErrMsgTxt("The size of matrix is not correct.\n");
+    }
+    if(mxGetM(prhs[1]) != n || mxGetN(prhs[1]) != 1)
+    {
+        mexErrMsgTxt("The size of the initial X is not correct!\n");
+    }
+    
+	printf("n:%d\n", n);
+
+	/*create output matrix*/
+	plhs[0] = mxCreateDoubleMatrix(n, 1, mxREAL);
+	Xopt = mxGetPr(plhs[0]);
+
+	genrandseed(0);
+
+	CheckMemoryDeleted = new std::map<integer *, integer>;
+	testSphereRayQuo(B, D, n, X, Xopt);
+	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
+	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
+	{
+		if (iter->second != 1)
+			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
+	}
+	delete CheckMemoryDeleted;
+	return;
+}
+
+#endif

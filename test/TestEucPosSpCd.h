@@ -54,10 +54,6 @@ See details in Section IV.B in [CS15].
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTEUCPOSSPCD)
-int main(void);
-#endif
-
 /*The main test function*/
 void testEucPosSpCd(void);
 

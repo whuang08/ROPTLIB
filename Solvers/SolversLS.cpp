@@ -42,11 +42,9 @@ namespace ROPTLIB{
 		while ((((! isstop) && iter < Max_Iteration) || iter < Min_Iteration) && LSstatus == SUCCESS)
 		{
 			GetSearchDir(); // Obtain search direction eta1
-
 			initialslope = Mani->Metric(x1, gf1, eta1);
 			/*Compute initial step size for the next iteration*/
 			InitialStepSize();
-
 			initiallength = stepsize;
 			/*Start a line search algorithm. If the intrinsic representation is used for the search direction, then converting it into the extrinsic representation.*/
 			if (Prob->GetDomain()->GetIsIntrinsic())

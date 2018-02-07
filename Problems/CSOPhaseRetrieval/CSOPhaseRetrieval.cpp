@@ -1,6 +1,8 @@
 
 #include "Problems/CSOPhaseRetrieval/CSOPhaseRetrieval.h"
 
+#ifdef ROPTLIB_WITH_FFTW
+
 /*Define the namespace*/
 namespace ROPTLIB {
 
@@ -174,3 +176,4 @@ namespace ROPTLIB {
 	};
 
 }; /*end of ROPTLIB namespace*/
+#endif

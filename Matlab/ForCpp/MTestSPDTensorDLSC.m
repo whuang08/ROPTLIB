@@ -1,9 +1,9 @@
-function MTestSPDTensorDL()
-    r = floor(rand() * 10000000)
-%     r = 1
-%     r = 7740966
-    rand('state', r);
-    randn('state', r);
+function MTestSPDTensorDLSC()
+    seed = floor(rand() * 100000);
+    seed = 2;
+    fprintf('MTestSPDTensorDLSC seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     dim = 3;%% 20;
     num = 100;
     N = 500;
@@ -38,31 +38,31 @@ function MTestSPDTensorDL()
     initalpha = rand(num, N); % ones(num, N) / num;
     Xinitial = reshape(Xalpha * max(pinv(initalpha), 0), dim, dim, num);
     
-    % compute initial iterate
-    fprintf('compute initial iterate\n');
-    for i = 1 : 10
-        pinvBs = pinv(reshape(Xinitial, dim * dim, []));
-        initalpha = zeros(num, N);
-        for j = 1 : N
-%             a = norm(pinvBs * reshape(As(:, :, j), [], 1));
-%             initalpha(:, j) = ones(num, 1) / sqrt(num) * a;
-            initalpha(:, j) = max(pinvBs * reshape(As(:, :, j), [], 1), 0);
-        end
-%         i
-%         initalpha
-        Xinitial = reshape(Xalpha * max(pinv(initalpha), 0), dim, dim, num);
-        
-        fprintf('i:%d, Berr:%e, SCerr:%e\n', i, norm(Xinitial(:) - Xtrue(:)) / norm(Xtrue(:)), ...
-            norm(initalpha(:) - alpha(:)) / norm(alpha(:)));
-    end
+%     % compute initial iterate. Note that this method does not work well..
+%     fprintf('compute initial iterate\n');
+%     for i = 1 : 10
+%         pinvBs = pinv(reshape(Xinitial, dim * dim, []));
+%         initalpha = zeros(num, N);
+%         for j = 1 : N
+% %             a = norm(pinvBs * reshape(As(:, :, j), [], 1));
+% %             initalpha(:, j) = ones(num, 1) / sqrt(num) * a;
+%             initalpha(:, j) = max(pinvBs * reshape(As(:, :, j), [], 1), 0);
+%         end
+% %         i
+% %         initalpha
+%         Xinitial = reshape(Xalpha * max(pinv(initalpha), 0), dim, dim, num);
+%         
+%         fprintf('i:%d, Berr:%e, SCerr:%e\n', i, norm(Xinitial(:) - Xtrue(:)) / norm(Xtrue(:)), ...
+%             norm(initalpha(:) - alpha(:)) / norm(alpha(:)));
+%     end
+%     return;
     
-    return;
 % start the alternate descent method
 %     alpha_i = alpha;
 %     Dic_i = Xtrue;
     alpha_i = initalpha;
     Dic_i = Xinitial;
-    maxiter = 50;
+    maxiter = 20;
     lambdaB = logspace(-2, -6, maxiter);
     lambdaR = logspace(-2, -6, maxiter);
 
@@ -86,8 +86,6 @@ function MTestSPDTensorDL()
         
         ftotal1 = f + sum(sum(alpha_i)) * lambdaR(i);
 
-        
-        
 %         pinvBs = pinv(reshape(newDic_i, dim * dim, []));%%----
 %         alpha_i = zeros(num, N);
 %         for j = 1 : N
@@ -115,6 +113,8 @@ function MTestSPDTensorDL()
         
         ftotal3 = f - sum(sum(newalpha_i)) * lambdaR(i);
         
+        %Berr and SCerr does not count the ambiguity. Therefore, the
+        %solutions may be correct even though they are big.
         fprintf('i:%d, Berr:%e, SCerr:%e, f1:%e, f2:%e, f3:%e\n', i, norm(newDic_i(:) - Xtrue(:)) / norm(Xtrue(:)), ...
             norm(newalpha_i(:) - alpha(:)) / norm(alpha(:)), ftotal1, ftotal2, ftotal3);
         Dic_i = newDic_i;

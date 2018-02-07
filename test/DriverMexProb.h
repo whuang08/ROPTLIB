@@ -109,7 +109,8 @@ prhs: the input objects in mxArray format */
 void DriverMexProb(int &nlhs, mxArray ** &plhs, int &nrhs, const mxArray ** &prhs);
 
 /*This file creates a C++ solver based on the input parameters and run the solver to obtain a solution.*/
-void ParseSolverParamsAndOptimizing(const mxArray *SolverParams, Problem *Prob, Variable *initialX, Variable *soln, mxArray ** &plhs);
+void ParseSolverParamsAndOptimizing(const mxArray *SolverParams, Problem *Prob, Variable *initialX, Variable *soln, mxArray ** &plhs, 
+	double(*LSInput)(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver) = nullptr);
 
 /*This file creates all components of the product manifolds. Note that the cost function is always
 defined on a product manifolds.*/
@@ -182,7 +183,8 @@ namespace RMEX{
 	}
 };
 
-void ParseSolverParamsAndOptimizing(const mxArray *SolverParams, Problem *Prob, Variable *initialX, Variable *soln, mxArray **&plhs)
+void ParseSolverParamsAndOptimizing(const mxArray *SolverParams, Problem *Prob, Variable *initialX, Variable *soln, mxArray **&plhs,
+	double(*LSInput)(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver))
 {
 	integer nfields = mxGetNumberOfFields(SolverParams);
 	const char *name;
@@ -300,6 +302,15 @@ void ParseSolverParamsAndOptimizing(const mxArray *SolverParams, Problem *Prob, 
 			solverLS->LinesearchInput = &RMEX::mexLinesearchInput;
 	}
 
+	SolversLS *solverLS = dynamic_cast<SolversLS *> (solver);
+	if(solverLS != nullptr)
+	{
+		if (solverLS->LineSearch_LS == INPUTFUN && LSInput != nullptr)
+		{
+			solverLS->LinesearchInput = LSInput;
+		}
+	}
+
 	tmp = mexProblem::GetFieldbyName(SolverParams, 0, "IsCheckParams");
 	if (tmp != nullptr)
 	{
@@ -408,8 +419,8 @@ void ParseSolverParamsAndOptimizing(const mxArray *SolverParams, Problem *Prob, 
             delete xoptcopy;
 		}
 	}
-
 	delete solver;
+
 };
 
 bool ParseManiParams(const mxArray *ManiParams, Manifold **&manifolds, Element **&elements,

@@ -18,6 +18,8 @@ Problem --> CSOPhaseRetrieval
 #include "Others/def.h"
 #include "Others/fftw/fftw3.h"
 
+#ifdef ROPTLIB_WITH_FFTW
+
 /*Define the namespace*/
 namespace ROPTLIB{
 
@@ -46,4 +48,5 @@ namespace ROPTLIB{
 		unsigned int flags;
 	};
 }; /*end of ROPTLIB namespace*/
+#endif
 #endif

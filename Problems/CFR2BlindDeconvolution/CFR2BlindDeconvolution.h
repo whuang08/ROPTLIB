@@ -25,6 +25,8 @@ Problem --> CFR2BlindDeconvolution
 
 //#define max(a, b) ((a < b)?b:a)
 
+#ifdef ROPTLIB_WITH_FFTW
+
 /*Define the namespace*/
 namespace ROPTLIB{
 
@@ -77,4 +79,5 @@ namespace ROPTLIB{
 		double mu;
 	};
 }; /*end of ROPTLIB namespace*/
+#endif
 #endif

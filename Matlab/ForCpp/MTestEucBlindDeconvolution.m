@@ -1,7 +1,7 @@
 function MTestLRMatrixCompletion()
     seed = floor(rand() * 100000);
-%     seed = 2;
-    fprintf('seed:%d\n', seed);
+    seed = 2;
+    fprintf('MTestLRMatrixCompletion seed:%d\n', seed);
     rand('state', seed);
     randn('state', seed);
     L = 200;
@@ -25,11 +25,11 @@ function MTestLRMatrixCompletion()
     SolverParams.method = 'LRBFGS';
 %     SolverParams.method = 'RTRSR1';
 %     SolverParams.method = 'RTRNewton';
-    SolverParams.IsCheckParams = 1;
-    SolverParams.Max_Iteration = 1000;
+    SolverParams.IsCheckParams = 0;
+    SolverParams.Max_Iteration = 2000;
     SolverParams.OutputGap = 100;
     SolverParams.LengthSY = 4;
-    SolverParams.DEBUG = 2;
+    SolverParams.DEBUG = 1;
     HasHHR = 0;
     [Xopt, f, gf, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime, funs, grads, times, dists] = TestEucBlindDeconvolution(y, B, C, Xinitial, r, HasHHR, SolverParams);
 end

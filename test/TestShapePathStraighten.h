@@ -50,7 +50,7 @@
 
 using namespace ROPTLIB;
 
-void testShapePathStraighten();
+void testShapePathStraighten(void);
 
 
 #endif /* TestShapePathStraighten_h */

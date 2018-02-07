@@ -48,12 +48,11 @@ This is the test file to run the problem defined in LRBlindDeconvolution.h and L
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCFR2BLINDDECONVOLUTION)
-int main(void);
-#endif
+#ifdef ROPTLIB_WITH_FFTW
 
 //void testfft();
 void testCFR2BlindDeconvolution(void);
 void testCFR2BlindDeconvolutionSparse(void);
 
+#endif
 #endif

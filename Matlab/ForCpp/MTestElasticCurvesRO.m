@@ -1,4 +1,4 @@
-function test(C, w, r)
+function MTestElasticCurvesRO(C, w, r)
     if(nargin == 0)
         Load_Datasets;
         C = CM;
@@ -7,8 +7,11 @@ function test(C, w, r)
         w = 0.01;
     end
 
+    isplot = false;
+    
     randn('state', 1);
-    r = floor(1000000 * rand())
+    r = floor(1000000 * rand());
+    fprintf('MTestElasticCurvesRO seed:%d\n', r);
 %     r = 170608
 %     r = 4
     rand('state', r);
@@ -19,8 +22,8 @@ function test(C, w, r)
 %     first_shape = (cluster_n - 1) * 20 + floor(rand() * 20) + 1
 %     second_shape = (cluster_n - 1) * 20 + floor(rand() * 20) + 1
     
-    first_shape = floor(rand() * 1020) + 1
-    second_shape = floor(rand() * 1020) + 1
+    first_shape = floor(rand() * 1020) + 1;
+    second_shape = floor(rand() * 1020) + 1;
 
 %     first_shape = 701; %% for flat case
 %     second_shape = 253;
@@ -59,27 +62,29 @@ function test(C, w, r)
 %     C2 = C2 * O;
 %     Ofirst = O
 
-    set(0,'defaultaxesfontsize',14, ...
-       'defaultaxeslinewidth',0.7, ...
-       'defaultlinelinewidth',.8,'defaultpatchlinewidth',0.8);
-    set(0,'defaultlinemarkersize',10)
-    h1 = figure(1);clf
-    C1plot = Center_C(C1); C1plot = C1plot / norm(C1plot);
-    C2plot = Center_C(C2); C2plot = C2plot / norm(C2plot);
-    subplot(1, 4, 1);
-    plot(C1plot(:, 1), C1plot(:, 2), '.b-')
-    hold on
-    plot(C2plot(:, 1), C2plot(:, 2), '.r-')
-    legend('\beta_1','\beta_2');
-    scatter(C1plot(1, 1), C1plot(1, 2), '*', 'k');
-    hold on
-    scatter(C2plot(1, 1), C2plot(1, 2), '*', 'k');
-    hold on
-    title('curves')
-    axis tight
-    axis equal
-    axis off
-    pause(0.01);
+    if(isplot)
+        set(0,'defaultaxesfontsize',14, ...
+           'defaultaxeslinewidth',0.7, ...
+           'defaultlinelinewidth',.8,'defaultpatchlinewidth',0.8);
+        set(0,'defaultlinemarkersize',10)
+        h1 = figure(1);clf
+        C1plot = Center_C(C1); C1plot = C1plot / norm(C1plot);
+        C2plot = Center_C(C2); C2plot = C2plot / norm(C2plot);
+        subplot(1, 4, 1);
+        plot(C1plot(:, 1), C1plot(:, 2), '.b-')
+        hold on
+        plot(C2plot(:, 1), C2plot(:, 2), '.r-')
+        legend('\beta_1','\beta_2');
+        scatter(C1plot(1, 1), C1plot(1, 2), '*', 'k');
+        hold on
+        scatter(C2plot(1, 1), C2plot(1, 2), '*', 'k');
+        hold on
+        title('curves')
+        axis tight
+        axis equal
+        axis off
+        pause(0.01);
+    end
 
 %%=================== CD method=============================
     rotated = 1;
@@ -98,7 +103,7 @@ function test(C, w, r)
 % CDfopts = QNfopts;
 % CDcomtime = QNcomtime;
 %%==================plot gamma function=================================
-    CDm = XCDopt(end)
+    CDm = XCDopt(end);
     O = XCDopt(end - 4 : end - 1);
     CDO = reshape(O, 2, 2);
     CDgamma = XCDopt(1 : end - 5);
@@ -107,9 +112,9 @@ function test(C, w, r)
         CDO = CDO';
         CDm = 1 - CDm;
     end
-    CDO
+%     CDO
     
-    QNm = XQNopt(end)
+    QNm = XQNopt(end);
     O = XQNopt(end - 4 : end - 1);
     QNO = reshape(O, 2, 2);
     QNgamma = XQNopt(1 : end - 5);
@@ -119,61 +124,62 @@ function test(C, w, r)
         QNm = 1 - QNm;
     end
     
-    swap2
-    QNO
-    
-    subplot(1, 4, 2);
+%     swap2
+%     QNO
     gammaCD = mod(CDgamma + CDm, 1);
     N = length(gammaCD);
-    scatter((0 : N - 1) / (N - 1), gammaCD, '.', 'b');
-    hold on
     gammaQN = mod(QNgamma + QNm, 1);
     N = length(gammaQN);
-    scatter((0 : N - 1) / (N - 1), gammaQN, '.', 'r');
-    axis([0, 1, 0, 1])
-    title('\gamma functions');
-%     set(gca,'xtick',[0, 1],'xticklabel', '0 | 1', 'fontname', 'symbol'); 
-%     set(gca,'ytick',[0, 1],'yticklabel', '0 | 1', 'fontname', 'symbol'); 
-    hhh = legend('C','R');
-%     set(hhh, 'fontname', 'Helvetica');
-    axis equal
-    axis([0, 1, 0, 1])
+    if(isplot)
+        subplot(1, 4, 2);
+        scatter((0 : N - 1) / (N - 1), gammaCD, '.', 'b');
+        hold on
+        scatter((0 : N - 1) / (N - 1), gammaQN, '.', 'r');
+        axis([0, 1, 0, 1])
+        title('\gamma functions');
+    %     set(gca,'xtick',[0, 1],'xticklabel', '0 | 1', 'fontname', 'symbol'); 
+    %     set(gca,'ytick',[0, 1],'yticklabel', '0 | 1', 'fontname', 'symbol'); 
+        hhh = legend('C','R');
+    %     set(hhh, 'fontname', 'Helvetica');
+        axis equal
+        axis([0, 1, 0, 1])
 
-%%==================plot matching curves=================================
-    subplot(1, 4, 4);
-    plot_matching_curves(C1', (C2 * CDO')', gammaCD, 1, strcat('C, L:', num2str(CDfopts(1))));
+    %%==================plot matching curves=================================
+        subplot(1, 4, 4);
+        plot_matching_curves(C1', (C2 * CDO')', gammaCD, 1, strcat('C, L:', num2str(CDfopts(1))));
 
-    subplot(1, 4, 3);
-    plot_matching_curves(C1', (C2 * QNO')', gammaQN, 1, strcat('R, L:', num2str(QNfopts(1))));
-    
-    CDcomtime
-    QNcomtime
-    
+        subplot(1, 4, 3);
+        plot_matching_curves(C1', (C2 * QNO')', gammaQN, 1, strcat('R, L:', num2str(QNfopts(1))));
+
+%         CDcomtime
+%         QNcomtime
+    end
     
 %%==================plot geodesic==================================
-    set(0,'defaultaxesfontsize',10, ...
-       'defaultaxeslinewidth',0.7, ...
-       'defaultlinelinewidth',.8,'defaultpatchlinewidth',0.8);
-    set(0,'defaultlinemarkersize',10)
-    
-    q1 = curve_to_q(C1')';
-    h2 = figure(2);clf
-    ppC2best = (spline((0:(N-1))/(N-1), (C2 * CDO')'));
-    for i = 1 : N
-        C2best(i, :) = ppval(ppC2best, gammaCD(i))';
+    if(isplot)
+        set(0,'defaultaxesfontsize',10, ...
+           'defaultaxeslinewidth',0.7, ...
+           'defaultlinelinewidth',.8,'defaultpatchlinewidth',0.8);
+        set(0,'defaultlinemarkersize',10)
+
+        q1 = curve_to_q(C1')';
+        h2 = figure(2);clf
+        ppC2best = (spline((0:(N-1))/(N-1), (C2 * CDO')'));
+        for i = 1 : N
+            C2best(i, :) = ppval(ppC2best, gammaCD(i))';
+        end
+        CDq2best = curve_to_q(C2best')';
+        plot_geodesic(q1', CDq2best', C2best', 6, 'geodesic approximation of CD1H');
+
+        h3 = figure(3);clf
+        ppC2best = spline((0:(N-1))/(N-1), (C2 * QNO')');
+        for i = 1 : N
+            DPC2best(i, :) = ppval(ppC2best, gammaQN(i))';
+        end
+        DPq2best = curve_to_q(DPC2best')';
+        plot_geodesic(q1', DPq2best', DPC2best', 6, 'geodesic approximation of ROPT');
+        fprintf('first shape:%d, second shape:%d\n', first_shape, second_shape);
     end
-    CDq2best = curve_to_q(C2best')';
-    plot_geodesic(q1', CDq2best', C2best', 6, 'geodesic approximation of CD1H');
-    
-    h3 = figure(3);clf
-    ppC2best = spline((0:(N-1))/(N-1), (C2 * QNO')');
-    for i = 1 : N
-        DPC2best(i, :) = ppval(ppC2best, gammaQN(i))';
-    end
-    DPq2best = curve_to_q(DPC2best')';
-    plot_geodesic(q1', DPq2best', DPC2best', 6, 'geodesic approximation of ROPT');
-    fprintf('first shape:%d, second shape:%d\n', first_shape, second_shape);
-    
 end
 
 function output = ReSampleOpenCurve(C, NN)

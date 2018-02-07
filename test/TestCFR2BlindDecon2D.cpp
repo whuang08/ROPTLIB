@@ -1,42 +1,157 @@
 ﻿#include "test/TestCFR2BlindDecon2D.h"
+
+#ifdef ROPTLIB_WITH_FFTW
+
 using namespace ROPTLIB;
 
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCFR2BLINDDECON2D)
-
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-int main(void)
+void testCFR2BlindDecon2D(void)
 {
-	//_CrtSetBreakAlloc(613);
-	long seed = static_cast<long> (time(NULL));
-	//seed = 1417791199;//---
-	seed = 0;
-	printf("seed:%ld\n", seed);
-	genrandseed(seed);
+	//integer n = 8;
+	//double *v = new double[n * 2];
+	//for (integer i = 0; i < n * 2; i++)
+	//	v[i] = i;
+	//haarFWT_1d(n, (doublecomplex *)v); /*wavedec in Matlab*/
 
-	CheckMemoryDeleted = new std::map<integer *, integer>;
+	//for (integer i = 0; i < n * 2; i++)
+	//	std::cout << v[i] << std::endl;//---
 
-	//testCFR2BlindDeconvolution();
-	testCFR2BlindDecon2DSparse();
+	//haarFWT_1d_inverse(n, (doublecomplex *)v); /*waverec in Matlab*/
 
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
+	//for (integer i = 0; i < n * 2; i++)
+	//	std::cout << v[i] << std::endl;//---
+	//delete[] v;
+	//return;
+
+	//integer nn1 = 4, nn2 = 4;
+	//doublecomplex *vv = new doublecomplex[4 * 4];
+	//for (integer i = 0; i < nn1 * nn2; i++)
+	//{
+	//	vv[i].r = i;
+	//	vv[i].i = i;
+	//}
+	//std::cout << "original:" << std::endl;//---
+	//for (integer i = 0; i < nn1; i++)
+	//{
+	//	for (integer j = 0; j < nn2; j++)
+	//	{
+	//		std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
+	//	}
+	//	std::cout << std::endl;//---
+	//}
+	//haarFWT_2d(4, 4, vv);
+	//std::cout << "Haar transform:" << std::endl;//---
+	//for (integer i = 0; i < nn1; i++)
+	//{
+	//	for (integer j = 0; j < nn2; j++)
+	//	{
+	//		std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
+	//	}
+	//	std::cout << std::endl;//---
+	//}
+	//std::cout << "Haar inverse transform:" << std::endl;//---
+	//haarFWT_2d_inverse(nn1, nn2, vv);
+
+	//for (integer i = 0; i < nn1; i++)
+	//{
+	//	for (integer j = 0; j < nn2; j++)
+	//	{
+	//		std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
+	//	}
+	//	std::cout << std::endl;//---
+	//}
+	//return;
+
+	integer n1 = 4, n2 = 4, r = 1, L = n1 * n2;
+
+	CFixedRank2Factors Domain(L, L, r);
+	Domain.SetHasHHR(false);
+	CFR2Variable InitialX(L, L, r);
+	InitialX.RandInManifold();
+	//Domain.CheckParams();
+
+	//Domain.CheckIntrExtr(&InitialX);
+	//Domain.CheckRetraction(&InitialX);
+	//Domain.CheckcoTangentVector(&InitialX);
+	//Domain.CheckDiffRetraction(&InitialX, false);
+	//Domain.CheckIsometryofVectorTransport(&InitialX);
+
+	//Domain.CheckLockingCondition(&InitialX);
+	//Domain.CheckIsometryofInvVectorTransport(&InitialX);
+	//Domain.CheckVecTranComposeInverseVecTran(&InitialX);
+	//Domain.CheckTranHInvTran(&InitialX);
+	//return;
+
+	//InitialX.Print("initialX:");
+
+	// Generate the matrices in the Low rank approximation problem.
+	double *y = new double[L * 2 + L * L * 2 + L * L * 2];
+	double *B = y + L * 2;
+	double *C = B + L * L * 2;
+	for (integer i = 0; i < L * 2 + L * L * 2 + L * L * 2; i++)
+		y[i] = genrandnormal();
+	integer nzmaxB = L * L;
+	integer nzmaxC = L * L;
+	int *irB = new int[2 * L * L + 2 * L * L];
+	int *jcB = irB + L * L;
+	int *irC = jcB + L * L;
+	int *jcC = irC + L * L;
+	for (integer i = 0; i < L; i++)
 	{
-		if (iter->second != 1)
-			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
+		for (integer j = 0; j < L; j++)
+		{
+			irB[j + i * L] = j;
+			jcB[j + i * L] = i;
+		}
 	}
-	delete CheckMemoryDeleted;
+	for (integer i = 0; i < L; i++)
+	{
+		for (integer j = 0; j < L; j++)
+		{
+			irC[j + i * L] = j;
+			jcC[j + i * L] = i;
+		}
+	}
 
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif	
+	//blas_sparse_matrix sB;
+	//sB = BLAS_duscr_begin(2 * L, K);
+	////BLAS_duscr_insert_entries(sB, nzmaxB, B, irB, jcB);
+	////BLAS_duscr_end(sB);
+	//BLAS_usds(sB);
+	CFR2BlindDecon2D Prob(y, B, nzmaxB, irB, jcB, true, C, nzmaxC, irC, jcC, true, n1, n2, r, 0, 1, 1);
+	Prob.SetDomain(&Domain);
 
-	return 0;
-}
-#endif
+	//Prob.CheckGradHessian(&InitialX);
+
+	LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
+	//RSD *RSDsolver = new RSD(&Prob, &InitialX);
+	//->LineSearch_LS = ARMIJO;
+	//RSDsolver->LS_beta = 0.01;
+	//RSDsolver->RCGmethod = DAI_YUAN;
+	RSDsolver->Debug = FINALRESULT;
+	RSDsolver->OutputGap = 1;
+	RSDsolver->Max_Iteration = 100;
+	RSDsolver->Accuracy = 1e-6;
+	RSDsolver->Finalstepsize = 1;
+	RSDsolver->Tolerance = 1e-6;
+	RSDsolver->LengthSY = 0;
+	RSDsolver->nu = 0;
+	RSDsolver->LS_ratio1 = 0.3;
+	RSDsolver->LS_ratio2 = 0.3;
+	RSDsolver->InitSteptype = ONESTEP;
+	//RSDsolver->CheckParams();
+	RSDsolver->Run();
+	//Prob.CheckGradHessian(&InitialX);//--
+	//Prob.CheckGradHessian(RSDsolver->GetXopt());//--
+	if (RSDsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
+	delete RSDsolver;
+
+	delete[] y;
+	delete[] irB;
+};
 
 #ifdef MATLAB_MEX_FILE
 
@@ -238,172 +353,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 }
 
 #endif
-
-//void testfft()
-//{
-//	int i, j, bw, bw2_1, size, size2_1, nrow, ncol;
-//	int data_is_real;
-//	int cutoff;
-//	int rank, howmany_rank;
-//	double *rresult, *iresult, *rdata, *idata;
-//	double *workspace, *weights;
-//
-//	fftw_plan dctPlan;
-//	fftw_plan fftPlan;
-//	fftw_iodim dims[1], howmany_dims[1];
-//
-//	bw = 2;
-//	weights = new double[4 * bw];// (double *)malloc(sizeof(double) * 4 * bw);
-//	rdata = new double[5 * bw];// (double *)malloc(sizeof(double) * 5 * bw);
-//	dctPlan = fftw_plan_r2r_1d(2 * bw, weights, rdata, FFTW_REDFT10, FFTW_ESTIMATE);
-//	delete weights;
-//	delete rdata;
-//}
-
-void testCFR2BlindDecon2DSparse(void)
-{
-	//integer n = 8;
-	//double *v = new double[n * 2];
-	//for (integer i = 0; i < n * 2; i++)
-	//	v[i] = i;
-	//haarFWT_1d(n, (doublecomplex *)v); /*wavedec in Matlab*/
-
-	//for (integer i = 0; i < n * 2; i++)
-	//	std::cout << v[i] << std::endl;//---
-
-	//haarFWT_1d_inverse(n, (doublecomplex *)v); /*waverec in Matlab*/
-
-	//for (integer i = 0; i < n * 2; i++)
-	//	std::cout << v[i] << std::endl;//---
-	//delete[] v;
-	//return;
-
-	integer nn1 = 4, nn2 = 4;
-	doublecomplex *vv = new doublecomplex[4 * 4];
-	for (integer i = 0; i < nn1 * nn2; i++)
-	{
-		vv[i].r = i;
-		vv[i].i = i;
-	}
-	std::cout << "original:" << std::endl;//---
-	for (integer i = 0; i < nn1; i++)
-	{
-		for (integer j = 0; j < nn2; j++)
-		{
-			std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
-		}
-		std::cout << std::endl;//---
-	}
-	haarFWT_2d(4, 4, vv);
-	std::cout << "Haar transform:" << std::endl;//---
-	for (integer i = 0; i < nn1; i++)
-	{
-		for (integer j = 0; j < nn2; j++)
-		{
-			std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
-		}
-		std::cout << std::endl;//---
-	}
-	std::cout << "Haar inverse transform:" << std::endl;//---
-	haarFWT_2d_inverse(nn1, nn2, vv);
-
-	for (integer i = 0; i < nn1; i++)
-	{
-		for (integer j = 0; j < nn2; j++)
-		{
-			std::cout << vv[i + j * nn1].r << "+ i " << vv[i + j * nn1].i << "\t";
-		}
-		std::cout << std::endl;//---
-	}
-	return;
-
-	integer n1 = 4, n2 = 4, r = 1, L = n1 * n2;
-
-	CFixedRank2Factors Domain(L, L, r);
-	Domain.SetHasHHR(false);
-	CFR2Variable InitialX(L, L, r);
-	InitialX.RandInManifold();
-	Domain.CheckParams();
-
-	//Domain.CheckIntrExtr(&InitialX);
-	//Domain.CheckRetraction(&InitialX);
-	//Domain.CheckcoTangentVector(&InitialX);
-	//Domain.CheckDiffRetraction(&InitialX, false);
-	//Domain.CheckIsometryofVectorTransport(&InitialX);
-
-	//Domain.CheckLockingCondition(&InitialX);
-	//Domain.CheckIsometryofInvVectorTransport(&InitialX);
-	//Domain.CheckVecTranComposeInverseVecTran(&InitialX);
-	//Domain.CheckTranHInvTran(&InitialX);
-	//return;
-
-	//InitialX.Print("initialX:");
-
-	// Generate the matrices in the Low rank approximation problem.
-	double *y = new double[L * 2 + L * L * 2 + L * L * 2];
-	double *B = y + L * 2;
-	double *C = B + L * L * 2;
-	for (integer i = 0; i < L * 2 + L * L * 2 + L * L * 2; i++)
-		y[i] = genrandnormal();
-	integer nzmaxB = L * L;
-	integer nzmaxC = L * L;
-	int *irB = new int[2 * L * L + 2 * L * L];
-	int *jcB = irB + L * L;
-	int *irC = jcB + L * L;
-	int *jcC = irC + L * L;
-	for (integer i = 0; i < L; i++)
-	{
-		for (integer j = 0; j < L; j++)
-		{
-			irB[j + i * L] = j;
-			jcB[j + i * L] = i;
-		}
-	}
-	for (integer i = 0; i < L; i++)
-	{
-		for (integer j = 0; j < L; j++)
-		{
-			irC[j + i * L] = j;
-			jcC[j + i * L] = i;
-		}
-	}
-
-	//blas_sparse_matrix sB;
-	//sB = BLAS_duscr_begin(2 * L, K);
-	////BLAS_duscr_insert_entries(sB, nzmaxB, B, irB, jcB);
-	////BLAS_duscr_end(sB);
-	//BLAS_usds(sB);
-	CFR2BlindDecon2D Prob(y, B, nzmaxB, irB, jcB, true, C, nzmaxC, irC, jcC, true, n1, n2, r, 0, 1, 1);
-	Prob.SetDomain(&Domain);
-
-	Prob.CheckGradHessian(&InitialX);
-
-	//LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
-	////RSD *RSDsolver = new RSD(&Prob, &InitialX);
-	////->LineSearch_LS = ARMIJO;
-	////RSDsolver->LS_beta = 0.01;
-	////RSDsolver->RCGmethod = DAI_YUAN;
-	//RSDsolver->Debug = ITERRESULT;
-	//RSDsolver->OutputGap = 1;
-	//RSDsolver->Max_Iteration = 100;
-	//RSDsolver->Accuracy = 1e-6;
-	//RSDsolver->Finalstepsize = 1;
-	//RSDsolver->Tolerance = 1e-6;
-	//RSDsolver->LengthSY = 0;
-	//RSDsolver->nu = 0;
-	//RSDsolver->LS_ratio1 = 0.3;
-	//RSDsolver->LS_ratio2 = 0.3;
-	//RSDsolver->InitSteptype = ONESTEP;
-	//RSDsolver->CheckParams();
-	//RSDsolver->Run();
-	//Prob.CheckGradHessian(&InitialX);//--
-	////Prob.CheckGradHessian(RSDsolver->GetXopt());//--
-
-	//delete RSDsolver;
-
-	delete[] y;
-	delete[] irB;
-
-};
-
-
+#endif

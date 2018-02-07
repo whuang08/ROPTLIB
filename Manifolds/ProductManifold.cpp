@@ -733,6 +733,7 @@ namespace ROPTLIB{
 			{
 				for (integer j = powsinterval[i]; j < powsinterval[i + 1]; j++)
 				{
+					prodegf->CopyTempDataTo(prodegf->GetElement(j));
 					manifolds[i]->EucGradToGrad(prodx->GetElement(j), prodegf->GetElement(j), prodgfTemp->GetElement(j), prob);
 				}
 			}
@@ -770,6 +771,7 @@ namespace ROPTLIB{
 			{
 				for (integer j = powsinterval[i]; j < powsinterval[i + 1]; j++)
 				{
+					prodexix->CopyTempDataTo(prodexix->GetElement(j));
 					manifolds[i]->EucHvToHv(prodx->GetElement(j), prodetax->GetElement(j), prodexix->GetElement(j), prodxixTemp->GetElement(j), prob);
 				}
 			}

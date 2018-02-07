@@ -1,68 +1,24 @@
-
+﻿
 #include "test/TestOrthBoundingBox.h"
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSTIEBROCKETT is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTORTHBOUNDINGBOX)
-
-/*Help to check the memory leakage problem. No necesary any more.*/
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-int main(void)
+void testOrthBoundingBox(void)
 {
-	/*Set the random seed*/
-	unsigned tt = (unsigned)time(NULL);
-	printf("random seed:%ud\n", tt);
-	tt = 0;
-	//tt = 1463379963;
-	//tt = 1462047922;
-	genrandseed(tt);
-
 	// size of the problem
 	integer d = 3, n = 10;
 
 	// Generate the matrices in the Brockett problem.
 	double *E = new double[d * n];
-	/*E is an d by n matrix*/
-	//for (integer i = 0; i < n * d; i++)
-	//{
-	//	E[i] = genrandreal();
-	//	//E[i] = genrandnormal();
-	//}
 
-	CheckMemoryDeleted = new std::map<integer *, integer>;
-	for (integer i = 3; i < 4; i++)
-	{
-		//genrandseed(i);
-		testOrthBoundingBox(E, d, n);
-	}
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
-	{
-		if (iter->second != 1)
-			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
-	}
-	delete CheckMemoryDeleted;
+	testOrthBoundingBox(E, d, n);
+
 	delete[] E;
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
 }
-
-#endif
 
 /*The main test function*/
 void testOrthBoundingBox(double *E, integer d, integer n, double *X, double *Xopt)
 {
-	//// choose a random seed
-	//unsigned tt = (unsigned)time(NULL);
-	////tt = 0;
-	//genrandseed(tt);
 	for (integer i = 0; i < n * d; i++)
 	{
 		E[i] = genrandreal();
@@ -104,19 +60,23 @@ void testOrthBoundingBox(double *E, integer d, integer n, double *X, double *Xop
 
 	//Prob.CheckGradHessian(&OrthX);
 
-	printf("RBFGSSub\n");
+	//printf("RBFGSSub\n");
 	RBFGSLPSub * RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &OrthX);
-	RBFGSLPSubsolver->Debug = ITERRESULT;
+	RBFGSLPSubsolver->Debug = FINALRESULT;
 	//RBFGSLPSubsolver->Tolerance = 1e-12;
 	//RBFGSLPSubsolver->InitSteptype = QUADINTMOD;
 	//RBFGSLPSubsolver->Maxstepsize = 1e6;
 	RBFGSLPSubsolver->NumExtraGF = Domain.GetIntrDim() * 10;
 	RBFGSLPSubsolver->lambdaLower = 1e-16;
 	RBFGSLPSubsolver->lambdaUpper = 1e16;
-	RBFGSLPSubsolver->Max_Iteration = 100;
+	RBFGSLPSubsolver->Max_Iteration = 50;
 	RBFGSLPSubsolver->OutputGap = 1;
-	RBFGSLPSubsolver->CheckParams();
+	//RBFGSLPSubsolver->CheckParams();
 	RBFGSLPSubsolver->Run();
+	if (RBFGSLPSubsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 
 	//printf("LRBFGSSub\n");
 	//LRBFGSLPSub *LRBFGSLPSubsolver = new LRBFGSLPSub(&Prob, &OrthX, RBFGSLPSubsolver->GetXopt());

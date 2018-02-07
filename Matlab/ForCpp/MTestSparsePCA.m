@@ -10,7 +10,7 @@ function MTestSparsePCA()
     
     SolverParams.method = 'RSD';
     SolverParams.IsCheckParams = 1;
-    SolverParams.Max_Iteration = 2000;
+    SolverParams.Max_Iteration = 200;
     SolverParams.DEBUG = 2;
     SolverParams.OutputGap = 10;
     SolverParams.Accuracy = 1e50;
@@ -20,8 +20,8 @@ function MTestSparsePCA()
 	SolverParams.InitSteptype = 4;
     SolverParams.IsStopped = @(x, gf, f, ngf, ngf0)IsStopped(x, gf, f, ngf, ngf0, p, r);
     
-    
     Xopt = TestSparsePCA(B, Dsq, Xinitial, mus, 0, 5, SolverParams); %, soln);
+    reshape(Xopt.main, p, 2);
 end
 
 function output = IsStopped(x, gf, f, ngf, ngf0, p, r)

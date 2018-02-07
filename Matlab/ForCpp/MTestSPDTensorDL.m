@@ -1,9 +1,9 @@
 function MTestSPDTensorDL()
-    r = floor(rand() * 10000000)
-%     r = 268764
-%     r = 7740966
-    rand('state', r);
-    randn('state', r);
+    seed = floor(rand() * 100000);
+    seed = 2;
+    fprintf('MTestSPDTensorDL seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     dim = 4;%% 20;
     num = 10;%% 100;
     N = 200;%% 500;
@@ -51,13 +51,13 @@ function MTestSPDTensorDL()
     SolverParams.method = 'LRBFGS';
 %     SolverParams.method = 'RTRSR1';
 %     SolverParams.method = 'RTRNewton';
-    SolverParams.IsCheckParams = 1;
+    SolverParams.IsCheckParams = 0;
     SolverParams.Max_Iteration = 500;
     SolverParams.OutputGap = 100;
     SolverParams.LengthSY = 4;
     SolverParams.Num_pre_funs = 0;
     SolverParams.InitSteptype = 3;
-    SolverParams.DEBUG = 2;
+    SolverParams.DEBUG = 1;
     SolverParams.Stop_Criterion = 2;
 %     SolverParams.IsCheckGradHess = 1;
     HasHHR = 0;
@@ -77,18 +77,19 @@ function MTestSPDTensorDL()
 %     norm(Xopt.main - reshape(Xtrue, [], 1)) / norm(reshape(Xtrue, [], 1))
     
     SolverParams.method = 'RCG';
-    SolverParams.IsCheckParams = 1;
+    SolverParams.IsCheckParams = 0;
     SolverParams.Max_Iteration = 500;
     SolverParams.OutputGap = 100;
     SolverParams.InitSteptype = 1;
     SolverParams.Stop_Criterion = 2;
-    SolverParams.DEBUG = 2;
+    SolverParams.DEBUG = 1;
     SolverParams.RCGmethod = 1;
     HasHHR = 0;
     fprintf('start RCG\n');
     [XoptRCG, f, gf, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime] = TestSPDTensorDL(Ls, alpha, Xinitial, lambdaB, HasHHR, SolverParams);
 
-    norm(XoptLRBFGS.main - XoptRCG.main) / norm(XoptLRBFGS.main)
+%     norm(XoptLRBFGS.main - XoptRCG.main) / norm(XoptLRBFGS.main)
+
 %     SolverParams.method = 'LRTRSR1';
 %     SolverParams.IsCheckParams = 1;
 %     SolverParams.Max_Iteration = 500;

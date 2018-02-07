@@ -51,11 +51,8 @@ This is the test file for the Brocokett problem defined in StieBrockett.h and St
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSTIESPARSEBROCKETT)
-int main(void);
-#endif
-
 /*The main test function*/
+void testStieSparseBrockett(void);
 void testStieSparseBrockett(double *B, unsigned long long *ir, unsigned long long *jc, integer nzmax, double *D, integer n, integer p, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTSTIEBROCKETT_H

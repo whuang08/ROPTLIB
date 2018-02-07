@@ -10,22 +10,15 @@
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTKARCHERMEAN)
-
-int main(void)
-{
-    testKarcherMean();
-    return 0;
-}
-
-void testKarcherMean()
+void testKarcherMean(void)
 {
     integer numP = 101, dim = 2, numC = 11, numS = 1;
     double *Qs = new double[numP*dim*numS];
     integer NXD = numP*dim;
-    std::ifstream infile("/Users/YaqingYou/Documents/Research/Data_Qs.txt");
+    std::ifstream infile("C:/Users/wh18/Documents/research/Cpp/GROPT_C/GROPT_C/Data_Qs.txt");
     if (! infile){
         printf("File did not open\n");
+		return;
     }
     else{
         for (integer k = 0; k < numS; k++) {
@@ -37,17 +30,17 @@ void testKarcherMean()
         }
     }
 
-	ForDebug::Print("Qs:", Qs, numP, dim);//---
- //   
-    
+//	ForDebug::Print("Qs:", Qs, numP, dim);//---
+
         //ShapeVariable *shape = new ShapeVariable(numP, dim);
         ElasticShape *Domain = new ElasticShape(numP, dim);
         ShapeVariable *Xinitial = new ShapeVariable(numP, dim);
         double *initial = Xinitial->ObtainWriteEntireData();
     
-    std::ifstream infile_2("/Users/YaqingYou/Documents/Research/Data_initial.txt");
+    std::ifstream infile_2("C:/Users/wh18/Documents/research/Cpp/GROPT_C/GROPT_C/Data_initial.txt");
     if (! infile_2) {
         printf("File did not open\n");
+		return;
     }
     else{
         for (integer i = 0; i < numP; i++) {
@@ -57,7 +50,7 @@ void testKarcherMean()
         }
 	}
     
-    ForDebug::Print("initial:", initial, numP, dim);//---
+    //ForDebug::Print("initial:", initial, numP, dim);//---
 
     //ForDebug::Print("Qs", Qs, numP, dim);
     //ForDebug::Print("Xinitial", initial, numP, dim);
@@ -66,11 +59,11 @@ void testKarcherMean()
     
     RSD *RSDsolver = new RSD(&Prob, Xinitial);
     RSDsolver->Debug = ITERRESULT;
-    RSDsolver->Max_Iteration = 50;
+    RSDsolver->Max_Iteration = 10;
     //RSDsolver->CheckParams();
     RSDsolver->Run();
     const double *opt = RSDsolver->GetXopt()->ObtainReadData();
-    std::ofstream outfile("/Users/YaqingYou/Documents/Research/Data_results.txt");
+    std::ofstream outfile("C:/Users/wh18/Documents/research/Cpp/GROPT_C/GROPT_C/Data_results.txt");
     for (integer j =  0; j < numP; j++) {
         for (integer d = 0; d < dim; d++) {
             outfile << opt[j+d*numP] << ' ';
@@ -85,8 +78,6 @@ void testKarcherMean()
     delete [] Qs;
 
 }
-
-#endif
 
 #ifdef MATLAB_MEX_FILE
 

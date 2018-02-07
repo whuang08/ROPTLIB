@@ -3,32 +3,8 @@
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSTIEBROCKETT is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTEUCPOSSPCD)
-
-int main(void)
-{
-	testEucPosSpCd();
-
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
-}
-
-#endif
-
 void testEucPosSpCd(void)
 {
-	// choose a random seed
-	unsigned tt = (unsigned)time(NULL);
-	tt = 1457100141;
-	printf("tt:%ud\n", tt);//---
-	genrandseed(tt);
-
 	/*Randomly generate a point on the EucPositive convex set*/
 	integer dim = 3, num = 5, N = 1;
 	EucPosVariable EPVinit(num, N), EPVtrue(num, N);
@@ -80,7 +56,7 @@ void testEucPosSpCd(void)
 	Prob.SetDomain(&Domain);
 
 	/*Output the parameters of the domain manifold*/
-	Domain.CheckParams();
+	//Domain.CheckParams();
 
 	double *EPVinitptr = EPVinit.ObtainWritePartialData();
 
@@ -99,22 +75,26 @@ void testEucPosSpCd(void)
 	//Domain.CheckHaddScaledRank1OPE(&EPVinit);
 
 	// test LRBFGS
-	printf("********************************Test Dictionary Learning for SPD Tensor in LRBFGS*************************************\n");
+	//printf("********************************Test Dictionary Learning for SPD Tensor in LRBFGS*************************************\n");
 	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &EPVinit); //EPVinit EPVtrue
 	LRBFGSsolver->LineSearch_LS = ARMIJO;
 	//LRBFGSsolver->Num_pre_funs = 3;
-	LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
+	LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
 	LRBFGSsolver->InitSteptype = ONESTEP;
-	LRBFGSsolver->Max_Iteration = 500;
+	LRBFGSsolver->Max_Iteration = 40;
 	LRBFGSsolver->Tolerance = 1e-6;
 	LRBFGSsolver->OutputGap = 1;
 	LRBFGSsolver->LengthSY = 4;
 	//LRBFGSsolver->Accuracy = 1e-4;
 	LRBFGSsolver->Finalstepsize = 1;
-	LRBFGSsolver->CheckParams();
+	//LRBFGSsolver->CheckParams();
 	LRBFGSsolver->Run();
-	EPVtrue.Print("EPVtrue:");
-	LRBFGSsolver->GetXopt()->Print("LRBFGS solution:");
+	//EPVtrue.Print("EPVtrue:");
+	//LRBFGSsolver->GetXopt()->Print("LRBFGS solution:");
+	if (LRBFGSsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 	delete LRBFGSsolver;
 
 	//// test RCG

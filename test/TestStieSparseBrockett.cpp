@@ -3,19 +3,8 @@
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSTIEBROCKETT is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSTIESPARSEBROCKETT)
-
-/*Help to check the memory leakage problem. No necesary any more.*/
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-int main(void)
+void testStieSparseBrockett(void)
 {
-	/*Set the random seed*/
-	unsigned tt = (unsigned)time(NULL);
-	genrandseed(tt);
-
 	// size of the Stiefel manifold
 	integer n = 4, p = 2, nzmax = 7;
 
@@ -44,27 +33,15 @@ int main(void)
 	for (integer i = 0; i < p; i++)
 		D[i] = static_cast<double> (i + 1);
 
-	CheckMemoryDeleted = new std::map<integer *, integer>;
 	testStieSparseBrockett(B, ir, jc, nzmax, D, n, p);
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
-	{
-		if (iter->second != 1)
-			printf("Global address:%p, sharedtimes:%d\n", iter->first, iter->second);
-	}
-	delete CheckMemoryDeleted;
 	delete[] B;
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
+	delete[] ir;
+	delete[] jc;
 }
 
 /*We don't have to a line search algorithm defined in the solvers. The line seach algorithm can be defined
 here:*/
-double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
+double StieSparseBrockettLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
 { /*For example, simply use one to be the stepsize*/
 
 	const StieSparseBrockett *P = dynamic_cast<StieSparseBrockett *> (const_cast<Problem*> (prob));
@@ -89,10 +66,6 @@ double LinesearchInput(integer iter, Variable *x1, Vector *eta1, double initials
 
 void testStieSparseBrockett(double *B, unsigned long long *ir, unsigned long long *jc, integer nzmax, double *D, integer n, integer p, double *X, double *Xopt)
 {
-	// choose a random seed
-	unsigned tt = (unsigned)time(NULL);
-	tt = 0;
-	genrandseed(tt);
 	StieVariable StieX(n, p);
 
 	if (X == nullptr)
@@ -116,21 +89,25 @@ void testStieSparseBrockett(double *B, unsigned long long *ir, unsigned long lon
 	Prob.SetDomain(&Domain);
 
 	/*Output the parameters of the domain manifold*/
-	Domain.CheckParams();
+	//Domain.CheckParams();
 
 	//Prob.CheckGradHessian(&StieX);
 
 	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &StieX);
 	LRBFGSsolver->LineSearch_LS = ARMIJO; //INPUTFUN;//  
-	LRBFGSsolver->LinesearchInput = &LinesearchInput;
-	LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
+	//LRBFGSsolver->LinesearchInput = &StieSparseBrockettLinesearchInput;
+	LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
 	LRBFGSsolver->InitSteptype = QUADINTMOD;
 	LRBFGSsolver->OutputGap = 1;
 	LRBFGSsolver->LengthSY = 4;
-	LRBFGSsolver->Max_Iteration = 1000;
-	LRBFGSsolver->CheckParams();
+	LRBFGSsolver->Max_Iteration = 30;
+	//LRBFGSsolver->CheckParams();
 	LRBFGSsolver->Run();
 	//Prob.CheckGradHessian(LRBFGSsolver->GetXopt());
+	if (LRBFGSsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 	delete LRBFGSsolver;
 
 	//RSD *RSDsolver = new RSD(&Prob, &StieX);//----
@@ -190,7 +167,7 @@ void testStieSparseBrockett(double *B, unsigned long long *ir, unsigned long lon
 		RNewtonsolver->Debug = ITERRESULT;
 		/*Uncomment following two lines to use the linesearch algorithm defined by the function "LinesearchInput".*/
 		//RNewtonsolver->LineSearch_LS = INPUTFUN;
-		//RNewtonsolver->LinesearchInput = &LinesearchInput;
+		//RNewtonsolver->LinesearchInput = &StieSparseBrockettLinesearchInput;
 		RNewtonsolver->Max_Iteration = 10;
 		RNewtonsolver->CheckParams();
 		RNewtonsolver->Run();
@@ -302,8 +279,6 @@ void testStieSparseBrockett(double *B, unsigned long long *ir, unsigned long lon
 			Xopt[i] = xoptptr[i];
 	}
 }
-
-#endif
 
 /*If it is compiled in Matlab, then the following "mexFunction" is used as the entrance.*/
 #ifdef MATLAB_MEX_FILE

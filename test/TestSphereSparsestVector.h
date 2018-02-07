@@ -54,11 +54,8 @@ This is the test file for the Sparest Vector problem defined in SphereSparestVec
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPHERESPARSESTVECTOR)
-int main(void);
-#endif
-
 /*The main test function*/
+void testSphereSparsestVector(void);
 void testSphereSparsestVector(double *Q, integer m, integer n);
 
 #endif // end of TESTSPHERESPARSESTVECTOR_H

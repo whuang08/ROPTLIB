@@ -1,4 +1,7 @@
-function GenerateMyMex
+function GenerateMyMex(include_fftw)
+    if(nargin < 1)
+        include_fftw = false;
+    end
     GROPTCBase=pwd;
     fprintf('Generate MyMex.m file...\n',GROPTCBase);
    
@@ -57,7 +60,11 @@ function GenerateMyMex
         lapacklib = ['''', fullfile(matlabroot,'extern','lib',computer('arch'),'microsoft','libmwlapack.lib'), ''''];
         fftwlib = ['''-L.\BinaryFiles\'', ''-llibfftw3-3'', ''-llibfftw3f-3'', ''-llibfftw3l-3'''];
     end
-    str = ['[''-D'' upper(filename)], ', fftwlib, ', ', blaslib, ', ', lapacklib,  ', ''-largeArrayDims'', ''-output'', [''.' separate 'BinaryFiles' separate ''' filename ]);'];
+    if(~include_fftw)
+        str = ['[''-D'' upper(filename)], ', blaslib, ', ', lapacklib,  ', ''-largeArrayDims'', ''-output'', [''.' separate 'BinaryFiles' separate ''' filename ]);'];
+    else
+        str = ['[''-D'' upper(filename)], ', '''-DROPTLIB_WITH_FFTW'', ', fftwlib, ', ', blaslib, ', ', lapacklib,  ', ''-largeArrayDims'', ''-output'', [''.' separate 'BinaryFiles' separate ''' filename ]);'];
+    end
     fprintf(fid, ['%s\n'], str);
     fprintf(fid, 'end');
     fclose(fid);

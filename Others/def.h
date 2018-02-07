@@ -10,6 +10,8 @@ This is the global head file. Every file in ROPTLIB will include this file.
 //#define MATLAB_MEX_FILE//For debug---
 //#define DRIVERJULIAPROB//For debug---
 
+//#define ROPTLIB_WITH_FFTW
+
 /* 
 If all the test files are included in a project, then only uncomment one of them to specify which test problem is run.
 */
@@ -38,15 +40,16 @@ If all the test files are included in a project, then only uncomment one of them
 //#define TESTLRMATRIXCOMPLETION
 //#define TESTLRBLINDDECONVOLUTION
 //#define TESTEUCBLINDDECONVOLUTION
-#define TESTCFR2BLINDDECONVOLUTION
+//#define TESTCFR2BLINDDECONVOLUTION
+//#define TESTCFR2BLINDDECON2D
+//#define TESTCFR2BLINDDECON3D
 //#define TESTCSOPHASERETRIEVAL
-
+//#define TESTSPHERESPARSESTVECTOR
 
 //#define TESTSIMPLEEXAMPLE
 //#define TESTPRODUCTEXAMPLE
 
 #include <cmath>
-
 
 /*std library*/
 #include <cstdio>

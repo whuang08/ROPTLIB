@@ -1,7 +1,10 @@
 function MTestSPDMean()
-    rand('state', 1);
-    randn('state', 1);
-    n = 100;
+    seed = floor(rand() * 100000);
+    seed = 2;
+    fprintf('MTestSPDMean seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
+    n = 10;
     k = 1000;
     
     As = matrix_data(n, k, 2);
@@ -13,12 +16,14 @@ function MTestSPDMean()
     Xinitial = eye(n);
     
     SolverParams.method = 'LRBFGS';
-%     SolverParams.method = 'RTRSR1';
+%     SolverParams.method = 'LRTRSR1';
 %     SolverParams.method = 'RTRNewton';
-    SolverParams.IsCheckParams = 1;
+    SolverParams.IsCheckParams = 0;
     SolverParams.Max_Iteration = 100;
     SolverParams.LengthSY = 4;
-    SolverParams.DEBUG = 2;
+    SolverParams.DEBUG = 1;
+    SolverParams.Tolerance = 1e-12;
+    SolverParams.Accuracy = 1e-6;
     HasHHR = 0;
     [Xopt, f, gf, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime] = TestSPDMean(Ls, Xinitial, HasHHR, SolverParams);
 end

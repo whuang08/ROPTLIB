@@ -23,7 +23,7 @@ namespace ROPTLIB{
 	TR_SCON: Teminate when the theta variable takes effect, which indicate the convergence rate is superlinear.
 	TR_MAXITER: Teminate when the inner iterations reach the maximum inner iterations specified by the member variable "Max_Inner_Iter"
 	*/
-	enum tCGstatusSet{ TR_NEGCURVTURE, TR_EXCREGION, TR_LCON, TR_SCON, TR_MAXITER, TCGSTATUSSETLENGTH };
+	enum tCGstatusSet{ TR_NEGCURVTURE, TR_EXCREGION, L_TR_MIN, TR_LCON, TR_SCON, TR_MAXITER, TCGSTATUSSETLENGTH };
 
 	class SolversTR : public QuasiNewton{
 	public:

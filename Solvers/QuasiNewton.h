@@ -151,13 +151,25 @@ namespace ROPTLIB{
 		integer beginidx; /*The starting index of S, Y and RHO at current iteration*/
 
 		/*===================LRTRSR1====================*/
-		bool ischangedSandY; /*Mark whether S and Y is updated.*/
 		Vector **YMGS; /*The stored pairs of s and y, and also Y - gamma S*/
-		double *SS, *SY, *PMGQ; /*SS is S^\flat S which is the matrix Q defined in [HAG2014, (46)],
+		double *SS, *SY, *PMGQ, *LU_PMGQ; /*SS is S^\flat S which is the matrix Q defined in [HAG2014, (46)],
 								SY is the matrix P defined in [HAG2014, (46)]
-								PMGQ is the P - gamma Q matrix defined in [HAG2014, (46)] */
+								PMGQ is the P - gamma Q matrix defined in [HAG2014, (46)]
+								LU_PMGQ is the LU decomposition of the matrix PMGQ defined in [HAG2014, (46)] */
 		integer *P;	/*the pemuation matrix when computing the LU decomposition for the matrix PMGQ*/
 
+		/*The following variables are for solving the local model in LRTRSR1*/
+		double *Psi;
+		double *Q;;
+		double *RT;
+		double *U;
+		double *D;
+		double *P_parallel;
+		double *g_parallel;
+		double *Psig;
+		double *Lambda;
+		double *a_j;
+		double tolLocalNewton;
 	};
 }; /*end of ROPTLIB namespace*/
 

@@ -43,15 +43,15 @@ This is the test file to run the problem defined in LRBlindDeconvolution.h and L
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCSOPHASERETRIEVAL)
-int main(void);
-#endif
+#ifdef ROPTLIB_WITH_FFTW
 
 //void testfft();
-bool MyPRstop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver);
 void testCSOPhaseRetrieval(void);
+bool MyPRstop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver);
+void testCSOPhaseRetrievalFixedRank(void);
 void CSOPRRankReduce(double *initX, double *b, double *masks, integer n1, integer n2, integer l, integer r, double kappa, integer maxiter, double *outsoln, double &outtime, integer &outnfft, integer &outnn);
 void WFegf(double *x, double *b, double *masks, double *egf, integer n1, integer n2, integer l, integer r);
 void WFlow(double *initX, double *b, double *masks, integer n1, integer n2, integer l, integer r, integer maxiter, double *outsoln, double &outtime, integer &outnfft);
 
+#endif
 #endif

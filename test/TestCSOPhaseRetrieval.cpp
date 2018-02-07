@@ -1,24 +1,11 @@
 ﻿#include "test/TestCSOPhaseRetrieval.h"
+
+#ifdef ROPTLIB_WITH_FFTW
+
 using namespace ROPTLIB;
 
-
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCSOPHASERETRIEVAL)
-
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-int main(void)
+void testCSOPhaseRetrieval(void)
 {
-	//_CrtSetBreakAlloc(613);
-	long seed = static_cast<long> (time(NULL));
-	//seed = 1417791199;//---
-	seed = 0;
-	printf("seed:%ld\n", seed);
-	genrandseed(seed);
-
-	CheckMemoryDeleted = new std::map<integer *, integer>;
-
-	//testCSOPhaseRetrieval(); 
-
 	integer n1 = 64, n2 = 64, r = 1, l = 6;
 	integer n = n1 * n2, m = n * l;
 	double kappa = 0.2;
@@ -79,24 +66,7 @@ int main(void)
 
 	delete[] soln;
 	delete[] b;
-
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
-	{
-		if (iter->second != 1)
-			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
-	}
-	delete CheckMemoryDeleted;
-
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif	
-
-	return 0;
 }
-#endif
 
 double delta = 0.95;
 double tol = 1e-6;
@@ -410,7 +380,7 @@ void WFlow(double *initX, double *b, double *masks, integer n1, integer n2, inte
 
 };
 
-void testCSOPhaseRetrieval(void)
+void testCSOPhaseRetrievalFixedRank(void)
 {
 	integer n1 = 4, n2 = 8, r = 2, l = 4;
 	integer n = n1 * n2, m = n * l;
@@ -420,7 +390,7 @@ void testCSOPhaseRetrieval(void)
 	Domain.SetHasHHR(false);
 	CSOVariable InitialX(n, r);
 	InitialX.RandInManifold();
-	Domain.CheckParams();
+	//Domain.CheckParams();
 	//Domain.CheckIntrExtr(&InitialX);
 	//Domain.CheckRetraction(&InitialX);
 	//Domain.CheckcoTangentVector(&InitialX);
@@ -457,22 +427,26 @@ void testCSOPhaseRetrieval(void)
 	//Prob.Grad(&InitialX, gf);
 	//delete gf;
 
-	Prob.CheckGradHessian(&InitialX);
+	//Prob.CheckGradHessian(&InitialX);
 
 	LRBFGS *RSDsolver = new LRBFGS(&Prob, &InitialX);
 	//->LineSearch_LS = ARMIJO;
 	//RSDsolver->LS_beta = 0.01;
 	//RSDsolver->RCGmethod = DAI_YUAN;
-	RSDsolver->Debug = DETAILED;
+	RSDsolver->Debug = FINALRESULT;
 	RSDsolver->OutputGap = 100;
-	RSDsolver->Max_Iteration = 500000;
-	RSDsolver->CheckParams();
+	RSDsolver->Max_Iteration = 100;
+	//RSDsolver->CheckParams();
 	RSDsolver->Accuracy = 1e-6;
 	RSDsolver->Finalstepsize = 1;
-	RSDsolver->Tolerance = 1e-10;
+	RSDsolver->Tolerance = 1e-6;
 	RSDsolver->Run();
+	if (RSDsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 	//Prob.CheckGradHessian(&InitialX);//--
-	Prob.CheckGradHessian(RSDsolver->GetXopt());//--
+	//Prob.CheckGradHessian(RSDsolver->GetXopt());//--
 
 
 	//// Compute the smallest eigenvalue of the Hessian at initial iterate.
@@ -599,6 +573,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	return;
 }
 
+#endif
 #endif
 
 //void testfft()

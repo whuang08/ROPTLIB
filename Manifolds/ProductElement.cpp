@@ -208,12 +208,14 @@ namespace ROPTLIB{
 	double *ProductElement::ObtainWriteEntireData(void)
 	{
 		NewMemoryOnWrite();
+		RemoveAllFromTempData();
 		return Space;
 	};
 
 	double *ProductElement::ObtainWritePartialData(void)
 	{
 		CopyOnWrite();
+		RemoveAllFromTempData();
 		return Space;
 	};
 

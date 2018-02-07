@@ -1,4 +1,4 @@
-﻿#include "Others\wavelet\wavelet.h"
+﻿#include "Others/wavelet/wavelet.h"
 
 void haarFWT_1d(int n, doublecomplex *v)
 {

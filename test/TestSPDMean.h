@@ -51,10 +51,6 @@ This is the test file for the Geometric mean of SPD problem defined in SPDMean.h
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPDMEAN)
-int main(void);
-#endif
-
 /*The main test function*/
 void testSPDMean(void);
 

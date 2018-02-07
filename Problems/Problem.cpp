@@ -48,6 +48,7 @@ namespace ROPTLIB{
 		length = 35;
 		X = new double[length * 2]; 
 		Y = X + length;
+        
 		for (integer i = 0; i < length; i++)
 		{
 			Domain->Retraction(x, xi, y, 1);

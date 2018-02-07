@@ -54,10 +54,6 @@ See details in Section IV.A in [CS15].
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPDTENSORDL)
-int main(void);
-#endif
-
 /*The main test function*/
 void testSPDTensorDL(void);
 

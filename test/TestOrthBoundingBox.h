@@ -54,11 +54,8 @@ This is the test file for the bounding box problem defined in OrthBoundingBox.h 
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTORTHBOUNDINGBOX)
-int main(void);
-#endif
-
 /*The main test function*/
+void testOrthBoundingBox(void);
 void testOrthBoundingBox(double *E, integer d, integer n, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTORTHBOUNDINGBOX_H

@@ -3,7 +3,7 @@
 
 /*Define the namespace*/
 namespace ROPTLIB{
-	PreShapePathStraighten::PreShapePathStraighten(integer innumP, integer indim, integer innumC)//variable???????
+	PreShapePathStraighten::PreShapePathStraighten(integer innumP, integer indim, integer innumC)//variable
 	{
 		numP = innumP;
 		dim = indim;
@@ -14,11 +14,11 @@ namespace ROPTLIB{
 	{
 	};
 
-	double PreShapePathStraighten::f(Variable *x) const    //cost function  ?????????????????????
+	double PreShapePathStraighten::f(Variable *x) const    //cost function
 	{
 		const double *Path_x = x->ObtainReadData();
-		Vector *Grad_temp = x->ConstructEmpty(); //根据x size获取相同size
-		SharedSpace *Temp = new SharedSpace(Grad_temp); //把临时变量放到sharedspace里
+		Vector *Grad_temp = x->ConstructEmpty();
+		SharedSpace *Temp = new SharedSpace(Grad_temp);
 		double *temp = Grad_temp->ObtainWriteEntireData();
 
 		integer stp = numC - 1;

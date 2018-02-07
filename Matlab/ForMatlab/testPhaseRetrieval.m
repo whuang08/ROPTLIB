@@ -29,6 +29,8 @@ function [FinalX, fv, gfv, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime, funs, 
     for i = 1 : l
         zi = reshape(fft2(phase .* masks(:, :, i)) / sqrt(n1 * n2), [], 1);
         b((i - 1) * n + 1 : i * n) = conj(zi) .* zi;
+        
+        
     end
     
     isplot = 1;

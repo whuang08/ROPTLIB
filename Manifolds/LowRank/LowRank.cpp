@@ -312,7 +312,6 @@ namespace ROPTLIB{
 		Vector *exresult = EMPTYEXTR->ConstructEmpty();
 		ObtainExtr(x, etax, exetax);
 		ObtainExtr(x, xix, exxix);
-
 		for (integer i = 0; i < numofmani; i++)
 		{
 			manifolds[i]->SetIsIntrApproach(false);
@@ -396,6 +395,7 @@ namespace ROPTLIB{
 		if (prob->GetUseHess())
 		{
 			Vector *segf = egf->ConstructEmpty();
+			segf->NewMemoryOnWrite(); // I don't remember the reason. It seems to be necessary.
 			egf->CopyTo(segf);
 			SharedSpace *Sharedegf = new SharedSpace(segf);
 			x->AddToTempData("EGrad", Sharedegf);
@@ -406,8 +406,8 @@ namespace ROPTLIB{
 	void LowRank::EucHvToHv(Variable *x, Vector *etax, Vector *exix, Vector* xix, const Problem *prob) const
 	{
 		/*compute xix = P_{T_x M} (exix) */
+		EucRepToExtr(x, exix);
 		exix->CopyTo(xix);
-		EucRepToExtr(x, xix);
 
 		/*Compute the extra two terms*/
 		const SharedSpace *Sharedegf = x->ObtainReadTempData("EGrad");
@@ -587,6 +587,7 @@ namespace ROPTLIB{
 	void LowRank::EucRepToExtr(Variable *x, Vector *result) const
 	{
 		const SharedSpace *EucRep = result->ObtainReadTempData("EucRep");
+
 		const double *EucRepptr = EucRep->ObtainReadData();
 		const double *M = nullptr;
 		blas_sparse_matrix sM;

@@ -1,6 +1,8 @@
 ﻿
 #include "Problems/CFR2BlindDeconvolution/CFR2BlindDeconvolution.h"
 
+#ifdef ROPTLIB_WITH_FFTW
+
 /*Define the namespace*/
 namespace ROPTLIB {
 
@@ -46,7 +48,7 @@ namespace ROPTLIB {
 			BLAS_zuscr_end(sC);
 		}
 		//log2L = static_cast<int> (log(static_cast<float> (L)) / log(static_cast<float> (2)) + 0.5);
-		if (static_cast<int> (pow(2.0, static_cast<int>(log(static_cast<float> (L)) / log(static_cast<float> (2)) + 0.5))) - L != 0)
+		if (C == nullptr && (static_cast<int> (pow(2.0, static_cast<int>(log(static_cast<float> (L)) / log(static_cast<float> (2)) + 0.5))) - L != 0))
 			printf("Warning: L must be a power of 2!\n");
 
 		//double *testarr = new double[1024 * 1024 * 2];
@@ -528,3 +530,4 @@ namespace ROPTLIB {
 	};
 
 }; /*end of ROPTLIB namespace*/
+#endif

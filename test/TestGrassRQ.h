@@ -51,11 +51,8 @@ This is the test file for the Reyleigh Quotient problem defined in GrassRQ.h and
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTGRASSRQ)
-int main(void);
-#endif
-
 /*The main test function*/
+void testGrassRQ(void);
 void testGrassRQ(double *B, integer n, integer p, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTGRASSRQ_H

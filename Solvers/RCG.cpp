@@ -65,7 +65,7 @@ namespace ROPTLIB{
 
 	void RCG::GetSearchDir(void)
 	{
-		if (iter % ManDim == 0 || Mani->Metric(x1, eta1, gf1) >= -std::numeric_limits<double>::epsilon()) // restart and safeguard
+		if (iter % ManDim == 0 || Mani->Metric(x1, eta1, gf1) / ngf / ngf >= -std::sqrt(std::numeric_limits<double>::epsilon())) // restart and safeguard
 		{
 			Mani->ScaleTimesVector(x1, -1.0, gf1, eta1);
 		}

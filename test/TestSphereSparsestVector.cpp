@@ -3,22 +3,10 @@
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSPHERESPARESTVECTOR is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPHERESPARSESTVECTOR)
-
-/*Help to check the memory leakage problem. No necesary any more.*/
-std::map<integer *, integer> *CheckMemoryDeleted;
-
-int main(void)
+void testSphereSparsestVector(void)
 {
-	/*Set the random seed*/
-	unsigned tt = (unsigned)time(NULL);
-	tt = 0;
-	genrandseed(tt);
-
 	// size of the matrix Q
-	integer m = 4, n = 2;
+	integer m = 10, n = 5;
 
 	// Generate the matrix
 	double *Q = new double[m * n];
@@ -28,22 +16,8 @@ int main(void)
 		Q[i] = genrandnormal();
 	}
 
-	CheckMemoryDeleted = new std::map<integer *, integer>;
 	testSphereSparsestVector(Q, m, n);
-	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
-	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
-	{
-		if (iter->second != 1)
-			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
-	}
-	delete CheckMemoryDeleted;
 	delete[] Q;
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
 }
 
 void testSphereSparsestVector(double *Q, integer m, integer n)
@@ -53,6 +27,7 @@ void testSphereSparsestVector(double *Q, integer m, integer n)
 
 	// Define the manifold
 	Sphere Domain(n);
+	Domain.SetHasHHR(true);
 	//Domain.SetHasHHR(true); /*set whether the manifold uses the idea in [HGA2015, Section 4.3] or not*/
 
 	// Define the SparestVector problem
@@ -61,7 +36,7 @@ void testSphereSparsestVector(double *Q, integer m, integer n)
 	Prob.SetDomain(&Domain);
 
 	/*Output the parameters of the domain manifold*/
-	Domain.CheckParams();
+	//Domain.CheckParams();
 
 	//Prob.CheckGradHessian(&SphereX);
 	
@@ -76,16 +51,20 @@ void testSphereSparsestVector(double *Q, integer m, integer n)
 	//Domain.CheckHaddScaledRank1OPE(&StieX);
 
 	RBFGSLPSub *RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &SphereX);
-	RBFGSLPSubsolver->Debug = ITERRESULT;
+	RBFGSLPSubsolver->Debug = FINALRESULT;
 	RBFGSLPSubsolver->OutputGap = 1;
 	RBFGSLPSubsolver->lambdaLower = 1e-3;
 	RBFGSLPSubsolver->lambdaUpper = 1e3;
-	RBFGSLPSubsolver->Tolerance = 0.001;
-	RBFGSLPSubsolver->Stop_Criterion = FUN_REL;
-	RBFGSLPSubsolver->CheckParams();
+	RBFGSLPSubsolver->Tolerance = 1e-6;
+	RBFGSLPSubsolver->Max_Iteration = 80;
+	//RBFGSLPSubsolver->Stop_Criterion = FUN_REL;
+	//RBFGSLPSubsolver->CheckParams();
 	RBFGSLPSubsolver->Run();
+	if (RBFGSLPSubsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 	delete RBFGSLPSubsolver;
-	return;
 
 	//RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &StieX);
 	//RBFGSLPSubsolver->Debug = FINALRESULT;
@@ -96,8 +75,6 @@ void testSphereSparsestVector(double *Q, integer m, integer n)
 	//RBFGSLPSubsolver->Run();
 	//delete RBFGSLPSubsolver;
 }
-
-#endif
 
 /*If it is compiled in Matlab, then the following "mexFunction" is used as the entrance.*/
 #ifdef MATLAB_MEX_FILE

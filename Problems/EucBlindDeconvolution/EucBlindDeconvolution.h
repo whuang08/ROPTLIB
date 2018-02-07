@@ -20,6 +20,8 @@ Problem --> EucBlindDeconvolution
 #include "Others/fftw/fftw3.h"
 #include "Others/SparseBLAS/blas_sparse.h"
 
+#ifdef ROPTLIB_WITH_FFTW
+
 /*Define the namespace*/
 namespace ROPTLIB{
 
@@ -63,4 +65,5 @@ namespace ROPTLIB{
 		unsigned int flags;
 	};
 }; /*end of ROPTLIB namespace*/
+#endif
 #endif

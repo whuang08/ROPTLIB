@@ -41,13 +41,12 @@ This is the test file to run the problem defined in LRBlindDeconvolution.h and L
 
 #include "Others/fftw/fftw3.h"
 
-using namespace ROPTLIB;
+#ifdef ROPTLIB_WITH_FFTW
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTEUCBLINDDECONVOLUTION)
-int main(void);
-#endif
+using namespace ROPTLIB;
 
 void testEucBlindDeconvolution(void);
 void testEucBlindDeconvolutionSparse(void);
 
+#endif
 #endif

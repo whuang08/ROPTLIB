@@ -16,7 +16,7 @@ namespace ROPTLIB{
 		s = vec + nn;
 		if (fabs(Y[0] - Y[nn]) > sqrt(std::numeric_limits<double>::epsilon()))
 		{
-			printf("warning: %g = Y[start] != Y[end] = %g: %g, Using curbic spline with periodic condition may cause problems.\n", Y[0], Y[nn], Y[0] - Y[nn]);
+			printf("warning: %g = Y[start] != Y[end] = %g: %g, Using cubic spline with periodic condition may cause problems.\n", Y[0], Y[nn], Y[0] - Y[nn]);
 		}
 
 		for (i = 0; i < nn; i++)
@@ -61,7 +61,7 @@ namespace ROPTLIB{
 		s = vec + nn;
 		if (fabs(Y[0] - Y[nn]) > sqrt(std::numeric_limits<double>::epsilon()))
 		{
-			printf("warning: %g = Y[start] != Y[end] = %g, %g, Using curbic spline with periodic condition may cause problems.\n", Y[0], Y[nn], Y[0] - Y[nn]);
+			printf("warning: %g = Y[start] != Y[end] = %g, %g, Using cubic spline with periodic condition may cause problems.\n", Y[0], Y[nn], Y[0] - Y[nn]);
 		}
 		for (i = 0; i < nn; i++)
 		{

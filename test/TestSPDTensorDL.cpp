@@ -3,34 +3,11 @@
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSTIEBROCKETT is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPDTENSORDL)
-
-int main(void)
-{
-	testSPDTensorDL();
-
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
-}
-
-#endif
 
 void testSPDTensorDL(void)
 {
-	// choose a random seed
-	unsigned tt = (unsigned)time(NULL);
-	tt = 0;
-	printf("tt:%ud\n", tt);//---
-	genrandseed(tt);
-
 	/*Randomly generate a point on the SPD manifold*/
-	integer dim = 3, num = 2, N = 10;
+	integer dim = 3, num = 2, N = 100;
 	double lambdaX = 1;
 	SPDTVariable SPDTX(dim, num);
 	SPDTX.RandInManifold();
@@ -72,7 +49,7 @@ void testSPDTensorDL(void)
 	//Prob.CheckGradHessian(&SPDX);
 
 	/*Output the parameters of the domain manifold*/
-	Domain.CheckParams();
+	//Domain.CheckParams();
 
 	//Prob.CheckGradHessian(&SPDTX);
 	//return;
@@ -90,20 +67,24 @@ void testSPDTensorDL(void)
 	//Domain.CheckHaddScaledRank1OPE(&SPDTX);
 
 	// test LRBFGS
-	printf("********************************Test Dictionary Learning for SPD Tensor in LRBFGS*************************************\n");
+	//printf("********************************Test Dictionary Learning for SPD Tensor in LRBFGS*************************************\n");
 	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &SPDTX);
 	LRBFGSsolver->LineSearch_LS = ARMIJO;
 	//LRBFGSsolver->Num_pre_funs = 3;
-	LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
+	LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
 	LRBFGSsolver->InitSteptype = ONESTEP;
-	LRBFGSsolver->Max_Iteration = 3;
+	LRBFGSsolver->Max_Iteration = 100;
 	LRBFGSsolver->Tolerance = 1e-6;
 	LRBFGSsolver->OutputGap = 1;
 	LRBFGSsolver->LengthSY = 4;
 	//LRBFGSsolver->Accuracy = 1e-4;
 	LRBFGSsolver->Finalstepsize = 1;
-	LRBFGSsolver->CheckParams();
+	//LRBFGSsolver->CheckParams();
 	LRBFGSsolver->Run();
+	if (LRBFGSsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 	delete LRBFGSsolver;
 
 	//// test RCG

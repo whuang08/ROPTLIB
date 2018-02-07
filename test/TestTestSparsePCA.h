@@ -38,10 +38,7 @@ This is the test file to run the problem defined in ObliqueTestSparsePCA.h and O
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTTESTSPARSEPCA)
-int main(void);
-#endif
-
+void testTestSparsePCA(void);
 integer GetNumBetweenC1andC2(const Element *x, double c1, double c2);
 void testTestSparsePCA(double *B, double *Dsq, integer p, integer n, integer r, double epsilon, double mu, double *X = nullptr, double *Xopt = nullptr);
 

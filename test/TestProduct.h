@@ -55,10 +55,6 @@ This is the test file to check the correctenss of classes: ProductElement and Pr
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTPRODUCT)
-int main(void);
-#endif
-
 void testProduct(void);
 
 #endif // end of TESTPRODUCT_H

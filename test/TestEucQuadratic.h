@@ -42,10 +42,7 @@ This is the test file to run the problem defined in EucQuadratic.h and EucQuadra
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTEUCQUADRATIC)
-int main(void);
-#endif
-
+void testEucQuadratic(void);
 void testEucQuadratic(double *M, integer dim, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTEUCQUADRATIC_H

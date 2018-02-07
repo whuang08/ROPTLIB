@@ -14,7 +14,7 @@ This is the test file to check the correctenss of the manifold defined in CpxNST
 #include "Problems/Problem.h"
 #include "Solvers/SolversLS.h"
 #include <ctime>
-#include "Test/DriverMexProb.h"
+#include "test/DriverMexProb.h"
 
 #include "Manifolds/CpxNStQOrth/CSOVector.h"
 #include "Manifolds/CpxNStQOrth/CSOVariable.h"
@@ -37,10 +37,6 @@ This is the test file to check the correctenss of the manifold defined in CpxNST
 #include "Others/def.h"
 
 using namespace ROPTLIB;
-
-#if !defined(MATLAB_MEX_FILE) && defined(TESTCSO)
-int main(void);
-#endif
 
 void testCSO();
 

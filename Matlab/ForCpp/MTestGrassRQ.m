@@ -1,9 +1,9 @@
 function MTestGrassRQ()
-    r = rand() * 100000;
-%     r = 1
-    fprintf('seed:%d\n', r);
-    rand('state', r);
-    randn('state', r);
+    seed = floor(rand() * 100000);
+    seed = 2;
+    fprintf('MTestGrassRQ seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     n = 1000;
     p = 4;
     B = randn(n, n);
@@ -12,7 +12,7 @@ function MTestGrassRQ()
     SolverParams.method = 'LRBFGS';
 %     SolverParams.method = 'RTRSR1';
 %     SolverParams.method = 'RTRNewton';
-    SolverParams.IsCheckParams = 1;
+    SolverParams.IsCheckParams = 0;
     SolverParams.Max_Iteration = 500;
     SolverParams.LengthSY = 4;
     SolverParams.DEBUG = 1;
@@ -21,9 +21,9 @@ function MTestGrassRQ()
     SolverParams.Finalstepsize = 1;
     SolverParams.InitSteptype = 3;
     HasHHR = 0;
-    tic
+%     tic
     [Xopt, f, gf, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime] = TestGrassRQ(B, Xinitial, HasHHR, SolverParams);
-    toc
+%     toc
     Xopt.main = reshape(Xopt.main, size(Xinitial));
 %     (Xopt.main' * B * Xopt.main)
 %     (Xopt.main' * Xopt.main)

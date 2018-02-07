@@ -1,10 +1,9 @@
 function MTestOrthBoundingBox()
-    r = floor(rand() * 100000);
-%     r = 1
-    r = 81472
-    fprintf('seed:%d\n', r);
-    rand('state', r);
-    randn('state', r);
+    seed = floor(rand() * 100000);
+    seed = 2;
+    fprintf('MTestOrthBoundingBox seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     d = 3;
     n = 100;
     Xinitial = orth(randn(d, d));
@@ -13,11 +12,11 @@ function MTestOrthBoundingBox()
     SolverParams.method = 'RBFGSLPSub';
     SolverParams.lambdaLower = 1e-2;
     SolverParams.lambdaUpper = 1e2;
-    SolverParams.IsCheckParams = 1;
-    SolverParams.Max_Iteration = 50;
+    SolverParams.IsCheckParams = 0;
+    SolverParams.Max_Iteration = 500;
     SolverParams.NumExtraGF = floor(d * (d - 1) / 2);
     SolverParams.LengthSY = 0;
-    SolverParams.DEBUG = 2;
+    SolverParams.DEBUG = 1;
     SolverParams.ParamSet = 2;
 %     SolverParams.Eps = 1e-4;
 %     SolverParams.Del = 1e-4;

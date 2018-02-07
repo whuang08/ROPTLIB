@@ -304,6 +304,7 @@ namespace ROPTLIB{
 		tCGstatusSetnames = new std::string[TCGSTATUSSETLENGTH];
 		tCGstatusSetnames[TR_NEGCURVTURE].assign("NEGCURVTURE");
 		tCGstatusSetnames[TR_EXCREGION].assign("EXCREGION");
+		tCGstatusSetnames[L_TR_MIN].assign("L_TR_MIN");
 		tCGstatusSetnames[TR_LCON].assign("LCON");
 		tCGstatusSetnames[TR_SCON].assign("SCON");
 		tCGstatusSetnames[TR_MAXITER].assign("MAXITER");

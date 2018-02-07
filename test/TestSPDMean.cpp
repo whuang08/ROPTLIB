@@ -3,31 +3,8 @@
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSTIEBROCKETT is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSPDMEAN)
-
-int main(void)
-{
-	testSPDMean();
-
-#ifdef _WIN64
-#ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
-#endif
-#endif
-	return 0;
-}
-
-#endif
-
 void testSPDMean(void)
 {
-	// choose a random seed
-	unsigned tt = (unsigned)time(NULL);
-	tt = 0;
-	genrandseed(tt);
-
 	/*Randomly generate a point on the SPD manifold*/
 	integer n = 100, num = 4;
 	SPDVariable SPDX(n);
@@ -74,7 +51,7 @@ void testSPDMean(void)
 	//Prob.CheckGradHessian(&SPDX);
 
 	/*Output the parameters of the domain manifold*/
-	Domain.CheckParams();
+	//Domain.CheckParams();
 
 	/*Check the correctness of the manifold operations*/
 	//Domain.CheckIntrExtr(&SPDX);
@@ -89,33 +66,37 @@ void testSPDMean(void)
 	//Domain.CheckHaddScaledRank1OPE(&SPDX);
 
 	// test LRBFGS
-	printf("********************************Test Geometric mean in LRBFGS*************************************\n");
+	//printf("********************************Test Geometric mean in LRBFGS*************************************\n");
 	LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &SPDX);
 	LRBFGSsolver->LineSearch_LS = ARMIJO;
-	LRBFGSsolver->Debug = ITERRESULT; //ITERRESULT;// 
-	LRBFGSsolver->Max_Iteration = 2000;
-	LRBFGSsolver->Tolerance = 1e-10;
+	LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
+	LRBFGSsolver->Max_Iteration = 50;
+	LRBFGSsolver->Tolerance = 1e-6;
 	LRBFGSsolver->Accuracy = 1e-4;
 	LRBFGSsolver->Finalstepsize = 1;
-	LRBFGSsolver->CheckParams();
+	//LRBFGSsolver->CheckParams();
 	LRBFGSsolver->Run();
+	if (LRBFGSsolver->Getnormgfgf0() < 1e-6)
+		printf("SUCCESS!\n");
+	else
+		printf("FAIL!\n");
 	//// Check gradient and Hessian
 	//Prob.CheckGradHessian(&SPDX);
 	//const Variable *xopt = LRBFGSsolver->GetXopt();
 	//Prob.CheckGradHessian(xopt);
 
-	LRBFGS *LRBFGSsolver2 = new LRBFGS(&Prob, &SPDX, LRBFGSsolver->GetXopt());
-	LRBFGSsolver2->LineSearch_LS = ARMIJO;
-	LRBFGSsolver2->Debug = ITERRESULT; //ITERRESULT;// 
-	LRBFGSsolver2->Max_Iteration = 500;
-	LRBFGSsolver2->Tolerance = 1e-5;
-	LRBFGSsolver2->Accuracy = 1e-4;
-	LRBFGSsolver2->Finalstepsize = 1;
-	LRBFGSsolver2->CheckParams();
-	LRBFGSsolver2->Run();
-	double *dists = LRBFGSsolver2->GetdistSeries();
-	ForDebug::Print("Dist:", dists, LRBFGSsolver2->GetlengthSeries());
-	delete LRBFGSsolver2;
+	//LRBFGS *LRBFGSsolver2 = new LRBFGS(&Prob, &SPDX, LRBFGSsolver->GetXopt());
+	//LRBFGSsolver2->LineSearch_LS = ARMIJO;
+	//LRBFGSsolver2->Debug = ITERRESULT; //ITERRESULT;// 
+	//LRBFGSsolver2->Max_Iteration = 500;
+	//LRBFGSsolver2->Tolerance = 1e-5;
+	//LRBFGSsolver2->Accuracy = 1e-4;
+	//LRBFGSsolver2->Finalstepsize = 1;
+	//LRBFGSsolver2->CheckParams();
+	//LRBFGSsolver2->Run();
+	//double *dists = LRBFGSsolver2->GetdistSeries();
+	//ForDebug::Print("Dist:", dists, LRBFGSsolver2->GetlengthSeries());
+	//delete LRBFGSsolver2;
 	delete LRBFGSsolver;
 
 	delete[] Ls;

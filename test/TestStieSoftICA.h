@@ -36,10 +36,8 @@ This is the test file to run the problem defined in StieSoftICA.h and StieSoftIC
 
 #include "Others/def.h"
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTSTIESOFTICA)
-int main(void);
-#endif
-
 using namespace ROPTLIB;
+void testStieSoftICA(void);
+void testStieSoftICA(double *Cs, integer n, integer p, integer N, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTSTIESOFTICA_H

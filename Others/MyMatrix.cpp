@@ -450,7 +450,7 @@ namespace ROPTLIB{
 		dcopy_(&length, eigenvectors, &GLOBAL::IONE, VD.matrix, &GLOBAL::IONE);
 		for (integer i = 0; i < N; i++)
 		{
-			if (eigenvalues <= 0)
+			if (eigenvalues[i] <= 0)
 			{
 				printf("Error: The matrix for Matrix::LogSymmetricM is not symmetric positive definite!!\n");
 				return;

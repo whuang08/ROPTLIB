@@ -19,21 +19,24 @@ namespace ROPTLIB{
 
     double juliaProblem::f(Variable *x) const
     {
-//        x->Print("cpp f x");//---
-        jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
-        double *xptr = x->ObtainWritePartialData();
-        jl_array_t *arrx = jl_ptr_to_array_1d(array_type, xptr, x->Getlength(), 0);
+		jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
+		jl_array_t *arrtmp = nullptr;
+		SharedSpace *Tmp2 = nullptr;
+		if (x->TempDataExist(("Tmp")))
+		{
+			const SharedSpace *Tmp = x->ObtainReadTempData("Tmp");
+			Tmp2 = Tmp->ConstructEmpty();
+			Tmp->CopyTo(Tmp2);
+			const double *tmpptr = Tmp2->ObtainReadData();
+			arrtmp = jl_ptr_to_array_1d(array_type, const_cast<double *> (tmpptr), Tmp->Getlength(), 0);
+		}
+		else
+		{
+			arrtmp = jl_ptr_to_array_1d(array_type, nullptr, 0, 0);
+		}
 
-        jl_array_t *arrtmp = nullptr;
-        if(x->TempDataExist(("Tmp")))
-        {
-            const SharedSpace *Tmp = x->ObtainReadTempData("Tmp");
-            const double *tmpptr = Tmp->ObtainReadData();
-            arrtmp = jl_ptr_to_array_1d(array_type, const_cast<double *> (tmpptr), Tmp->Getlength(), 0);
-        } else
-        {
-            arrtmp = jl_ptr_to_array_1d(array_type, nullptr, 0, 0);
-        }
+        double *xptr = x->ObtainWritePartialData(); /*All temp data is deleted when invoking this function.*/
+        jl_array_t *arrx = jl_ptr_to_array_1d(array_type, xptr, x->Getlength(), 0);
 
         jl_value_t *retresult = jl_call2(jl_f, (jl_value_t *) arrx, (jl_value_t *) arrtmp);
         jl_get_nth_field(retresult, 0);
@@ -48,6 +51,9 @@ namespace ROPTLIB{
         x->RemoveFromTempData("Tmp");
         x->AddToTempData("Tmp", sharedouttmp);
 
+		if (Tmp2 != nullptr)
+			delete Tmp2;
+
         if(jl_is_float64(fx))
         {
             double result = jl_unbox_float64(fx);
@@ -61,21 +67,24 @@ namespace ROPTLIB{
     void juliaProblem::EucGrad(Variable *x, Vector *egf) const
     {
 //        x->Print("cpp gf x");//---
-        jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
+		jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
+		jl_array_t *arrtmp = nullptr;
+		SharedSpace *Tmp2 = nullptr;
+		if (x->TempDataExist(("Tmp")))
+		{
+			const SharedSpace *Tmp = x->ObtainReadTempData("Tmp");
+			Tmp2 = Tmp->ConstructEmpty();
+			Tmp->CopyTo(Tmp2);
+			const double *tmpptr = Tmp2->ObtainReadData();
+			arrtmp = jl_ptr_to_array_1d(array_type, const_cast<double *> (tmpptr), Tmp->Getlength(), 0);
+		}
+		else
+		{
+			arrtmp = jl_ptr_to_array_1d(array_type, nullptr, 0, 0);
+		}
+
         double *xptr = x->ObtainWritePartialData();
         jl_array_t *arrx = jl_ptr_to_array_1d(array_type, xptr, x->Getlength(), 0);
-
-        jl_array_t *arrtmp = nullptr;
-        if(x->TempDataExist(("Tmp")))
-        {
-            const SharedSpace *Tmp = x->ObtainReadTempData("Tmp");
-//            Tmp->Print("cpp gf inTmp");//---
-            const double *tmpptr = Tmp->ObtainReadData();
-            arrtmp = jl_ptr_to_array_1d(array_type, const_cast<double *> (tmpptr), Tmp->Getlength(), 0);
-        } else
-        {
-            arrtmp = jl_ptr_to_array_1d(array_type, nullptr, 0, 0);
-        }
 
         jl_value_t *retresult = jl_call2(jl_gf, (jl_value_t *) arrx, (jl_value_t *) arrtmp);
         jl_array_t *jl_egf = (jl_array_t *) jl_get_nth_field(retresult, 0);
@@ -101,29 +110,35 @@ namespace ROPTLIB{
             x->RemoveFromTempData("Tmp");
             x->AddToTempData("Tmp", sharedouttmp);
         }
+		if (Tmp2 != nullptr)
+			delete Tmp2;
 	};
 
     void juliaProblem::EucHessianEta(Variable *x, Vector *etax, Vector *exix) const
     {
 //        x->Print("cpp hf x");//---
 //        etax->Print("cpp hf etax");//---
-        jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
+		jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
+		jl_array_t *arrtmp = nullptr;
+		SharedSpace *Tmp2 = nullptr;
+		if (x->TempDataExist(("Tmp")))
+		{
+			const SharedSpace *Tmp = x->ObtainReadTempData("Tmp");
+			Tmp2 = Tmp->ConstructEmpty();
+			Tmp->CopyTo(Tmp2);
+			const double *tmpptr = Tmp2->ObtainReadData();
+			arrtmp = jl_ptr_to_array_1d(array_type, const_cast<double *> (tmpptr), Tmp->Getlength(), 0);
+		}
+		else
+		{
+			arrtmp = jl_ptr_to_array_1d(array_type, nullptr, 0, 0);
+		}
+
+
         double *xptr = x->ObtainWritePartialData();
         jl_array_t *arrx = jl_ptr_to_array_1d(array_type, xptr, x->Getlength(), 0);
         double *etaxptr = etax->ObtainWritePartialData();
         jl_array_t *arretax = jl_ptr_to_array_1d(array_type, etaxptr, etax->Getlength(), 0);
-
-        jl_array_t *arrtmp = nullptr;
-        if(x->TempDataExist(("Tmp")))
-        {
-            const SharedSpace *Tmp = x->ObtainReadTempData("Tmp");
-//            Tmp->Print("cpp hf inTmp");//---
-            const double *tmpptr = Tmp->ObtainReadData();
-            arrtmp = jl_ptr_to_array_1d(array_type, const_cast<double *> (tmpptr), Tmp->Getlength(), 0);
-        } else
-        {
-            arrtmp = jl_ptr_to_array_1d(array_type, nullptr, 0, 0);
-        }
 
         jl_value_t *retresult = jl_call3(jl_Hess, (jl_value_t *) arrx, (jl_value_t *) arrtmp, (jl_value_t *) arretax);
         jl_array_t *jl_exix = (jl_array_t *) jl_get_nth_field(retresult, 0);
@@ -149,6 +164,8 @@ namespace ROPTLIB{
             x->RemoveFromTempData("Tmp");
             x->AddToTempData("Tmp", sharedouttmp);
         }
+		if (Tmp2 != nullptr)
+			delete Tmp2;
 	};
 
 }; /*end of ROPTLIB namespace*/

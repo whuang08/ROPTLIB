@@ -6,10 +6,18 @@ fprintf('Compiling DriverMexProb...\n');
 MyMex DriverMexProb
 fprintf('Compiling RealToComplex...\n');
 MyMex RealToComplex
+fprintf('Compiling TestCFR2BlindDecon2D...\n');
+MyMex TestCFR2BlindDecon2D
+fprintf('Compiling TestCFR2BlindDeconvolution...\n');
+MyMex TestCFR2BlindDeconvolution
 fprintf('Compiling TestCSO...\n');
 MyMex TestCSO
+fprintf('Compiling TestCSOPhaseRetrieval...\n');
+MyMex TestCSOPhaseRetrieval
 fprintf('Compiling TestElasticCurvesRO...\n');
 MyMex TestElasticCurvesRO
+fprintf('Compiling TestEucBlindDeconvolution...\n');
+MyMex TestEucBlindDeconvolution
 fprintf('Compiling TestEucFrechetMean...\n');
 MyMex TestEucFrechetMean
 fprintf('Compiling TestEucPosSpCd...\n');
@@ -20,6 +28,8 @@ fprintf('Compiling TestGrassRQ...\n');
 MyMex TestGrassRQ
 fprintf('Compiling TestKarcherMean...\n');
 MyMex TestKarcherMean
+fprintf('Compiling TestLRBlindDeconvolution...\n');
+MyMex TestLRBlindDeconvolution
 fprintf('Compiling TestLRMatrixCompletion...\n');
 MyMex TestLRMatrixCompletion
 % MyMex TestMyMatrix; This can not be used in Matlab
@@ -41,6 +51,8 @@ fprintf('Compiling TestSPDTensorDL...\n');
 MyMex TestSPDTensorDL
 fprintf('Compiling TestSphereRayQuo...\n');
 MyMex TestSphereRayQuo
+fprintf('Compiling TestSphereSparsestVector...\n');
+MyMex TestSphereSparsestVector
 fprintf('Compiling TestStieBrockett...\n');
 MyMex TestStieBrockett
 fprintf('Compiling TestStieSoftICA...\n');

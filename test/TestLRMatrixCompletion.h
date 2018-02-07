@@ -39,10 +39,8 @@ This is the test file to run the problem defined in LRMatrixCompletion.h and LRM
 
 using namespace ROPTLIB;
 
-#if !defined(MATLAB_MEX_FILE) && defined(TESTLRMATRIXCOMPLETION)
-int main(void);
-#endif
-
 void testLRMatrixCompletion(void);
+void testLRMatrixCompletionMore(void);
+double LRMatrixCompletionLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver);
 
 #endif

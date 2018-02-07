@@ -1,11 +1,11 @@
-function [T, G] = test_PhaseRetrieval%(mask, b_exact, xtrue, xinitial)
+function [T, G] = MTestCSOPhaseRetrieval%(mask, b_exact, xtrue, xinitial)
 % test file for test_PhaseRetrieval.
 % 
 % By Wen Huang
-    fprintf('test for Phase Retrieval problem. \n');
     r = rand();
-    r = floor(r * 10000)
-    r = 5028
+    r = floor(r * 10000);
+    r = 5028;
+    fprintf('MTestCSOPhaseRetrieval seed:%d\n', r);
     rand('state', r);
     randn('state', r);
     n1 = 128;
@@ -18,7 +18,7 @@ function [T, G] = test_PhaseRetrieval%(mask, b_exact, xtrue, xinitial)
     k = 2;
     kappa = 1 / sqrt(n);
     
-    fprintf('In this case, n1 = %d, n2 = %d, n = %d, l = %d. b, and x0 are chosen randomly. Random seed is %d \n', n1, n2, n, l, r);
+%     fprintf('In this case, n1 = %d, n2 = %d, n = %d, l = %d. b, and x0 are chosen randomly. Random seed is %d \n', n1, n2, n, l, r);
     
     
     %% generate masks and a true solution.
@@ -30,8 +30,8 @@ function [T, G] = test_PhaseRetrieval%(mask, b_exact, xtrue, xinitial)
         zi = reshape(fft2(phase .* masks(:, :, i)) / sqrt(n1 * n2), [], 1);
         b((i - 1) * n + 1 : i * n) = conj(zi) .* zi;
     end
-    bnorm = norm(b)
-    phasenorm = norm(phase, 'fro')
+%     bnorm = norm(b)
+%     phasenorm = norm(phase, 'fro')
     
     %%
     tic
@@ -59,16 +59,16 @@ function [T, G] = test_PhaseRetrieval%(mask, b_exact, xtrue, xinitial)
     times = 0;
     total_timecost = 0;
     while(total_timecost < 60 && times < 1)
-        fprintf('%d: ', times);
+%         fprintf('%d: ', times);
         [Xopt, timecost, nfft, nn] = TestCSOPhaseRetrieval(b, masksn, initX, kappa, delta, 1e-10, 1, 1000);
-        [nfft, nn]
+%         [nfft, nn]
         total_timecost = total_timecost + timecost;
         times = times + 1;
     end
     Xsoln = complex(Xopt(1:2:end, :), Xopt(2:2:end, :));
     vphase = phase(:);
     tmp = Xsoln * (Xsoln' * vphase) / norm(Xsoln' * vphase);
-    norm(vphase - Xsoln * (Xsoln' * vphase) / norm(Xsoln' * vphase)) / norm(phase)
+%     norm(vphase - Xsoln * (Xsoln' * vphase) / norm(Xsoln' * vphase)) / norm(phase)
     
     fprintf('average time cost of %d times is %f. \n', times, total_timecost / times);
 end

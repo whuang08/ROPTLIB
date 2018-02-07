@@ -3,18 +3,6 @@
 
 using namespace ROPTLIB;
 
-/*If the file is not compiled in Matlab and TESTSTIEBROCKETT is defined in def.h file, then using the following
-main() function as the entrance. */
-#if !defined(MATLAB_MEX_FILE) && defined(TESTMYMATRIX)
-
-int main(void)
-{
-//	testEigenSymmetricM();
-//	testExpSymmetricM();
-	testLogSymmetricM();
-	return 0;
-}
-
 void testEigenSymmetricM(void)
 {
 	double *M = new double[16 + 4 + 16];
@@ -69,5 +57,3 @@ void testLogSymmetricM(void)
 	Matrix::LogSymmetricM(GLOBAL::U, C, B);
 	delete[] M;
 };
-
-#endif

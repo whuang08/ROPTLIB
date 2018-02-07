@@ -1,9 +1,9 @@
 function MTestLRMatrixCompletion()
-    r = floor(rand() * 100000);
-    r = 2
-    fprintf('seed:%d\n', r);
-    rand('state', r);
-    randn('state', r);
+    seed = floor(rand() * 100000);
+    seed = 2;
+    fprintf('MTestLRMatrixCompletion seed:%d\n', seed);
+    rand('state', seed);
+    randn('state', seed);
     m = 100;
     n = 100;
     r = 5;
@@ -12,7 +12,7 @@ function MTestLRMatrixCompletion()
     H = randn(n, r);
     B = G * H';
     OS = 3;
-    [(m + n - r) * r * OS, m * n]
+%     [(m + n - r) * r * OS, m * n]
     nz = min((m + n - r) * r * OS, m * n);
     
     vidx = randperm(m * n, nz);
@@ -25,11 +25,11 @@ function MTestLRMatrixCompletion()
     SolverParams.method = 'LRBFGS';
 %     SolverParams.method = 'RTRSR1';
 %     SolverParams.method = 'RTRNewton';
-    SolverParams.IsCheckParams = 1;
+    SolverParams.IsCheckParams = 0;
     SolverParams.Max_Iteration = 1000;
     SolverParams.OutputGap = 100;
     SolverParams.LengthSY = 4;
-    SolverParams.DEBUG = 2;
+    SolverParams.DEBUG = 1;
     HasHHR = 0;
     [Xopt, f, gf, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime] = TestLRMatrixCompletion(A, Xinitial, r, HasHHR, SolverParams);
 end
