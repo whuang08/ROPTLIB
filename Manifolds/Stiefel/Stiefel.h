@@ -60,7 +60,7 @@ namespace ROPTLIB{
 		/*Delete EMPTYINTR and EMPTYEXTR*/
 		virtual ~Stiefel(void);
 
-		/* choose Euclidean metric, qf, parallelization and intrinsic approach and use householder reflections*/
+		/* choose Euclidean metric, qf, parallelization and intrinsic representation*/
 		virtual void ChooseStieParamsSet1(void);
 
 		/* choose Euclidean metric,  constructed retraction, parallelization and intrinsic representation */
@@ -73,6 +73,10 @@ namespace ROPTLIB{
 		/* choose Euclidean metric,  Cayley retraction, Cayley vector transport and extrinsic representation
 		TODO */
 		virtual void ChooseStieParamsSet4(void);
+
+		/* choose Euclidean metric,  polar retraction, vector transport by parallelization and intrinsic representation
+		TODO */
+		virtual void ChooseStieParamsSet5(void);
 
 		/*Euclidean metric*/
 		virtual double Metric(Variable *x, Vector *etax, Vector *xix) const;
@@ -181,6 +185,21 @@ namespace ROPTLIB{
 			[AMS2008]P.-A. Absil, R. Mahony, and R. Sepulchre. Optimization algorithms on matrix manifolds.
 			Princeton University Press, Princeton, NJ, 2008.*/
 		virtual void DiffqfRetraction(Variable *x, Vector *etax, Variable *y, Vector *xix, Vector *result, bool IsEtaXiSameDir = false) const;
+
+		/*Polar retraction defined in [AMS2008, (4.7)]
+		[AMS2008]P.-A. Absil, R. Mahony, and R. Sepulchre. Optimization algorithms on matrix manifolds.
+		Princeton University Press, Princeton, NJ, 2008.*/
+		virtual void PolarRetraction(Variable *x, Vector *etax, Variable *result, double stepsize) const;
+
+		/*the cotangent vector for the polar retraction in [Hua2013, Section 10.2.4]
+		[Hua2013]:W. Huang. Optimization algorithms on Riemannian manifolds with applications.
+		PhD thesis, Florida State University, Department of Mathematics, 2013.*/
+		virtual void PolarcoTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const;
+
+		/*the vector transport by differentiated retraction, see [HGA2015, Section 4]
+		[HGA2015]:W. Huang, K. A. Gallivan, P.-A. Absil, A BROYDEN CLASS OF QUASI-NEWTON METHODS FOR RIEMANNIAN OPTIMIZATION
+		SIAM Journal on Optimization, 25(3), 1660-1685, 2015.*/
+		virtual void DiffPolarRetraction(Variable *x, Vector *etax, Variable *y, Vector *xix, Vector *result, bool IsEtaXiSameDir = false) const;
 
 		/*the constructed retraction based on the idea in [HGA2015, Section 4.3], derivation is in [Hua2013, Section 10.2.3]
 			[HGA2015]:Wen Huang, K. A. Gallivan, and P.-A. Absil. A Broyden Class of Quasi-Newton Methods for Riemannian Optimization.

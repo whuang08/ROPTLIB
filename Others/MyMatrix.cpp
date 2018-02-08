@@ -12,7 +12,7 @@ namespace ROPTLIB{
 		char *L = const_cast<char *> ("l"), *R = const_cast<char *> ("r");
 		char *V = const_cast<char *> ("v"), *C = const_cast<char *> ("c");
 		char *U = const_cast<char *> ("u"), *A = const_cast<char *> ("a");
-		char *S = const_cast<char *> ("s");
+		char *S = const_cast<char *> ("s"), *O = const_cast<char *> ("o");
 	};
 
 	void Matrix::SPBtimesX(const double *B, const unsigned long long *ir, const unsigned long long *jc, integer nzmax, const double *X, integer m, integer n, integer p, double *result)

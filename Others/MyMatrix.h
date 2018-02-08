@@ -24,7 +24,7 @@ namespace ROPTLIB{
 		extern integer IZERO, IONE, ITWO;
 		extern double DZERO, DONE, DTWO, DNONE;
 		extern doublecomplex ZZERO, ZONE, ZTWO, ZNONE;
-		extern char *N, *T, *L, *R, *V, *C, *U, *A, *S;
+		extern char *N, *T, *L, *R, *V, *C, *U, *A, *S, *O;
 	};
 
 	class Matrix{
