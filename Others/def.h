@@ -88,10 +88,12 @@ are included.*/
 	#include <dsyevx.h>
 	#include <dlamch.h>
 	#include <dpotrf.h>
+	#include <dpotrs.h>
 	#include <dtrtrs.h>
 	#include <dsyevd.h>
 	#include <dsyevr.h>
 	#include <dsyev.h>
+	#include <dtgsyl.h>
 
 	#include <zdotc.h>
 	#include <zgegs.h>
@@ -205,6 +207,8 @@ are included.*/
 #define dsyevd_ dsyevd
 #define dsyevr_ dsyevr
 #define dsyev_ dsyev
+#define dpotrs_ dpotrs
+#define dtgsyl_ dtgsyl
 
 #define zdotc_ zdotc
 #define zgegs_ zgegs

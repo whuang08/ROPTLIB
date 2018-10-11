@@ -106,7 +106,8 @@ namespace ROPTLIB{
 		virtual void RandomTangentVectors(Variable *x, integer N, Vector **result_arr) const;
 
 		/*Compute the retraction result = R_x(etax). A stepsize is also input for information.
-		Default: result = x + etax;*/
+		Default: result = x + etax, Note it is NOT result = x + instepsize * etax; The instepsize
+		is used in, for example, proximal mapping.*/
 		virtual void Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const;
 
 		/*Compute the tangent vector result satisfying

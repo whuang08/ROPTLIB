@@ -22,7 +22,7 @@ namespace ROPTLIB{
 
 	namespace GLOBAL{
 		extern integer IZERO, IONE, ITWO;
-		extern double DZERO, DONE, DTWO, DNONE;
+		extern double DZERO, DONE, DTWO, DNONE, DNTWO;
 		extern doublecomplex ZZERO, ZONE, ZTWO, ZNONE;
 		extern char *N, *T, *L, *R, *V, *C, *U, *A, *S, *O;
 	};
@@ -225,6 +225,11 @@ namespace ROPTLIB{
 		// On output: A and B are replaced by schur and negative schur forms and C is replace by the solution X.
 		// A and B can be a same variable
 		static void CSYL(Matrix &A, Matrix &B, Matrix &C);
+
+		// solve the real Sylevster equation A X + X B = C
+		// On output: A and B are replaced by schur and negative schur forms and C is replace by the solution X.
+		// A and B can be a same variable
+		static void DSYL(Matrix &A, Matrix &B, Matrix &C);
 
 		const Matrix &operator=(const Matrix &);
 

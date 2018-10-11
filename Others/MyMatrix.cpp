@@ -6,7 +6,7 @@ namespace ROPTLIB{
 
 	namespace GLOBAL{
 		integer IZERO = 0, IONE = 1, ITWO = 2;
-		double DZERO = 0, DONE = 1, DTWO = 2, DNONE = -1;
+		double DZERO = 0, DONE = 1, DTWO = 2, DNONE = -1, DNTWO = -2;
 		doublecomplex ZZERO = { 0, 0 }, ZONE = { 1, 0 }, ZTWO = { 2, 0 }, ZNONE = { -1, 0 };
 		char *N = const_cast<char *> ("n"), *T = const_cast<char *> ("t");
 		char *L = const_cast<char *> ("l"), *R = const_cast<char *> ("r");
@@ -313,6 +313,134 @@ namespace ROPTLIB{
 		}
 	};
 
+	void Matrix::DSYL(Matrix &A, Matrix &B, Matrix &C)
+	{ // details can be found in http://www.netlib.org/lapack/lawnspdf/lawn75.pdf
+		if (A.row != A.col || B.row != B.col)
+			printf("DSYL: sizes do not match!\n");
+		double *Bmatrix = nullptr;
+		integer sdim, n = A.row, m = B.row;
+		double *eigsAr = new double[n * 2 + m * 2 + n * n + m * m];
+		double *eigsAi = eigsAr + n;
+		double *eigsBr = eigsAi + n;
+		double *eigsBi = eigsBr + m;
+		double *VSA = eigsBi + m;
+		double *VSB = VSA + n * n;
+		double lworkopt;
+		integer lwork = -1;
+		integer info;
+		// compute the size of space required in the zgees
+		dgees_(GLOBAL::V, GLOBAL::N, nullptr, &n, A.matrix, &A.inc, &sdim, eigsAr, eigsAi, VSA, &n,
+			&lworkopt, &lwork, nullptr, &info);
+		lwork = static_cast<integer> (lworkopt);
+		double *work = new double[lwork];
+		// generalized schur decomposition for matrices A.
+		// details: http://www.netlib.org/lapack/explore-html/d8/d7e/zgees_8f.html
+		dgees_(GLOBAL::V, GLOBAL::N, nullptr, &n, A.matrix, &A.inc, &sdim, eigsAr, eigsAi, VSA, &n,
+			work, &lwork, nullptr, &info);
+		delete[] work;
+
+		//printf("A:" << Matrix(A.matrix, 6, 2) << std::endl;
+		//printf("VSA:" << Matrix((double *)VSA, 4, 2) << std::endl;
+
+		if (B.matrix != A.matrix)
+		{
+			lwork = -1;
+			// compute the size of space required in the zgees
+			dgees_(GLOBAL::V, GLOBAL::N, nullptr, &m, B.matrix, &B.inc, &sdim, eigsBr, eigsBi, VSB, &m,
+				&lworkopt, &lwork, nullptr, &info);
+			lwork = static_cast<integer> (lworkopt);
+			work = new double[lwork];
+			// generalized schur decomposition for matrices B.
+			// details: http://www.netlib.org/lapack/explore-html/d8/d7e/zgees_8f.html
+			dgees_(GLOBAL::V, GLOBAL::N, nullptr, &m, B.matrix, &B.inc, &sdim, eigsBr, eigsBi, VSB, &m,
+				work, &lwork, nullptr, &info);
+			delete[] work;
+		}
+		else
+		{
+			Bmatrix = new double[n * n];
+			integer length = n;
+			for (integer i = 0; i < n; i++)
+			{
+				dcopy_(&length, A.matrix + A.inc * i, &GLOBAL::IONE, Bmatrix + n * i, &GLOBAL::IONE);
+			}
+			length = n * n;
+			dscal_(&length, &GLOBAL::DNONE, Bmatrix, &GLOBAL::IONE);
+			VSB = VSA;
+		}
+
+		//printf("C:" << Matrix(C.matrix, 6, 2) << std::endl;
+		double *tempnbym = new double[n * m];
+		Matrix MVSA(VSA, n, n), MC(C.matrix, n, m, C.inc), Mtempnbym(tempnbym, n, m);
+		Matrix MVSB(VSB, m, m);
+		// tempnbym <- VSA^H * C
+		DGEMM(GLOBAL::DONE, MVSA, true, MC, false, GLOBAL::DZERO, Mtempnbym);
+		//printf("UA' * C:" << Matrix(tempnbym, 4, 2) << std::endl;
+		// C <- tempnbym * VSB
+		DGEMM(GLOBAL::DONE, Mtempnbym, false, MVSB, false, GLOBAL::DZERO, MC);
+
+		//printf("UA' * C * UB:" << Matrix(C.matrix, 6, 2) << std::endl;
+
+		double *DIdentity = new double[n * n + m * m + n * m];
+		double *EIdentity = DIdentity + n * n;
+		double *FZeros = EIdentity + m * m;
+		integer length = 0;// 2 * (n * n + m * m + n * m);
+		double scalar, dif;
+		for (integer i = 0; i < n * n + m * m + n * m; i++)
+		{
+			DIdentity[i] = 0;
+		}
+		//dscal_(&length, &GLOBAL::DZERO, (double *)DIdentity, &GLOBAL::IONE);
+		for (integer i = 0; i < n; i++)
+			DIdentity[i + i * n] = 1;
+		for (integer i = 0; i < m; i++)
+			EIdentity[i + i * m] = 1;
+		lwork = -1;
+		integer *iwork = new integer[n + m + 6];
+		if (A.matrix != B.matrix)
+		{
+			length = B.row;
+			for (integer i = 0; i < m; i++)
+				dscal_(&length, &GLOBAL::DNONE, B.matrix + i * B.inc, &GLOBAL::IONE);
+			// compute the size of space required in the ztgsyl
+			dtgsyl_(GLOBAL::N, &GLOBAL::IZERO, &n, &m, A.matrix, &A.inc, B.matrix, &B.inc, C.matrix, &C.inc,
+				DIdentity, &n, EIdentity, &m, FZeros, &n, &scalar, &dif, &lworkopt, &lwork, iwork, &info);
+			lwork = static_cast<integer> (lworkopt);
+			work = new double[lwork];
+			// generalized Sylvester equation.
+			// details: http://www.netlib.org/lapack/explore-html/d8/d7e/zgees_8f.html
+			dtgsyl_(GLOBAL::N, &GLOBAL::IZERO, &n, &m, A.matrix, &A.inc, B.matrix, &B.inc, C.matrix, &C.inc,
+				DIdentity, &n, EIdentity, &m, FZeros, &n, &scalar, &dif, work, &lwork, iwork, &info);
+			delete[] work;
+		}
+		else
+		{
+			// compute the size of space required in the ztgsyl
+			dtgsyl_(GLOBAL::N, &GLOBAL::IZERO, &n, &m, A.matrix, &A.inc, Bmatrix, &m, C.matrix, &C.inc,
+				DIdentity, &n, EIdentity, &m, FZeros, &n, &scalar, &dif, &lworkopt, &lwork, iwork, &info);
+			lwork = static_cast<integer> (lworkopt);
+			work = new double[lwork];
+			// generalized Sylvester equation.
+			// details: http://www.netlib.org/lapack/explore-html/d8/d7e/zgees_8f.html
+			dtgsyl_(GLOBAL::N, &GLOBAL::IZERO, &n, &m, A.matrix, &A.inc, Bmatrix, &m, C.matrix, &C.inc,
+				DIdentity, &n, EIdentity, &m, FZeros, &n, &scalar, &dif, work, &lwork, iwork, &info);
+			delete[] work;
+		}
+		delete[] iwork;
+
+		// tempnbym <- VSA^H * C
+		DGEMM(GLOBAL::DONE, MVSA, false, MC, false, GLOBAL::DZERO, Mtempnbym);
+		// C <- tempnbym * VSB
+		DGEMM(GLOBAL::DONE, Mtempnbym, false, MVSB, true, GLOBAL::DZERO, MC);
+
+		delete[] DIdentity;
+		delete[] eigsAr;
+		delete[] tempnbym;
+		if (B.matrix != nullptr)
+		{
+			delete[] Bmatrix;
+		}
+	};
 
 	void Matrix::EigenSymmetricM(char *UorL, Matrix &S, Matrix &eigenvalues, Matrix &eigenvectors)
 	{

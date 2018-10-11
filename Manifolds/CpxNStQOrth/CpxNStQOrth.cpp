@@ -67,7 +67,7 @@ namespace ROPTLIB{
 	};
 
 	void CpxNStQOrth::EucHvToHv(Variable *x, Vector *etax, Vector *exix, Vector* xix, const Problem *prob) const
-	{
+	{/*The following is the EucHvToHv for the metric tr(eta^H xi), not the used metric. It needs be modified.*/
 		const double *xM = x->ObtainReadData();
 		const SharedSpace *Sharedegf = x->ObtainReadTempData("EGrad");
 		Vector *segf = Sharedegf->GetSharedElement();
