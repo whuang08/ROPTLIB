@@ -76,9 +76,6 @@ namespace ROPTLIB{
 		/*Compute the search direction by using truncated conjugate gradient to approximately solve Hessian[direction] = - gradient*/
 		virtual void GetSearchDir();
 
-		/*Preconditioner for the solving the linear system Hessian[direction] = - gradient*/
-		void PreConditioner(Variable *x, Vector *eta, Vector *result);
-
 		/*Compute result = H[Eta], where H is the Hessian*/
 		void HessianEta(Vector *Eta, Vector *result) const;
 

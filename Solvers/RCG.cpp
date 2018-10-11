@@ -65,9 +65,10 @@ namespace ROPTLIB{
 
 	void RCG::GetSearchDir(void)
 	{
+		PreConditioner(x1, gf1, Pgf1);
 		if (iter % ManDim == 0 || Mani->Metric(x1, eta1, gf1) / ngf / ngf >= -std::sqrt(std::numeric_limits<double>::epsilon())) // restart and safeguard
 		{
-			Mani->ScaleTimesVector(x1, -1.0, gf1, eta1);
+			Mani->ScaleTimesVector(x1, -1.0, Pgf1, eta1);
 		}
 	};
 
@@ -75,9 +76,10 @@ namespace ROPTLIB{
 	{
 		if (iter % ManDim != 0)
 		{
+			PreConditioner(x2, gf2, Pgf2);
 			if (RCGmethod == FLETCHER_REEVES)
 			{
-				sigma = Mani->Metric(x2, gf2, gf2) / Mani->Metric(x1, gf1, gf1);
+				sigma = Mani->Metric(x2, gf2, Pgf2) / Mani->Metric(x1, gf1, Pgf1);
 				Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nV++;
 			}
 			else
@@ -85,7 +87,7 @@ namespace ROPTLIB{
 				{
 					Mani->VectorTransport(x1, eta2, x2, gf1, zeta); nV++;
 					Mani->VectorMinusVector(x2, gf2, zeta, zeta);
-					sigma = Mani->Metric(x2, zeta, gf2) / Mani->Metric(x1, gf1, gf1);
+					sigma = Mani->Metric(x2, zeta, Pgf2) / Mani->Metric(x1, gf1, Pgf1);
 					if (LineSearch_LS == STRONGWOLFE && sigma <= 0)
 						sigma = 0;
 					else
@@ -100,7 +102,7 @@ namespace ROPTLIB{
 						Mani->VectorTransport(x1, eta2, x2, eta1, zeta); nV++;
 						Mani->VectorTransport(x1, eta2, x2, gf1, eta1); nVp++;
 						Mani->VectorMinusVector(x2, gf2, eta1, eta1);
-						numerator = Mani->Metric(x2, eta1, gf2);
+						numerator = Mani->Metric(x2, eta1, Pgf2);
 						denominator = Mani->Metric(x2, zeta, eta1);
 						sigma = numerator / denominator;
 					}
@@ -110,8 +112,8 @@ namespace ROPTLIB{
 							double sigmaFR, sigmaPR;
 							Mani->VectorTransport(x1, eta2, x2, gf1, zeta); nV++;
 							Mani->VectorMinusVector(x2, gf2, zeta, zeta);
-							sigmaPR = Mani->Metric(x2, zeta, gf2) / Mani->Metric(x1, gf1, gf1);
-							sigmaFR = Mani->Metric(x2, gf2, gf2) / Mani->Metric(x1, gf1, gf1);
+							sigmaPR = Mani->Metric(x2, zeta, Pgf2) / Mani->Metric(x1, gf1, Pgf1);
+							sigmaFR = Mani->Metric(x2, gf2, Pgf2) / Mani->Metric(x1, gf1, Pgf1);
 							if (sigmaPR < -sigmaFR)
 								sigma = -sigmaFR;
 							else
@@ -128,7 +130,7 @@ namespace ROPTLIB{
 
 								Mani->VectorTransport(x1, eta2, x2, gf1, eta1); nVp++;
 								Mani->VectorMinusVector(x2, gf2, eta1, eta1);
-								sigma = Mani->Metric(x2, gf2, gf2) / Mani->Metric(x2, zeta, eta1);
+								sigma = Mani->Metric(x2, gf2, Pgf2) / Mani->Metric(x2, zeta, eta1);
 							}
 							else
 								if (RCGmethod == HAGER_ZHANG)
@@ -141,7 +143,7 @@ namespace ROPTLIB{
 									temp1 = Mani->Metric(x2, eta1, zeta);
 									temp2 = -2.0 * Mani->Metric(x2, eta1, eta1) / temp1;
 									Mani->scalarVectorAddVector(x2, temp2, zeta, eta1, eta1);
-									sigma = Mani->Metric(x2, eta1, gf2) / temp1;
+									sigma = Mani->Metric(x2, eta1, Pgf2) / temp1;
 								}
 			Mani->scalarVectorMinusVector(x2, sigma, zeta, gf2, eta1);
 		}

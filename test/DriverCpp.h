@@ -21,6 +21,7 @@ This is the test file to check all problems.
 #include "test/TestLRBlindDeconvolution.h"
 #include "test/TestLRMatrixCompletion.h"
 #include "test/TestMyMatrix.h"
+#include "test/TestNSOLyapunov.h"
 #include "test/TestOrthBoundingBox.h"
 #include "test/TestPreShapePathStraighten.h"
 #include "test/TestProduct.h"

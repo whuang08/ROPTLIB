@@ -218,11 +218,6 @@ namespace ROPTLIB{
 		innerIter = j;
 	};
 
-	void SolversTR::PreConditioner(Variable *x, Vector *eta, Vector *result)
-	{
-		Prob->PreConditioner(x, eta, result);
-	};
-
 	void SolversTR::PrintGenInfo(void)
 	{
 		Solvers::PrintGenInfo();

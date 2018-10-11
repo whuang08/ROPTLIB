@@ -80,12 +80,6 @@ namespace ROPTLIB{
 		tCG_LS();
 	};
 
-	void RNewton::PreConditioner(Variable *x, Vector *eta, Vector *result)
-	{
-		// default one means no preconditioner.
-		eta->CopyTo(result);
-	};
-
 	void RNewton::HessianEta(Vector *Eta, Vector *result) const
 	{
 		Prob->HessianEta(x1, Eta, result);

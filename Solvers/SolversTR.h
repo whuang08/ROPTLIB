@@ -99,9 +99,6 @@ namespace ROPTLIB{
 		/*Run the truncated conjugate gradient method for the local model*/
 		virtual void tCG_TR(void);
 
-		/*Preconditioner for the solving the local model*/
-		virtual void PreConditioner(Variable *x, Vector *eta, Vector *result);
-
 		/*Call Solvers::SetProbX function and set up the temporary objects for trust region algorithm.
 		INPUT:	prob is the problem which defines the cost function, gradient and possible the action of Hessian
 		and specifies the manifold of domain.

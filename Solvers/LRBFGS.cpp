@@ -19,6 +19,7 @@ namespace ROPTLIB{
 			EMPTYETA = prob->GetDomain()->GetEMPTYEXTR();
 		s = EMPTYETA->ConstructEmpty();
 		y = EMPTYETA->ConstructEmpty();
+		Py = EMPTYETA->ConstructEmpty();
 		prob->SetUseGrad(true);
 		prob->SetUseHess(false);
 	};
@@ -46,6 +47,7 @@ namespace ROPTLIB{
 	{
 		delete s;
 		delete y;
+		delete Py;
 		DeleteVectors(S, LengthSY);
 		DeleteVectors(Y, LengthSY);
 		if (RHO != nullptr)

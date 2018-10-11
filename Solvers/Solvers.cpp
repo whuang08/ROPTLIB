@@ -36,6 +36,11 @@ namespace ROPTLIB{
 		printf("\n");
 	};
 
+	void Solvers::PreConditioner(Variable *x, Vector *eta, Vector *result)
+	{
+		Prob->PreConditioner(x, eta, result);
+	};
+
 	bool Solvers::IsStopped(void)
 	{
 		if (static_cast<double>(getTickCount() - starttime) / CLK_PS > TimeBound)
@@ -229,6 +234,9 @@ namespace ROPTLIB{
 		gf1 = EMPTYETA->ConstructEmpty();
 		gf2 = EMPTYETA->ConstructEmpty();
 
+		Pgf1 = EMPTYETA->ConstructEmpty();
+		Pgf2 = EMPTYETA->ConstructEmpty();
+
 		eta1 = EMPTYETA->ConstructEmpty();
 		eta2 = EMPTYETA->ConstructEmpty();
 		zeta = EMPTYETA->ConstructEmpty();
@@ -265,6 +273,8 @@ namespace ROPTLIB{
 		delete x2;
 		delete gf1;
 		delete gf2;
+		delete Pgf1;
+		delete Pgf2;
 		delete soln;
 		if (Debug >= ITERRESULT)
 		{

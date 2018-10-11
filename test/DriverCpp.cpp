@@ -6,16 +6,17 @@ int main(void)
 {
 	//_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF); /*This can detect the memory leakage for global variables!!*/
 	//_CrtSetBreakAlloc(781179);
-
 	/*Set the random seed*/
 	unsigned tt = (unsigned)time(NULL);
 	tt = 0; /*The following test is only for random seed zero*/
 	genrandseed(tt);
+	//testDSYL();
+	testNSOLyapunov();
 	//testLRMatrixCompletionMore();
 	//testStieBrockettMore();
 	//testSparsePCA();
-
-	testall();
+	//testSPDMeanMore();
+	//testall();
 
 #ifdef _WIN64
 #ifdef _DEBUG
@@ -32,7 +33,8 @@ void testall(void)
 	unsigned tt = (unsigned)time(NULL);
 	tt = 0; /*The following test is only for random seed zero*/
 	genrandseed(tt);
-
+	
+	//testDSYL();
 	//testCSO();
 	//testElasticCurvesRO();
 	//testKarcherMean();            //TOCHECK

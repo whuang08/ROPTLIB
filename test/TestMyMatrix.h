@@ -27,5 +27,6 @@ using namespace ROPTLIB;
 void testEigenSymmetricM(void);
 void testExpSymmetricM(void);
 void testLogSymmetricM(void);
+void testDSYL(void);
 
 #endif // end of TESTSTIEBROCKETT_H

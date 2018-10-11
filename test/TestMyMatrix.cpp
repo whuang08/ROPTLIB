@@ -57,3 +57,28 @@ void testLogSymmetricM(void)
 	Matrix::LogSymmetricM(GLOBAL::U, C, B);
 	delete[] M;
 };
+
+void testDSYL(void)
+{
+	integer N = 4;
+	double *A = new double[16 + 16 + 16];
+	double *B = A + 16;
+	double *C = B + 16;
+	for (integer i = 0; i < 4; i++)
+	{
+		for (integer j = 0; j < 4; j++)
+		{
+			A[i + j * 4] = genrandnormal();
+			B[i + j * 4] = genrandnormal();
+			C[i + j * 4] = genrandnormal();
+		}
+	}
+
+	Matrix MA(A, 4, 4), MB(B, 4, 4), MC(C, 4, 4);
+	std::cout << "A:" << MA << std::endl;
+	std::cout << "B:" << MB << std::endl;
+	std::cout << "C:" << MC << std::endl;
+	Matrix::DSYL(MA, MA, MC);
+	std::cout << "X:" << MC << std::endl;
+	delete[] A;
+};

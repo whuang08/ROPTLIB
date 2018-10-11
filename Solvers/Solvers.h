@@ -199,10 +199,14 @@ namespace ROPTLIB{
 		/*Print information specific to an algorithm*/
 		virtual void PrintInfo(void);
 
+		/*Preconditioner for the solving the local model*/
+		virtual void PreConditioner(Variable *x, Vector *eta, Vector *result);
+
 		// algorithm-related variables:
 		Variable *x1, *x2;	/*x1: current iterate, x2: next iterate*/
 		Variable *soln;	/*soln is supposed to be the true solution. If DEBUG >= ITERRESULT and soln != nullptr, then distSeries outputs dist(x_i, soln).*/
 		Vector *gf1, *gf2;	/*gf1: gradient at x1, gf2: gradient at x2*/
+		Vector *Pgf1, *Pgf2;	/*Pgf1: preconditioned gradient at x1, Pgf2: preconditioned gradient at x2, used in RCG and LRBFGS, LRTRSR1*/
 		double f1, f2;		/*f1: function value at x1, f2: function value at x2*/
 		double ngf0, ngf;	/*ngf0: the norm of gradient at the initial iterate, ngf: the norm of the gradient at the final iterate*/
 		Vector *eta1, *eta2; /*In Line search-based methods, eta1 is the search direction. eta2 is stepsize * eta1.*/
