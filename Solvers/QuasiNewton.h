@@ -140,6 +140,7 @@ namespace ROPTLIB{
 												inpsy: g(s, y); inpss: g(s, s); inpyy: g(y, y); */
 
 		Vector *s, *y, *u;/*the s, y, and u of current step*/
+		Vector *Py; /*the preconditioned y.*/
 		LinearOPE *H, *tildeH; /*The inverse Hessian approximations for current and next iterations respectively*/
 		LinearOPE *B, *tildeB; /*The Hessian approximations for current and next iterations respectively*/
 

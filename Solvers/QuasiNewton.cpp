@@ -225,7 +225,8 @@ namespace ROPTLIB{
 			xi[idx] = RHO[idx] * Mani->Metric(x1, S[idx], result);
 			Mani->scalarVectorAddVector(x1, -xi[idx], Y[idx], result, result);
 		}
-		Mani->ScaleTimesVector(x1, gamma, result, result);
+		PreConditioner(x1, result, zeta);
+		Mani->ScaleTimesVector(x1, gamma, zeta, result);
 		for (integer i = 0; i < Currentlength; i++)
 		{
 			idx = (beginidx + i) % LengthSY;
@@ -265,9 +266,10 @@ namespace ROPTLIB{
 		Mani->VectorTransport(x1, eta2, x2, gf1, zeta); nVp++;
 		betay = Mani->Beta(x1, eta2);
 		Mani->scalarVectorMinusVector(x2, 1.0 / betay, gf2, zeta, y);
-		inpsy = Mani->Metric(x2, s, y);
+		PreConditioner(x2, y, Py);
+		inpsy = Mani->Metric(x2, s, Py);
 		inpss = Mani->Metric(x2, s, s);
-		inpyy = Mani->Metric(x2, y, y);
+		inpyy = Mani->Metric(x2, Py, Py);
 		rho = 1.0 / inpsy;
 		if (inpsy / inpss >= nu * pow(ngf, mu) && (ngf / ngf0 < 1e-3 ||
 			(inpss > std::numeric_limits<double>::epsilon() && inpsy > std::numeric_limits<double>::epsilon())))
