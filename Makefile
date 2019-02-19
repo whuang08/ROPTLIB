@@ -8,7 +8,7 @@ CXXFLAGS:=-O3 -ffastmath -march=native -ggdb3
 TP?=DriverCpp
 
 #the path of ROPTLIB
-ROOTPATH = ROOTPATH:=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+ROOTPATH =  ROOTPATH:=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
 # set the path of Julia
 JULIA_DIR:=/home/whuang/Documents/julia
@@ -219,7 +219,7 @@ ROPTLIB:
 
 #make a library
 libropt.so:
-	$(CC) -w -std=c++0x -shared -fPIC -O3 $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -DROPTLIB_WITH_FFTW -llapack -lblas -lfftw3 -lm -o $@
+	$(CC) -w -std=c++0x -shared -fPIC -O3 $(CPPS) $(INCDIRS) -DROPTLIB_WITH_FFTW -llapack -lblas -lfftw3 -lm -o $@
 
 JULIA_LIB:=$(JULIA_DIR)/usr/lib
 JULIA_SRC:=$(JULIA_DIR)/src
