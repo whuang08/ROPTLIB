@@ -8,7 +8,7 @@ CXXFLAGS:=-O3 -ffastmath -march=native -ggdb3
 TP?=DriverCpp
 
 #the path of ROPTLIB
-ROOTPATH =  ROOTPATH:=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+ROOTPATH:=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
 # set the path of Julia
 JULIA_DIR:=/home/whuang/Documents/julia
