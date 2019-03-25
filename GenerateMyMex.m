@@ -49,7 +49,7 @@ function GenerateMyMex(include_fftw)
             end
         end
     end
-    if(length(findstr(lower(computer('arch')), 'mac')) > 0)
+    if(length(findstr(lower(computer('arch')), 'mac')) > 0 || length(findstr(lower(computer('arch')), 'glnxa')) > 0)
         blaslib = '''-lmwblas''';
         lapacklib = '''-lmwlapack''';
         fftwlib = '''-lfftw3''';
