@@ -4,55 +4,65 @@
 /*Define the namespace*/
 namespace ROPTLIB{
 
-	RGS::RGS(const Problem *prob, const Variable *initialx, const Variable *insoln)
+	RGS::RGS(const Problem *prob, const Variable *initialx)
 	{
-		Initialization(prob, initialx, insoln);
+		Initialization(prob, initialx);
 	};
 
 	void RGS::SetDefaultParams(void)
 	{
-		SolversLSLPSub::SetDefaultParams();
-		Xs = nullptr;
-		InitSteptype = ONESTEP;
-		LineSearch_LS = ARMIJO;
-		LS_ratio1 = 0.25;
-		LS_ratio2 = 0.25;
+		SolversNSMSubLS::SetDefaultParams();
 		SolverName.assign("RGS");
 	};
 
 	RGS::~RGS(void)
 	{
-		DeleteVectors(Xs, Lengthgfs);
 	};
+
+    void RGS::UpdateData(void)
+    {
+    };
 
 	void RGS::GetSearchDir(void)
 	{
-		gf1->CopyTo(gfs[0]);
-		Mani->RandomTangentVectors(x1, Lengthgfs - 1, gfs + 1);
-		
+        gfs[0] = gf1;
+        for(integer i = 1; i < Lengthgfs; i++)
+        {
+            gfs[i] = gf1;
+            gfs[i].RandGaussian();
+            Mani->Projection(x1, gfs[i], &gfs[i]);
+//            std::cout << "i:" << i << std::endl;//---
+//            gfs[i].GetTranspose().Print("gfi transpose:");//----
+        }
+        
 		/*normalized all the tangent vectors such that their norms equal Eps*/
-		double tmp = 0;
+		realdp tmp = 0;
 		for (integer i = 1; i < Lengthgfs; i++)
 		{
 			tmp = sqrt(Mani->Metric(x1, gfs[i], gfs[i]));
-			Mani->ScaleTimesVector(x1, Eps / tmp, gfs[i], gfs[i]);
+			Mani->ScalarTimesVector(x1, Eps / tmp, gfs[i], &gfs[i]);
 		}
-
+        
 		/*Apply retraction and obtain points around x1*/
 		/*Compute gradients at Xs[i] and transport them to the tangent space at x1*/
+        Vector gfXsi(gf1);
 		for (integer i = 1; i < Lengthgfs; i++)
 		{
-			Mani->Retraction(x1, gfs[i], Xs[i], 1); nR++;
+			Mani->Retraction(x1, gfs[i], &Xs[i]); nR++;
 			Prob->f(Xs[i]); nf++;
-			Prob->Grad(Xs[i], zeta); ng++;
-			Mani->InverseVectorTransport(x1, gfs[i], Xs[i], zeta, zeta);
-			zeta->CopyTo(gfs[i]);
+            Prob->Grad(Xs[i], &gfXsi);
+            Mani->InverseVectorTransport(x1, gfs[i], Xs[i], gfXsi, &gfs[i]); ng++; nVp++;
 		}
-
-		ngf = sqrt(MinPNormConHull(Mani, x1, gfs, Lengthgfs, nullptr, nullptr, gf, nullptr, 0));
+        
+		ndir1 = sqrt(MinPNormConHull(Mani, x1, gfs, Lengthgfs, nullptr, nullptr, minPv));
 		subprobtimes++;
-
+        
+//        Mani->ScalarTimesVector(x1, -1.0, gf1, &eta1); //---
+//        minPv = eta1;//---
+//        ndir1 = 1;//---
+//        return;//----
+        
 		/*eta1 is viewed as the search direction*/
-		Mani->ScaleTimesVector(x1, -1.0 / ngf, gf, eta1);
+		Mani->ScalarTimesVector(x1, static_cast<realdp> (-1) / ndir1, minPv, &eta1);
 	};
 }; /*end of ROPTLIB namespace*/

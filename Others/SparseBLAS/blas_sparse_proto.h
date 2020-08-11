@@ -3,8 +3,6 @@
 
 typedef int blas_sparse_matrix;
 
-#include "Others/def.h"
-
   /* Level 1 Computational Routines */
 
 void BLAS_susdot( enum blas_conj_type conj, int nz, const float *x, 

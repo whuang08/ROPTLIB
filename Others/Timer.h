@@ -24,16 +24,13 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <netinet/in.h>
-#endif // end of checking platforms
-
-//#include "def.h"
+#endif
 
 #define CLK_PS 1000000
-//#define CLK_PS CLOCKS_PER_SEC
 
 /*Define the namespace*/
 namespace ROPTLIB{
 
-	unsigned long getTickCount();
+	unsigned long getTickCount(void);
 }; /*end of ROPTLIB namespace*/
 #endif

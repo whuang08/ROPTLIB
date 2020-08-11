@@ -2,12 +2,18 @@
 
 /**  barf  [ba:rf]  2.  "He suggested using FORTRAN, and everybody barfed."
 
-- From The Shogakukan DICTIONARY OF NEW ENGLISH (Second edition) */
+	- From The Shogakukan DICTIONARY OF NEW ENGLISH (Second edition) */
 
 #ifndef ROPTLIB_F2C_INCLUDE
 #define ROPTLIB_F2C_INCLUDE
 
+#ifdef SINGLE_PRECISION
+typedef int integer;
+#elif _WIN64 // The following code is compiled only when this library is compiled in Windows (64-bit only)
 typedef long int integer;
+#else
+typedef int integer;
+#endif
 typedef unsigned long int uinteger;
 typedef char *address;
 typedef short int shortint;
@@ -30,15 +36,15 @@ typedef unsigned long long ulongint;	/* system-dependent */
 #define FALSE_ (0)
 
 
-										/* Extern is for use with -E */
+/* Extern is for use with -E */
 #ifndef Extern
 #define Extern extern
 #endif
 
-										/* I/O stuff */
+/* I/O stuff */
 
 #ifdef f2c_i2
-										/* for -i2 */
+/* for -i2 */
 typedef short flag;
 typedef short ftnlen;
 typedef short ftnint;
@@ -205,7 +211,7 @@ typedef VOID H_f;	/* character function */
 typedef VOID Z_f;	/* double complex function */
 typedef doublereal E_f;	/* real function with -R not specified */
 
-						/* undef any lower-case symbols that your C compiler predefines, e.g.: */
+/* undef any lower-case symbols that your C compiler predefines, e.g.: */
 
 #ifndef Skip_f2c_Undefs
 #undef cray

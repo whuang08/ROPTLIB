@@ -1,3 +1,0 @@
-function MTestWeightedLowRank()
-    TestWeightedLowRank();
-end

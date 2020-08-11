@@ -34,7 +34,7 @@
  *                 THIS IS A HEADER FILE, NOT A MANUAL
  *
  *    If you want to know how to use FFTW, please read the manual,
- *    online at http://www.fftw.org/doc/ and also included with FFTW.
+ *    online at www.fftw.org/doc/ and also included with FFTW.
  *    For a quick start, see the manual's tutorial section.
  *
  *   (Reading header files to learn how to use a library is a habit

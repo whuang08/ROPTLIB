@@ -1,8 +1,9 @@
 /*
 This file defines the class of the Riemannian nonlinear conjugate gradient method. This code does not follow a particular paper.
-It simply generates all the existing Euclidean nonlinear conjugate gradient methods to the Riemannian setting.
+It generates all the existing Euclidean nonlinear conjugate gradient methods to the Riemannian setting use generic retraction
+and vector transport
 
-Solvers --> SolversLS --> RCG
+Solvers --> SolversSM --> SolversSMLS --> RCG
 
 ---- WH
 */
@@ -10,8 +11,9 @@ Solvers --> SolversLS --> RCG
 #ifndef RCG_H
 #define RCG_H
 
-#include "Solvers/SolversLS.h"
+#include "Solvers/SolversSMLS.h"
 #include "Others/def.h"
+
 #undef max
 
 /*Define the namespace*/
@@ -23,60 +25,56 @@ namespace ROPTLIB{
 	*/
 	enum RCGmethods{ FLETCHER_REEVES, POLAK_RIBIERE_MOD, HESTENES_STIEFEL, FR_PR, DAI_YUAN, HAGER_ZHANG, RCGMETHODSLENGTH };
 
-	class RCG : public SolversLS{
+	class RCG : public SolversSMLS{
 	public:
 		/*The contructor of RCG method. It calls the function Solvers::Initialization.
 		INPUT : prob is the problem which defines the cost function, gradient and possible the action of Hessian
 		and specifies the manifold of domain.
-		initialx is the initial iterate.
-		insoln is the true solution. It is not required and only used for research.*/
-		RCG(const Problem *prob, const Variable *initialx, const Variable *insoln = nullptr);
+		initialx is the initial iterate. */
+		RCG(const Problem *prob, const Variable *initialx);
 
 		/*Destructor. Delete the strings of RCGmethods' names*/
-		virtual ~RCG();
+		virtual ~RCG(void);
 
 		/*Check whether the parameters about RCG are legal or not.*/
-		virtual void CheckParams();
+		virtual void CheckParams(void);
 
-		/*PARAMSMAP is defined in "def.h" and it is a map from string to double, i.e., std::map<std::string, double> .
+		/*PARAMSMAP is defined in "def.h" and it is a map from string to realdp, i.e., std::map<std::string, realdp> .
 		This function is used to set the parameters by the mapping*/
 		virtual void SetParams(PARAMSMAP params);
 
-		/*Call Solvers::SetProbX function and indicate RCG does not need action of Hessian.
-		INPUT:	prob is the problem which defines the cost function, gradient and possible the action of Hessian
-		and specifies the manifold of domain.
-		initialx is the initial iterate.
-		insoln is the true solution. It is not required and only used for research.*/
-		virtual void SetProbX(const Problem *prob, const Variable *initialx, const Variable *insoln);
-
-		/*Setting parameters (member variables) to be default values */
-		virtual void SetDefaultParams();
-
 		/* ===============public parameters below================= */
-
-		/*Reset the search direction to be the negative gradient every "ManDim" iterations. Ideally, "ManDim" shoud be the dimension of the domain manifold.*/
-		integer ManDim;
 
 		/*Indicate what formula is used in RCG method*/
 		RCGmethods RCGmethod;
 
 	protected:
 		/*Compute the search direction based on the RCG forumla.
-		Reset the search direction to be negative gradient if number of iterations mod "ManDim" is zero and the search direction is not sufficiently
-		descent.*/
-		virtual void GetSearchDir();
+		Reset the search direction to be negative gradient if the search direction is not sufficiently descent or
+        | g( grad f(x_{k+1}), grad f(x_{k}) ) | / g( grad f(x_{k+1}), grad f(x_{k+1}) ) > 0.1 (see [(5.52), NW06]]).*/
+		virtual void GetSearchDir(void);
 
 		/*Compute a candadite of the search direction*/
-		virtual void UpdateData();
+		virtual void UpdateData(void);
 
 		/*Print information specific to RCG*/
-		virtual void PrintInfo();
+		virtual void PrintInfo(void);
+        
+        /*Call Solvers::SetProbX function and indicate RCG does not need action of Hessian.
+        INPUT:    prob is the problem which defines the cost function, gradient and possible the action of Hessian
+        and specifies the manifold of domain.
+        initialx is the initial iterate.*/
+        virtual void SetProbX(const Problem *prob, const Variable *initialx);
+
+        /*Setting parameters (member variables) to be default values */
+        virtual void SetDefaultParams(void);
 
 		/*Strings to store the names of formula used in RCG methods*/
 		std::string *RCGmethodSetnames;
 
 		/*sigma is the coefficient in - \grad f(x_{k+1}) + sigma eta_k*/
-		double sigma;
+		realdp sigma;
+
 	};
 }; /*end of ROPTLIB namespace*/
-#endif // end of RCG_H
+#endif /* end of RCG_H */

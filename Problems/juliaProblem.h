@@ -11,9 +11,7 @@ Problem
 
 #include "Problems/Problem.h"
 #include <cstring>
-#include "Manifolds/SharedSpace.h"
 #include "Others/def.h"
-#include "Others/MyMatrix.h"
 
 #ifdef DRIVERJULIAPROB
 
@@ -32,13 +30,13 @@ namespace ROPTLIB{
         virtual ~juliaProblem();
 
         /*call the Julia function handle of the cost function*/
-		virtual double f(Variable *x) const;
+		virtual double f(const Variable &x) const;
 
         /*call the Julia function handle of the Euclidean gradient*/
-		virtual void EucGrad(Variable *x, Vector *egf) const;
+		virtual Vector &EucGrad(const Variable &x, Vector *result) const;
 
         /*call the Julia function handle of the action of the Euclidean Hessian*/
-		virtual void EucHessianEta(Variable *x, Vector *etax, Vector *exix) const;
+		virtual Vector &EucHessianEta(const Variable &x, const Vector &etax, Vector *result) const;
 
 	protected:
         jl_function_t *jl_f; /*Julia function handle of the cost function*/

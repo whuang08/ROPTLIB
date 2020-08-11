@@ -4,7 +4,7 @@ extern "C" {
 
 #include "f2c.h" 
 
-int slabad_(real *small, real *large);
+//int slabad_(real *small, real *large);
 
 #ifdef __cplusplus
 }

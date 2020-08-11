@@ -4,7 +4,7 @@ extern "C" {
 
 #include "f2c.h" 
 
-int dlabad_(doublereal *small, doublereal *large);
+//int dlabad_(doublereal *small, doublereal *large);
 
 #ifdef __cplusplus
 }

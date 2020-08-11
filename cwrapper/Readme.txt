@@ -7,8 +7,8 @@ We make slightly modifications in the wrappers:
 In blas/f2c.h and lapack/f2c.h files
 *) line 10: long int has been changed to int, since in MAC and Ubuntu, the integer of fortain 
 	is int in C++, not long int in C++.
-*) Add commends from line 230 to line 242 to undefine some macros
-*) "real" and "complex" are changed to "f2c_real" and "f2c_complex"
+*) lines 159 and 160 about max and min are comment out since they
+	have been defined in cmath.
 
 
 Wen Huang

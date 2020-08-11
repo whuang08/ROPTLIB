@@ -6,69 +6,115 @@
 /*Define the namespace*/
 namespace ROPTLIB{
 
-	mexProblem::mexProblem(const mxArray *inf, const mxArray *ingf, const mxArray *inHess)
+	mexProblem::mexProblem(const mxArray *inf, const mxArray *ingf, const mxArray *inHess, const mxArray *inPreCon)
 	{
 		mxf = inf;
 		mxgf = ingf;
 		mxHess = inHess;
+		mxPreCon = inPreCon;
+        NumGradHess = false;
 	};
 
-	mexProblem::~mexProblem()
+	mexProblem::~mexProblem(void)
 	{
 	};
 
-	double mexProblem::f(Variable *x) const
+	realdp mexProblem::f(const Variable &x) const
 	{
 		mxArray *Xmx;
-		ObtainMxArrayFromElement(Xmx, x);
+		ObtainMxArrayFromElement(Xmx, &x);
 		mxArray *lhs[2], *rhs[2];
 		rhs[0] = const_cast<mxArray *> (mxf);
 		rhs[1] = const_cast<mxArray *> (Xmx);
 		mexCallMATLAB(2, lhs, 2, rhs, "feval");
-		ObtainElementFromMxArray(x, lhs[1]);
-		double result = mxGetScalar(lhs[0]);
+        AddToElementFromMxArray(const_cast<Variable *> (&x), lhs[1]);
+		realdp result = mxGetScalar(lhs[0]);
 		mxDestroyArray(Xmx);
 		mxDestroyArray(lhs[0]);
 		mxDestroyArray(lhs[1]);
 		return result;
 	};
 
-	void mexProblem::EucGrad(Variable *x, Vector *egf) const
+	Vector &mexProblem::EucGrad(const Variable &x, Vector *result) const
 	{
+        if(! mxIsClass(mxgf, "function_handle"))
+            return Problem::EucGrad(x, result);
+        
 		mxArray *Xmx;
-		ObtainMxArrayFromElement(Xmx, x);
+		ObtainMxArrayFromElement(Xmx, &x);
 		mxArray *lhs[2], *rhs[2];
 		rhs[0] = const_cast<mxArray *> (mxgf);
 		rhs[1] = const_cast<mxArray *> (Xmx);
 		mexCallMATLAB(2, lhs, 2, rhs, "feval");
-		ObtainElementFromMxArray(x, lhs[1]);
-		ObtainElementFromMxArray(egf, lhs[0]);
+        AddToElementFromMxArray(const_cast<Variable *> (&x), lhs[1]);
+		ObtainElementFromMxArray(result, lhs[0]);
 		mxDestroyArray(Xmx);
 		mxDestroyArray(lhs[0]);
 		mxDestroyArray(lhs[1]);
+        return *result;
 	};
 
-	void mexProblem::EucHessianEta(Variable *x, Vector *etax, Vector *exix) const
+	Vector &mexProblem::EucHessianEta(const Variable &x, const Vector &etax, Vector *result) const
 	{
+        if(! mxIsClass(mxHess, "function_handle"))
+            return Problem::EucHessianEta(x, etax, result);
+        
 		mxArray *Xmx, *Etaxmx;
-		ObtainMxArrayFromElement(Xmx, x);
-		ObtainMxArrayFromElement(Etaxmx, etax);
+		ObtainMxArrayFromElement(Xmx, &x);
+		ObtainMxArrayFromElement(Etaxmx, &etax);
 		mxArray *lhs[2], *rhs[3];
 		rhs[0] = const_cast<mxArray *> (mxHess);
 		rhs[1] = const_cast<mxArray *> (Xmx);
 		rhs[2] = const_cast<mxArray *> (Etaxmx);
 		mexCallMATLAB(2, lhs, 3, rhs, "feval");
-		ObtainElementFromMxArray(x, lhs[1]);
-		ObtainElementFromMxArray(exix, lhs[0]);
+		AddToElementFromMxArray(const_cast<Variable *> (&x), lhs[1]);
+		ObtainElementFromMxArray(result, lhs[0]);
 		mxDestroyArray(Xmx);
 		mxDestroyArray(Etaxmx);
 		mxDestroyArray(lhs[0]);
 		mxDestroyArray(lhs[1]);
+        return *result;
+	};
+	
+	Vector &mexProblem::PreConditioner(const Variable &x, const Vector &eta, Vector *result) const
+	{
+        if(! mxIsClass(mxPreCon, "function_handle"))
+            return Problem::PreConditioner(x, eta, result);
+        
+        Vector Exeta(Domain->GetEMPTYEXTR()), Exresult(Domain->GetEMPTYEXTR());
+        if(Domain->GetIsIntrinsic())
+            Domain->ObtainExtr(x, eta, &Exeta);
+        else
+            Exeta = eta;
+        
+		mxArray *Xmx, *eta1mx;
+		mexProblem::ObtainMxArrayFromElement(Xmx, &x);
+        mexProblem::ObtainMxArrayFromElement(eta1mx, &Exeta);
+        
+		mxArray *lhs[2], *rhs[3];
+		rhs[0] = const_cast<mxArray *> (mxPreCon);
+		rhs[1] = const_cast<mxArray *> (Xmx);
+		rhs[2] = const_cast<mxArray *> (eta1mx);
+		mexCallMATLAB(2, lhs, 3, rhs, "feval");
+		AddToElementFromMxArray(const_cast<Variable *> (&x), lhs[1]);
+        
+        
+        ObtainElementFromMxArray(&Exresult, lhs[0]);
+        if(Domain->GetIsIntrinsic())
+            Domain->ObtainIntr(x, Exresult, result);
+        else
+            *result = Exresult;
+        
+		mxDestroyArray(Xmx);
+		mxDestroyArray(eta1mx);
+		mxDestroyArray(lhs[0]);
+		mxDestroyArray(lhs[1]);
+        return *result;
 	};
 
 	void mexProblem::ObtainMxArrayFromElement(mxArray *&Xmx, const Element *X)
 	{
-		integer sizeoftempdata = X->GetSizeofTempData();
+		integer sizeoftempdata = X->GetSizeofFields();
 		integer nfields = sizeoftempdata + 1;
 		std::string *fnames = new std::string[nfields];
 		X->ObtainTempNames(fnames);
@@ -86,29 +132,56 @@ namespace ROPTLIB{
 
 		mxArray *tmp;
 		const char *name;
-		const SharedSpace *Sharedtmp;
-		integer lengthtmp, inc = 1;
-		const double *Sharedtmpptr;
+        integer lengthtmp;
+		const realdp *Sharedtmpptr;
+        integer nsize;
+        bool iscomplex;
+        const integer *size;
+        mwSize mwndim;
+        mwSize *mwdims;
 		double *tmpptr;
 		Xmx = mxCreateStructMatrix(1, 1, nfields, const_cast<const char **> (names));
 		for (integer i = 0; i < nfields; i++)
 		{
 			name = mxGetFieldNameByNumber(Xmx, i);
-			if (strcmp(name, "main") != 0)
+			if (strcmp(name, "main") != 0) /* if not main */
 			{
-				Sharedtmp = X->ObtainReadTempData(name);
-				Sharedtmpptr = Sharedtmp->ObtainReadData();
-				lengthtmp = Sharedtmp->Getlength();
+                Sharedtmpptr = X->Field(name).ObtainReadData();
+                nsize = X->Field(name).Getls();
+                size = X->Field(name).Getsize();
+                iscomplex = X->Field(name).Getiscomplex();
+                lengthtmp = X->Field(name).Getlength();
 			}
 			else
 			{
 				Sharedtmpptr = X->ObtainReadData();
+                nsize = X->Getls();
+                size = X->Getsize();
+                iscomplex = X->Getiscomplex();
 				lengthtmp = X->Getlength();
 			}
-			tmp = mxCreateDoubleMatrix(lengthtmp, 1, mxREAL);
-			tmpptr = mxGetPr(tmp);
-			// tmpptr <- Sharedtmpptr, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-			dcopy_(&lengthtmp, const_cast<double *> (Sharedtmpptr), &inc, tmpptr, &inc);
+            
+            mwndim = nsize;
+            mwdims = new mwSize[mwndim];
+            for(integer j = 0; j < mwndim; j++)
+                mwdims[j] = size[j];
+            if(iscomplex)
+                mwdims[0] /= 2;
+            
+            if(iscomplex)
+                tmp = mxCreateNumericArray(mwndim, mwdims, mxDOUBLE_CLASS, mxCOMPLEX);
+            else
+                tmp = mxCreateNumericArray(mwndim, mwdims, mxDOUBLE_CLASS, mxREAL);
+            
+            delete[] mwdims;
+            
+            if(iscomplex)
+                tmpptr = (realdp *) mxGetComplexDoubles(tmp);
+            else
+                tmpptr = mxGetDoubles(tmp);
+            
+			for (integer i = 0; i < lengthtmp; i++)
+				tmpptr[i] = Sharedtmpptr[i];
 			mxSetFieldByNumber(Xmx, 0, i, tmp);
 		}
 
@@ -120,18 +193,60 @@ namespace ROPTLIB{
 
 	void mexProblem::ObtainElementFromMxArray(Element *X, const mxArray *Xmx)
 	{
-		// copy the main data from mxArray to X
+		/* copy the main data from mxArray to X */
 		mxArray *XmxA = GetFieldbyName(Xmx, 0, "main");
-		integer inc = 1;
 		if (XmxA != nullptr)
 		{
-			double *Xmxptr = mxGetPr(XmxA);
+            realdp *Xmxptr = nullptr;
+            if(mxIsComplex(XmxA))
+                Xmxptr = (realdp *) mxGetComplexDoubles(XmxA);
+            else
+                Xmxptr = mxGetDoubles(XmxA);
+//			double *Xmxptr = mxGetPr(XmxA);
 			integer lengthX = X->Getlength();
-			double *Xptr = X->ObtainWriteEntireData();
-			dcopy_(&lengthX, Xmxptr, &inc, Xptr, &inc);
+			realdp *Xptr = X->ObtainWriteEntireData();
+			for (integer i = 0; i < lengthX; i++)
+				Xptr[i] = Xmxptr[i];
 		}
 
-		// copy temp data from mxArray to X
+		/* copy temp data from mxArray to X */
+		integer nfields = mxGetNumberOfFields(Xmx);
+		const char **fnames;
+		mxArray *tmp;
+
+		fnames = static_cast<const char **> (mxCalloc(nfields, sizeof(*fnames)));
+		for (integer i = 0; i < nfields; i++)
+		{
+//            std::cout << "i:" << i << std::endl;//---
+			fnames[i] = mxGetFieldNameByNumber(Xmx, i);
+			if (strcmp(fnames[i], "main") != 0)
+			{
+				tmp = GetFieldbyName(Xmx, 0, fnames[i]);
+                realdp *tmpptr = nullptr;
+                if(mxIsComplex(tmp))
+                    tmpptr = (realdp *) mxGetComplexDoubles(tmp);
+                else
+                    tmpptr = mxGetDoubles(tmp);
+                
+                mwSize mwndim = mxGetNumberOfDimensions(tmp);
+                if(mwndim > 3)
+                    mexErrMsgTxt("ROPTLIB does not support a 4-th or higher order tensor!");
+                const mwSize *mwdims = mxGetDimensions(tmp);
+                integer row = mxGetM(tmp);
+                integer col = mxGetN(tmp);
+                integer num = (mwndim < 3) ? 1 : mwdims[2];
+                Vector Sharedtmp(row, col, num, mxIsComplex(tmp));
+                realdp *Sharedtmpptr = Sharedtmp.ObtainWriteEntireData();
+                for (integer i = 0; i < Sharedtmp.Getlength(); i++)
+                    Sharedtmpptr[i] = tmpptr[i];
+				X->AddToFields(fnames[i], Sharedtmp);
+			}
+		}
+	};
+
+	void mexProblem::AddToElementFromMxArray(Element *X, const mxArray *Xmx)
+	{
+		/* copy temp data--which does not exist in X--from mxArray to X */
 		integer nfields = mxGetNumberOfFields(Xmx);
 		const char **fnames;
 		mxArray *tmp;
@@ -140,16 +255,27 @@ namespace ROPTLIB{
 		for (integer i = 0; i < nfields; i++)
 		{
 			fnames[i] = mxGetFieldNameByNumber(Xmx, i);
-			if (strcmp(fnames[i], "main") != 0)
+			if (strcmp(fnames[i], "main") != 0 && ! X->FieldsExist(fnames[i]))
 			{
-				tmp = GetFieldbyName(Xmx, 0, fnames[i]);
-				double *tmpptr = mxGetPr(tmp);
-				integer length = mxGetM(tmp);
-				SharedSpace *Sharedtmp = new SharedSpace(1, length);
-				double *Sharedtmpptr = Sharedtmp->ObtainWriteEntireData();
-				// Sharedtmpptr <- tmpptr, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-				dcopy_(&length, tmpptr, &inc, Sharedtmpptr, &inc);
-				X->AddToTempData(fnames[i], Sharedtmp);
+                tmp = GetFieldbyName(Xmx, 0, fnames[i]);
+                realdp *tmpptr = nullptr;
+                if(mxIsComplex(tmp))
+                    tmpptr = (realdp *) mxGetComplexDoubles(tmp);
+                else
+                    tmpptr = mxGetDoubles(tmp);
+                
+                mwSize mwndim = mxGetNumberOfDimensions(tmp);
+                const mwSize *mwdims = mxGetDimensions(tmp);
+                if(mwndim > 3)
+                    mexErrMsgTxt("ROPTLIB does not support a 4-th or higher order tensor!");
+                integer row = mxGetM(tmp);
+                integer col = mxGetN(tmp);
+                integer num = (mwndim < 3) ? 1 : mwdims[2];
+                Vector Sharedtmp(row, col, num, mxIsComplex(tmp));
+                realdp *Sharedtmpptr = Sharedtmp.ObtainWriteEntireData();
+                for (integer i = 0; i < Sharedtmp.Getlength(); i++)
+                    Sharedtmpptr[i] = tmpptr[i];
+                X->AddToFields(fnames[i], Sharedtmp);
 			}
 		}
 	};

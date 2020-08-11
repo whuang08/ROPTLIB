@@ -5,209 +5,54 @@ using namespace ROPTLIB;
 
 void testGrassRQ(void)
 {
-	// size of the Grassmann manifold
-	integer n = 24, p = 4;
+    unsigned tt = (unsigned)time(NULL);
+    tt = 2; /*The following test is only for random seed zero*/
+    std::cout << "seed SB:" << tt << std::endl;//---
+    genrandseed(tt);
 
-	// Generate the matrices in the Rayleigh Quotient problem.
-	double *B = new double[n * n];
-	/*B is an n by n matrix*/
-	for (integer i = 0; i < n; i++)
-	{
-		for (integer j = i; j < n; j++)
-		{
-			B[i + j * n] = genrandnormal();
-			B[j + i * n] = B[i + j * n];
-		}
-	}
+    // size of the Stiefel manifold
+    integer n = 5, p = 2;
+    // Generate the matrices in the Brockett problem.
+    Vector B(n, n);
+    B.RandGaussian();
+    B = B + B.GetTranspose();
 
-	testGrassRQ(B, n, p);
-	delete[] B;
-}
+    // Define the manifold
+    Grassmann Domain(n, p);
+    Variable GrassX = Domain.RandominManifold();
 
-/*We don't have to a line search algorithm defined in the solvers. The line seach algorithm can be defined 
-here:*/
-double GrassRQLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
-{ /*For example, simply use one to be the stepsize*/
-	return 1;
-}
+                            // Define the Brockett problem
+    GrassRQ Prob(B, n, p);
+    /*The domain of the problem is a Stiefel manifold*/
+    Prob.SetDomain(&Domain);
+    Domain.CheckParams();
 
-void testGrassRQ(double *B, integer n, integer p, double *X, double *Xopt)
-{
-	GrassVariable GrassX(n, p);
+//    Domain.CheckIntrExtr(GrassX);
+//    Domain.CheckRetraction(GrassX);
+//    Domain.CheckDiffRetraction(GrassX, true);
+//    Domain.CheckLockingCondition(StieX);
+//    Domain.CheckcoTangentVector(StieX);
+//    Domain.CheckIsometryofVectorTransport(StieX);
+//    Domain.CheckIsometryofInvVectorTransport(StieX);
+//    Domain.CheckVecTranComposeInverseVecTran(StieX);
+//    Domain.CheckTranHInvTran(StieX);
+//    Domain.CheckHaddScaledRank1OPE(StieX);
+//    return;
+    Prob.CheckGradHessian(GrassX);
 
-	if (X == nullptr)
-	{/*If X is not defined before, then obtain an initial iterate by taking the Q factor of qr decomposition*/
-		GrassX.RandInManifold();
-	}
-	else
-	{/*Otherwise, using the input orthonormal matrix as the initial iterate*/
-		double *GrassXptr = GrassX.ObtainWriteEntireData();
-		for (integer i = 0; i < n * p; i++)
-			GrassXptr[i] = X[i];
-	}
+    LRTRSR1 *RSDsolver = new LRTRSR1(&Prob, &GrassX);
+    RSDsolver->Verbose = FINALRESULT;//--- FINALRESULT;
+    RSDsolver->Max_Iteration = 100;
+    RSDsolver->OutputGap = 1;
+    RSDsolver->CheckParams();
+    RSDsolver->Run();
 
-	// Define the manifold
-	Grassmann Domain(n, p);
-	//Domain.SetHasHHR(true); /*set whether the manifold uses the idea in [HGA2015, Section 4.3] or not*/
+    Prob.CheckGradHessian(RSDsolver->GetXopt());
 
-	// Define the Rayleigh Quotient problem
-	GrassRQ Prob(B, n, p);
-	/*The domain of the problem is a Grassmann manifold*/
-	Prob.SetDomain(&Domain);
-
-	/*Output the parameters of the domain manifold*/
-	//Domain.CheckParams();
-
-	/*Check the correctness of the manifold operations*/
-	//Domain.CheckIntrExtr(&GrassX);
-	//Domain.CheckRetraction(&GrassX);
-	//Domain.CheckDiffRetraction(&GrassX);
-	//Domain.CheckLockingCondition(&GrassX);
-	//Domain.CheckcoTangentVector(&GrassX);
-	//Domain.CheckIsometryofVectorTransport(&GrassX);
-	//Domain.CheckIsometryofInvVectorTransport(&GrassX);
-	//Domain.CheckVecTranComposeInverseVecTran(&GrassX);
-	//Domain.CheckTranHInvTran(&GrassX);
-	//Domain.CheckHaddScaledRank1OPE(&GrassX);
-
-	//// test RSD
-	//printf("********************************Check all line search algorithm in RSD*****************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
-	//{
-	//	RSD *RSDsolver = new RSD(&Prob, &GrassX);
-	//	RSDsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-	//	RSDsolver->Debug = FINALRESULT;
-	//	RSDsolver->Max_Iteration = 2000;
-	//	RSDsolver->CheckParams();
-	//	RSDsolver->Run();
-	//	delete RSDsolver;
-	//}
-
-	//// test RNewton
-	//printf("********************************Check all line search algorithm in RNewton*************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
-	//{
-	//	RNewton *RNewtonsolver = new RNewton(&Prob, &GrassX);
-	//	RNewtonsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-	//	RNewtonsolver->Debug = ITERRESULT;
-	//	/*Uncomment following two lines to use the linesearch algorithm defined by the function "LinesearchInput".*/
-	//	//RNewtonsolver->LineSearch_LS = INPUTFUN;
-	//	//RNewtonsolver->LinesearchInput = &LinesearchInput;
-	//	RNewtonsolver->Max_Iteration = 10;
-	//	RNewtonsolver->CheckParams();
-	//	RNewtonsolver->Run();
-	//	delete RNewtonsolver;
-	//}
-
-	//// test RCG
-	//printf("********************************Check all Formulas in RCG*************************************\n");
-	//for (integer i = 0; i < RCGMETHODSLENGTH; i++)
-	//{
-	//	RCG *RCGsolver = new RCG(&Prob, &GrassX);
-	//	RCGsolver->RCGmethod = static_cast<RCGmethods> (i);
-	//	RCGsolver->LineSearch_LS = ARMIJO;
-	//	RCGsolver->LS_beta = 0.1;
-	//	RCGsolver->Debug = FINALRESULT;
-	//	RCGsolver->CheckParams();
-	//	RCGsolver->Run();
-	//	delete RCGsolver;
-	//}
-
-	//// test RBroydenFamily
-	//printf("********************************Check all Formulas in RCG*************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
-	//{
-	//	RBroydenFamily *RBroydenFamilysolver = new RBroydenFamily(&Prob, &GrassX);
-	//	RBroydenFamilysolver->LineSearch_LS = static_cast<LSAlgo> (i);
-	//	RBroydenFamilysolver->Debug = FINALRESULT;
-	//	RBroydenFamilysolver->CheckParams();
-	//	RBroydenFamilysolver->Run();
-	//	delete RBroydenFamilysolver;
-	//}
-
-	//// test RWRBFGS
-	//printf("********************************Check all line search algorithm in RWRBFGS*************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
-	//{
-	//	RWRBFGS *RWRBFGSsolver = new RWRBFGS(&Prob, &GrassX);
-	//	RWRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-	//	RWRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;//
-	//	RWRBFGSsolver->CheckParams();
-	//	RWRBFGSsolver->Run();
-	//	delete RWRBFGSsolver;
-	//}
-
-	//// test RBFGS
-	//printf("********************************Check all line search algorithm in RBFGS*************************************\n");
-	//for (integer i = 0; i < INPUTFUN; i++)
-	//{
-	//	RBFGS *RBFGSsolver = new RBFGS(&Prob, &GrassX);
-	//	RBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-	//	RBFGSsolver->Debug = FINALRESULT;
-	//	RBFGSsolver->CheckParams();
-	//	RBFGSsolver->Run();
-	//	delete RBFGSsolver;
-	//}
-
-	// test LRBFGS
-	//printf("********************************Check all line search algorithm in LRBFGS*************************************\n");
-	for (integer i = 0; i < 1; i++) //INPUTFUN
-	{
-		LRBFGS *LRBFGSsolver = new LRBFGS(&Prob, &GrassX);
-		LRBFGSsolver->LineSearch_LS = static_cast<LSAlgo> (i);
-		LRBFGSsolver->Debug = FINALRESULT; //ITERRESULT;// 
-		LRBFGSsolver->Max_Iteration = 200;
-		//LRBFGSsolver->CheckParams();
-		LRBFGSsolver->Run();
-		if (LRBFGSsolver->Getnormgfgf0() < 1e-6)
-			printf("SUCCESS!\n");
-		else
-			printf("FAIL!\n");
-		delete LRBFGSsolver;
-	}
-
-	//// test RTRSD
-	//printf("********************************Check RTRSD*************************************\n");
-	//RTRSD RTRSDsolver(&Prob, &GrassX);
-	//RTRSDsolver.Debug = FINALRESULT;
-	//RTRSDsolver.Max_Iteration = 5000;
-	//RTRSDsolver.CheckParams();
-	//RTRSDsolver.Run();
-
-	//// test RTRNewton
-	//printf("********************************Check RTRNewton*************************************\n");
-	//RTRNewton RTRNewtonsolver(&Prob, &GrassX);
-	//RTRNewtonsolver.Debug = FINALRESULT;
-	//RTRNewtonsolver.CheckParams();
-	//RTRNewtonsolver.Run();
-
-	//// test RTRSR1
-	//printf("********************************Check RTRSR1*************************************\n");
-	//RTRSR1 RTRSR1solver(&Prob, &GrassX);
-	//RTRSR1solver.Debug = FINALRESULT;
-	//RTRSR1solver.CheckParams();
-	//RTRSR1solver.Run();
-
-	//// test LRTRSR1
-	//printf("********************************Check LRTRSR1*************************************\n");
-	//LRTRSR1 LRTRSR1solver(&Prob, &GrassX);
-	//LRTRSR1solver.Debug = FINALRESULT;
-	//LRTRSR1solver.CheckParams();
-	//LRTRSR1solver.Run();
-
-	//// Check the correctness of gradient and Hessian at the initial iterate
-	//Prob.CheckGradHessian(&GrassX);
-	//const Variable *xopt = RTRNewtonsolver.GetXopt();
-	//// Check the correctness of gradient and Hessian at the final iterate of RTRNewton method
-	//Prob.CheckGradHessian(xopt);
- //   
-	////Output the optimizer obtained by RTRNewton method
-	//if (Xopt != nullptr)
-	//{
-	//	const double *xoptptr = xopt->ObtainReadData();
-	//	for (integer i = 0; i < n * p; i++)
-	//		Xopt[i] = xoptptr[i];
-	//}
+    Vector xopt = RSDsolver->GetXopt();
+    Prob.MinMaxEigValHess(GrassX).Print("EigValHess:");
+    Prob.MinMaxEigValHess(xopt).Print("EigValHess:");
+    delete RSDsolver;
 }
 
 /*If it is compiled in Matlab, then the following "mexFunction" is used as the entrance.*/
@@ -227,7 +72,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 		mexErrMsgTxt("The number of arguments should be at least four.\n");
 	}
-	double *B, *X, *Xopt, *soln;
+	realdp *B, *X, *Xopt, *soln;
 	B = mxGetPr(prhs[0]);
 	X = mxGetPr(prhs[1]);
 	/* dimensions of input matrices */
@@ -256,36 +101,26 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	CheckMemoryDeleted = new std::map<integer *, integer>;
 
-	// Obtain an initial iterate by taking the Q factor of qr decomposition
-	GrassVariable GrassX(n, p);
-	double *GrassXptr = GrassX.ObtainWriteEntireData();
-	for (integer i = 0; i < n * p; i++)
-		GrassXptr[i] = X[i];
-
-	GrassVariable *Grasssoln = nullptr;
-	if (nrhs >= 5)
-	{
-		double *soln = mxGetPr(prhs[4]); /*soln: n by p*/
-		Grasssoln = new GrassVariable(n, p);
-		double *Grasssolnptr = Grasssoln->ObtainWriteEntireData();
-		for (integer i = 0; i < n * p; i++)
-		{
-			Grasssolnptr[i] = soln[i];
-		}
-	}
-
 	// Define the manifold
 	Grassmann Domain(n, p);
+    
+    Variable initX = Domain.RandominManifold();
+    realdp *initXptr = initX.ObtainWriteEntireData();
+    for(integer i = 0; i < n * p; i++)
+        initXptr[i] = X[i];
 
 	// Define the Rayleigh Quotient problem
-	GrassRQ Prob(B, n, p);
+    Vector BB(n, n);
+    realdp *BBptr = BB.ObtainWriteEntireData();
+    for(integer i = 0; i < n * n; i++)
+        BBptr[i] = B[i];
+	GrassRQ Prob(BB, n, p);
 	Prob.SetDomain(&Domain);
 
 	Domain.SetHasHHR(HasHHR != 0);
-	//Domain.CheckParams();
 
-	// Call the function defined in DriverMexProb.h
-	ParseSolverParamsAndOptimizing(prhs[3], &Prob, &GrassX, Grasssoln, plhs);
+	/* Call the function defined in DriverMexProb.h */
+	ParseSolverParamsAndOptimizing(prhs[3], &Prob, &initX, plhs);
 
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)
@@ -294,7 +129,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			printf("Global address: %p, sharedtimes: %d\n", iter->first, iter->second);
 	}
 	delete CheckMemoryDeleted;
-	delete Grasssoln;
 	return;
 }
 

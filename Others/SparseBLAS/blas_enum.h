@@ -1,7 +1,6 @@
 #ifndef BLAS_ENUM_H
 #define BLAS_ENUM_H
 
-#include "Others/def.h"
   /* Enumerated types */
 
 enum blas_order_type {
@@ -63,7 +62,7 @@ enum blas_jrot_type {
 
 enum blas_prec_type {
             blas_prec_single     = 211,
-            blas_prec_double     = 212,
+            blas_prec_realdp     = 212,
             blas_prec_indigenous = 213,
             blas_prec_extra      = 214 };
 

@@ -12,17 +12,19 @@ This is the test file to run the problem defined in EucQuadratic.h and EucQuadra
 #include "Others/randgen.h"
 #include "Manifolds/Manifold.h"
 #include "Problems/Problem.h"
-#include "Solvers/SolversLS.h"
+#include "Solvers/SolversSMLS.h"
 #include <ctime>
 
-#include "Manifolds/Euclidean/EucVariable.h"
-#include "Manifolds/Euclidean/EucVector.h"
-#include "Problems/EucQuadratic/EucQuadratic.h"
+/*If this test file is called from Matlab, then functions in DriverMexProb.h are used.*/
+#include "test/DriverMexProb.h"
 
-#include "Problems/StieBrockett/StieBrockett.h"
-#include "Manifolds/Stiefel/StieVector.h"
-#include "Manifolds/Stiefel/StieVariable.h"
-#include "Manifolds/Stiefel/Stiefel.h"
+//#include "Manifolds/Euclidean/EucVariable.h"
+#include "Problems/EucQuadratic.h"
+
+//#include "Problems/StieBrockett/StieBrockett.h"
+//#include "Manifolds/Stiefel/StieVector.h"
+//#include "Manifolds/Stiefel/StieVariable.h"
+//#include "Manifolds/Stiefel/Stiefel.h"
 
 #include "Solvers/RSD.h"
 #include "Solvers/RNewton.h"
@@ -32,7 +34,7 @@ This is the test file to run the problem defined in EucQuadratic.h and EucQuadra
 #include "Solvers/RBFGS.h"
 #include "Solvers/LRBFGS.h"
 
-#include "Solvers/SolversTR.h"
+#include "Solvers/SolversSMTR.h"
 #include "Solvers/RTRSD.h"
 #include "Solvers/RTRNewton.h"
 #include "Solvers/RTRSR1.h"
@@ -43,6 +45,5 @@ This is the test file to run the problem defined in EucQuadratic.h and EucQuadra
 using namespace ROPTLIB;
 
 void testEucQuadratic(void);
-void testEucQuadratic(double *M, integer dim, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTEUCQUADRATIC_H

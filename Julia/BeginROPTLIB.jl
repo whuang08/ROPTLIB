@@ -1,73 +1,27 @@
 
 using Cxx
+using Libdl
 
 # to the path of ROPTLIB
-cd("/home/whuang/Documents/ROPTLIB")
+# cd("/home/ubuntu/Documents/Sync/Codes/newROPTLIB/ROPTLIB")
+cd("/Users/whuang/Documents/Syn/Codes/newROPTLIB/ROPTLIB")
 
 # import the directory of the header files of Julia
-addHeaderDir("/home/whuang/Documents/julia/usr/include", kind=C_System) 
-addHeaderDir("/home/whuang/Documents/julia/src", kind=C_System) 
-addHeaderDir("/home/whuang/Documents/julia/src/support", kind=C_System) 
+# addHeaderDir("/home/ubuntu/Documents/julia-1.3.1/include/julia", kind=C_System) 
+addHeaderDir("/Applications/Julia-1.3.app/Contents/Resources/julia/include/julia", kind=C_System) 
 
 const path_to_lib = pwd()
 
 # import the directories of ROPTLIB
+
 addHeaderDir(path_to_lib * "/", kind=C_System) 
 addHeaderDir(path_to_lib * "/BinaryFiles/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Manifolds/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/CpxNStQOrth/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/ElasticShape/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/EucPositive/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/Euclidean/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/Grassmann/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/L2Sphere/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/LowRank/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/Oblique/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/OrthGroup/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/PreShapeCurves/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/SPDManifold/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/SPDTensor/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/Sphere/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Manifolds/Stiefel/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Matlab/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Matlab/ForCpp/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/Boundingbox/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/BrockettLRBFGSVTpaper/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/BrockettNonconvex/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/RepaRotCurves/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/DLandSC/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/EucPosSC/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/EucPosSC/algos/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/EucPosSC/tools/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/EucPosSC/tools/others/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SPDTensorDLandSC/SPDtensorDL/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SoftICA/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SoftICA/New_folder/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SoftICA/RBFGSNonconvexResults/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForCpp/SparsePCA/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Matlab/ForMatlab/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Matlab/ForMatlab/FromMelissa/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Others/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Problems/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/ElasticCurvesRO/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/EucFrechetMean/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/EucPosSpCd/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/EucQuadratic/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/GrassRQ/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/KarcherMean/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/ObliqueTestSparsePCA/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/OrthBoundingBox/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/PreShapePathStraighten/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/SPDMean/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/SPDTensorDL/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/ShapePathStraighten/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/SphereConvexHull/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/StieBrockett/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/StieSoftICA/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/StieSparseBrockett/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/StieSumBrockett/", kind=C_System) 
-addHeaderDir(path_to_lib * "/Problems/WeightedLowrank/", kind=C_System) 
 addHeaderDir(path_to_lib * "/Solvers/", kind=C_System) 
 addHeaderDir(path_to_lib * "/test/", kind=C_System) 
 addHeaderDir(path_to_lib * "/cwrapper/blas/", kind=C_System) 
@@ -81,11 +35,11 @@ cxxinclude("DriverJuliaProb.h")
 
 # define the struct of parameters of solvers
 # The meanings of the parameters can be found in Appendix B of the user manual
-type SolverParams
+
+mutable struct SolverParams
 	IsCheckParams::Int64
 	IsCheckGradHess::Int64
-	name::Cstring
-#Solvers
+	name::Ptr{UInt8}
 	Stop_Criterion::Int64
 	Tolerance::Float64
 	Diffx::Float64
@@ -94,15 +48,13 @@ type SolverParams
 	Min_Iteration::Int64
 	Max_Iteration::Int64
 	OutputGap::Int64
-	DEBUG::Int64
-#QuasiNewton
+	Verbose::Int64
 	isconvex::Int64
 	nu::Float64
 	mu::Float64
 	LengthSY::Int64
 	lambdaLower::Float64
 	lambdaUpper::Float64
-#SolversLS
 	LineSearch_LS::Int64
 	IsPureLSInput::Int64
 	LS_alpha::Float64
@@ -116,7 +68,6 @@ type SolverParams
 	Finalstepsize::Float64
 	Num_pre_funs::Int64
 	InitSteptype::Int64
-#SolversTR
 	Acceptence_Rho::Float64
 	Shrinked_tau::Float64
 	Magnified_tau::Float64
@@ -128,7 +79,6 @@ type SolverParams
 	theta::Float64
 	kappa::Float64
 	initial_Delta::Float64
-#SolversLSLPSub
 	Eps::Float64
 	Theta_eps::Float64
 	Min_Eps::Float64
@@ -147,19 +97,19 @@ Sparams = SolverParams(1, 0, pointer(method),
 
 # define the struct of parameters of function handles
 # The strings are functions' names.
-type FunHandles
-	fname::Cstring
-	gfname::Cstring
-	hfname::Cstring
-	isstopped::Cstring
-	LinesearchInput::Cstring
+mutable struct FunHandles
+	fname::Ptr{UInt8}
+	gfname::Ptr{UInt8}
+	hfname::Ptr{UInt8}
+	isstopped::Ptr{UInt8}
+	LinesearchInput::Ptr{UInt8}
 end
 
 # define the struct of parameters of manifold
-type ManiParams
+mutable struct ManiParams
 	IsCheckParams::Int64
 	numoftypes::Int64
-	name::Ptr{Cstring}
+	name::Ptr{UInt8}
 	numofmani::Ptr{Int64}
 	paramset::Ptr{Int64}
 	m::Ptr{Int64}
@@ -171,28 +121,70 @@ end
 # See JTestSimpleExample.jl for an example
 
 # Call ROPTLIB API function
-function DriverJuliaOPT(inHandles, inSparams, inMparams, inHasHHR, inX0, inSoln = 0)
+function DriverJuliaOPT(inHandles, inSparams, inMparams, inHasHHR, inX0)
+    Sparamsvals = zeros(nfields(inSparams) - 1, 1);
+
+    Sparamsvals[1] = inSparams.IsCheckParams
+    Sparamsvals[2] = inSparams.IsCheckGradHess
+    Sparamsvals[3] = inSparams.Stop_Criterion
+    Sparamsvals[4] = inSparams.Tolerance
+    Sparamsvals[5] = inSparams.Diffx
+    Sparamsvals[6] = inSparams.NumExtraGF
+    Sparamsvals[7] = inSparams.TimeBound
+    Sparamsvals[8] = inSparams.Min_Iteration
+    Sparamsvals[9] = inSparams.Max_Iteration
+    Sparamsvals[10] = inSparams.OutputGap
+    Sparamsvals[11] = inSparams.Verbose
+    Sparamsvals[12] = inSparams.isconvex
+    Sparamsvals[13] = inSparams.nu
+    Sparamsvals[14] = inSparams.mu
+    Sparamsvals[15] = inSparams.LengthSY
+    Sparamsvals[16] = inSparams.lambdaLower
+    Sparamsvals[17] = inSparams.lambdaUpper
+    Sparamsvals[18] = inSparams.LineSearch_LS
+    Sparamsvals[19] = inSparams.IsPureLSInput
+    Sparamsvals[20] = inSparams.LS_alpha
+    Sparamsvals[21] = inSparams.LS_beta
+    Sparamsvals[22] = inSparams.Minstepsize
+    Sparamsvals[23] = inSparams.Maxstepsize
+    Sparamsvals[24] = inSparams.LS_ratio1
+    Sparamsvals[25] = inSparams.LS_ratio2
+    Sparamsvals[26] = inSparams.Initstepsize
+    Sparamsvals[27] = inSparams.Accuracy
+    Sparamsvals[28] = inSparams.Finalstepsize
+    Sparamsvals[29] = inSparams.Num_pre_funs
+    Sparamsvals[30] = inSparams.InitSteptype
+    Sparamsvals[31] = inSparams.Acceptence_Rho
+    Sparamsvals[32] = inSparams.Shrinked_tau
+    Sparamsvals[33] = inSparams.Magnified_tau
+    Sparamsvals[34] = inSparams.minimum_Delta
+    Sparamsvals[35] = inSparams.maximum_Delta
+    Sparamsvals[36] = inSparams.useRand
+    Sparamsvals[37] = inSparams.Max_Inner_Iter
+    Sparamsvals[38] = inSparams.Min_Inner_Iter
+    Sparamsvals[39] = inSparams.theta
+    Sparamsvals[40] = inSparams.kappa
+    Sparamsvals[41] = inSparams.initial_Delta
+    Sparamsvals[42] = inSparams.Eps
+    Sparamsvals[43] = inSparams.Theta_eps
+    Sparamsvals[44] = inSparams.Min_Eps
+    Sparamsvals[45] = inSparams.Del
+    Sparamsvals[46] = inSparams.Theta_del
 	if(isreal(inX0))
-		ptrX0R::Ptr{Float64} = pointer(inX0)
-        if(inSoln != 0)
-            ptrSolnR::Ptr{Float64} = pointer(inSoln)
-            resultptr = @cxx DriverJuliaProb(jpcpp"FunHandles"(inHandles), jpcpp"SolverParams"(inSparams), jpcpp"ManiParams"(inMparams), inHasHHR, ptrX0R, length(inX0), ptrSolnR)
-        else
-            resultptr = @cxx DriverJuliaProb(jpcpp"FunHandles"(inHandles), jpcpp"SolverParams"(inSparams), jpcpp"ManiParams"(inMparams), inHasHHR, ptrX0R, length(inX0))
-        end
+        resultptr = @cxx DriverJuliaProb(inHandles.fname, inHandles.gfname, inHandles.hfname, inHandles.isstopped, inHandles.LinesearchInput,
+                                         inSparams.name, pointer(Sparamsvals), nfields(inSparams) - 1,
+                                         inMparams.name, inMparams.numoftypes, inMparams.numofmani, inMparams.paramset, inMparams.m, inMparams.n, inMparams.p, inMparams.IsCheckParams,
+                                         inHasHHR, pointer(inX0), length(inX0))
 	else
-		ptrX0C::Ptr{Float64} = convert(Ptr{Float64}, pointer(inX0))
-        if(inSoln != 0)
-            ptrSolnC::Ptr{Float64} = convert(Ptr{Float64}, pointer(inSoln))
-            resultptr = @cxx DriverJuliaProb(jpcpp"FunHandles"(inHandles), jpcpp"SolverParams"(inSparams), jpcpp"ManiParams"(inMparams), inHasHHR, ptrX0C, length(inX0) * 2, ptrSolnC)
-        else
-            resultptr = @cxx DriverJuliaProb(jpcpp"FunHandles"(inHandles), jpcpp"SolverParams"(inSparams), jpcpp"ManiParams"(inMparams), inHasHHR, ptrX0C, length(inX0) * 2)
-        end
+        resultptr = @cxx DriverJuliaProb(inHandles.fname, inHandles.gfname, inHandles.hfname, inHandles.isstopped, inHandles.LinesearchInput,
+                                         inSparams.name, pointer(Sparamsvals), nfields(inSparams) - 1,
+                                         inMparams.name, inMparams.numoftypes, inMparams.numofmani, inMparams.paramset, inMparams.m, inMparams.n, inMparams.p, inMparams.IsCheckParams,
+                                         inHasHHR, convert(Ptr{Float64}, pointer(inX0)), length(inX0) * 2)
 	end
-	lentmp = unsafe_wrap(Array, resultptr, 1, false)
+	lentmp = unsafe_wrap(Array, resultptr, 1)
 	resultlength = lentmp[1]
 	
-	resultArr = unsafe_wrap(Array, resultptr, convert(Int64, resultlength), true)
+	resultArr = unsafe_wrap(Array, resultptr, convert(Int64, resultlength))
 	if(isreal(inX0))
 		lx0 = length(inX0)
 		Xopt = view(resultArr, 2:(lx0 + 1))
@@ -215,15 +207,16 @@ function DriverJuliaOPT(inHandles, inSparams, inMparams, inHasHHR, inX0, inSoln 
 	nVp = resultArr[lx0 + 10]
 	nH = resultArr[lx0 + 11]
 	ComTime = resultArr[lx0 + 12]
-	lseries = convert(Int64, (resultlength - lx0 - 12) / 4)
+	lseries = convert(Int64, (resultlength - lx0 - 16) / 3)
 
 	funs = view(resultArr, lx0 + 12 + 1 : lx0 + 12 + lseries)
-	grads = view(resultArr, lx0 + 12 + lseries + 1 : lx0 + 12 + 2 * lseries)
-	times = view(resultArr, lx0 + 12 + 2 * lseries + 1 : lx0 + 12 + 3 * lseries)
-	dists = view(resultArr, lx0 + 12 + 3 * lseries + 1 : lx0 + 12 + 4 * lseries)
+	times = view(resultArr, lx0 + 12 + lseries + 1 : lx0 + 12 + 2 * lseries)
+	grads = view(resultArr, lx0 + 12 + 2 * lseries + 1 : lx0 + 12 + 3 * lseries)
+
+    Heigs = view(resultArr, lx0 + 12 + 3 * lseries + 1 : lx0 + 12 + 3 * lseries + 4)
 
 	return (FinalIterate, fv, gfv, gfgf0, iter, nf, ng, nR, nV, nVp, nH, ComTime,
-			funs, grads, times, dists)
+			funs, grads, times, Heigs)
 end
 
 function real2complex(x::Array{Float64})::Array{Complex{Float64}}

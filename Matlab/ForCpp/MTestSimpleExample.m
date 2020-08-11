@@ -1,3 +1,0 @@
-function MTestSimpleExample()
-    TestSimpleExample();
-end

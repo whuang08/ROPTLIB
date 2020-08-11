@@ -8,936 +8,1024 @@ namespace ROPTLIB{
 	{
 	};
 
-	double Manifold::Metric(Variable *x, Vector *etax, Vector *xix) const
+	realdp Manifold::Metric(const Variable &x, const Vector &etax, const Vector &xix) const
 	{
-		const double *v1 = etax->ObtainReadData();
-		const double *v2 = xix->ObtainReadData();
-
-		integer inc = 1, N = etax->Getlength();
-		// output v1^T v2, details: http://www.netlib.org/lapack/explore-html/d5/df6/ddot_8f.html
-		return ddot_(&N, const_cast<double *> (v1), &inc, const_cast<double *> (v2), &inc);
+    #ifdef CHECKMANIFOLDOVERRIDDEN
+            printf("Manifold::Metric has not been overridden!\n");
+    #endif
+        return etax.DotProduct(xix);
 	};
 
-	void Manifold::LinearOPEEta(Variable *x, LinearOPE *Hx, Vector *etax, Vector *result) const
+	Vector &Manifold::LinearOPEEta(const Variable &x, const LinearOPE &Hx, const Vector &etax, Vector *result) const
 	{
-		if (etax == result)
-		{
-			printf("The arguments of etax and result should not be the same!\n");
-		}
-		integer ell = Hx->Getsize()[0];
-		const double *v = etax->ObtainReadData();
-		const double *M = Hx->ObtainReadData();
-		double *resultTV = result->ObtainWriteEntireData();
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::LinearOPEEta has not been overridden!\n");
+        #endif
 
-		char *transn = const_cast<char *> ("n");
-		double one = 1, zero = 0;
-		integer inc = 1, N = ell;
-		// resultTV <- M * v; details: http://www.netlib.org/lapack/explore-html/dc/da8/dgemv_8f.html
-		dgemv_(transn, &N, &N, &one, const_cast<double *> (M), &N, const_cast<double *> (v), &inc, &zero, resultTV, &inc);
+        /*even if etax is a complex element, the real reparameterizations are used. In other words, we viewed it is
+        2 n dimension real data. We have to convert it to real element to apply the linear opeartor. */
+        bool etaxiscomplex = etax.Getiscomplex();
+        etax.Setiscomplex(false);
+        Vector etaxreshape = etax; etaxreshape.Reshape(etax.Getlength());
+        result->AlphaABaddBetaThis(1, Hx, GLOBAL::N, etaxreshape, GLOBAL::N, 0);
+        etax.Setiscomplex(etaxiscomplex);
+        result->Setiscomplex(etaxiscomplex);
+        result->Reshape(etax.Getrow(), etax.Getcol(), etax.Getnum());
+        return *result;
 	};
 
-	void Manifold::ScaleTimesVector(Variable *x, double scalar, Vector *etax, Vector *result) const
+    Vector &Manifold::Projection(const Variable &x, const Vector &etax, Vector *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::Projection has not been overridden!\n");
+        #endif
+        if (!IsIntrApproach)
+        {
+            return this->ExtrProjection(x, etax, result);
+        }
+        else
+        {
+            return this->IntrProjection(x, etax, result);
+        }
+    };
+
+    Vector &Manifold::IntrProjection(const Variable &x, const Vector &etax, Vector *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::IntrProjection has not been overridden!\n");
+        #endif
+        *result = etax;
+        return *result;
+    };
+
+    Vector &Manifold::ExtrProjection(const Variable &x, const Vector &etax, Vector *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ExtrProjection has not been overridden!\n");
+        #endif
+        *result = etax;
+        return *result;
+    };
+
+	Vector &Manifold::ScalarTimesVector(const Variable &x, const realdp &scalar, const Vector &etax, Vector *result) const
 	{
-		etax->CopyTo(result);
-		double *resultTV = result->ObtainWritePartialData();
-		integer N = etax->Getlength(), inc = 1;
-		// resultTV <- scalar * resultTV, details: http://www.netlib.org/lapack/explore-html/d4/dd0/dscal_8f.html
-		dscal_(&N, &scalar, resultTV, &inc);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ScalarTimesVector has not been overridden!\n");
+        #endif
+        *result = etax;
+        result->ScalarTimesThis(scalar);
+        return *result;
 	};
 
-	void Manifold::VectorAddVector(Variable *x, Vector *etax, Vector *xix, Vector *result) const
+    Vector &Manifold::ScalarVectorAddVector(const Variable &x, const realdp &scalar, const Vector &etax, const Vector &xix, Vector *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ScalarVectorAddVector has not been overridden!\n");
+        #endif
+        *result = xix;
+        result->AlphaXaddThis(scalar, etax);
+        return *result;
+    };
+
+    Vector &Manifold::VectorLinearCombination(const Variable &x, realdp scalar1, const Vector &etax, realdp scalar2, const Vector &xix, Vector *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::VectorLinearCombination has not been overridden!\n");
+        #endif
+        *result = xix;
+        result->ScalarTimesThis(scalar2);
+        result->AlphaXaddThis(scalar1, etax);
+        
+        return *result;
+    };
+
+    Variable &Manifold::Retraction(const Variable &x, const Vector &etax, Variable *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::Retraction has not been overridden!\n");
+        #endif
+        *result = x; result->AlphaXaddThis(1, etax); /*result = x + etax*/
+        return *result;
+    };
+
+    Vector &Manifold::InvRetraction(const Variable &x, const Variable &y, Vector *result) const
+    {
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::InvRetraction has not been overridden!\n");
+        #endif
+        *result = y; result->AlphaXaddThis(-1, x); /*result = y - x*/
+        
+        return ExtrProjection(x, *result, result);
+    };
+
+	Vector &Manifold::coTangentVector(const Variable &x, const Vector &etax, const Variable &y, const Vector &xiy, Vector *result) const
 	{
-		VectorLinearCombination(x, 1.0, etax, 1.0, xix, result);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::coTangentVector has not been overridden!\n");
+        #endif
+        
+        return Projection(x, xiy, result);
 	};
 
-	void Manifold::VectorMinusVector(Variable *x, Vector *etax, Vector *xix, Vector *result) const
+	Vector &Manifold::DiffRetraction(const Variable &x, const Vector &etax, const Variable &y, const Vector &xix, Vector *result, bool IsEtaXiSameDir) const
 	{
-		VectorLinearCombination(x, 1.0, etax, -1.0, xix, result);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::DiffRetraction has not been overridden!\n");
+        #endif
+        
+        Projection(y, xix, result);
+
+        if (IsEtaXiSameDir && HasHHR)
+        {
+            Vector beta(3);
+            realdp *betaptr = beta.ObtainWriteEntireData();
+            realdp EtatoXi = sqrt(Metric(x, etax, etax) / Metric(x, xix, xix));
+            betaptr[0] = std::sqrt(Metric(x, etax, etax) / Metric(x, *result, *result)) / EtatoXi;
+            betaptr[1] = Metric(x, etax, etax);
+            betaptr[2] = Metric(x, *result, *result) * EtatoXi * EtatoXi;
+            etax.AddToFields("beta", beta);
+            
+            if (HasHHR)
+            {
+                etax.AddToFields("betaTReta", (*result) * (betaptr[0] * EtatoXi));
+            }
+        }
+        
+        return *result;
 	};
 
-	void Manifold::scalarVectorAddVector(Variable *x, double scalar, Vector *etax, Vector *xix, Vector *result) const
+	realdp Manifold::Beta(const Variable &x, const Vector &etax) const
 	{
-		VectorLinearCombination(x, scalar, etax, 1.0, xix, result);
-	};
-
-	void Manifold::scalarVectorMinusVector(Variable *x, double scalar, Vector *etax, Vector *xix, Vector *result) const
-	{
-		VectorLinearCombination(x, scalar, etax, -1.0, xix, result);
-	};
-
-	void Manifold::VectorLinearCombination(Variable *x, double scalar1, Vector *etax, double scalar2, Vector *xix, Vector *result) const
-	{
-		const double *etaxTV = etax->ObtainReadData();
-		const double *xixTV = xix->ObtainReadData();
-		double *resultTV = result->ObtainWriteEntireData();
-
-		integer N1 = etax->Getlength(), N2 = xix->Getlength(), N3 = result->Getlength(), inc = 1;
-		integer N = (N1 > N2) ? N2 : N1;
-		N = (N > N3) ? N3 : N;
-		if (resultTV == etaxTV)
-		{
-			// resultTV <- scalar1 * resultTV, details: http://www.netlib.org/lapack/explore-html/d4/dd0/dscal_8f.html
-			dscal_(&N, &scalar1, resultTV, &inc);
-			// resultTV <- scalar2 * xixTV + resultTV, details: http://www.netlib.org/lapack/explore-html/d9/dcd/daxpy_8f.html
-			daxpy_(&N, &scalar2, const_cast<double *> (xixTV), &inc, resultTV, &inc);
-		}
-		else
-			if (resultTV == xixTV)
-			{
-				// resultTV <- scalar2 * resultTV, details: http://www.netlib.org/lapack/explore-html/d4/dd0/dscal_8f.html
-				dscal_(&N, &scalar2, resultTV, &inc);
-				// resultTV <- scalar1 * etaxTV + resultTV, details: http://www.netlib.org/lapack/explore-html/d9/dcd/daxpy_8f.html
-				daxpy_(&N, &scalar1, const_cast<double *> (etaxTV), &inc, resultTV, &inc);
-			}
-			else
-			{
-				// resultTV <- etaxTV, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-				dcopy_(&N, const_cast<double *> (etaxTV), &inc, resultTV, &inc);
-				// resultTV <- scalar1 * resultTV, details: http://www.netlib.org/lapack/explore-html/d4/dd0/dscal_8f.html
-				dscal_(&N, &scalar1, resultTV, &inc);
-				// resultTV <- scalar2 * xixTV + resultTV, details: http://www.netlib.org/lapack/explore-html/d9/dcd/daxpy_8f.html
-				daxpy_(&N, &scalar2, const_cast<double *> (xixTV), &inc, resultTV, &inc);
-			}
-	};
-
-	void Manifold::Projection(Variable *x, Vector *v, Vector *result) const
-	{
-		if (!IsIntrApproach)
-		{
-			this->ExtrProjection(x, v, result);
-		}
-		else
-		{
-			this->IntrProjection(x, v, result);
-		}
-	};
-
-	void Manifold::RandomTangentVectors(Variable *x, integer N, Vector **result_arr) const // Be careful
-	{
-		for (integer i = 0; i < N; i++)
-		{
-			result_arr[i]->RandGaussian();
-			this->Projection(x, result_arr[i], result_arr[i]);
-		}
-	};
-
-	void Manifold::Retraction(Variable *x, Vector *etax, Variable *result, double instepsize) const
-	{
-		const double *v = etax->ObtainReadData();
-		const double *xM = x->ObtainReadData();
-		double *resultM = result->ObtainWriteEntireData();
-
-		integer inc = 1, N = x->Getlength();
-		double one = 1;
-		// resultM <- xM, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-		if (resultM != xM)
-			dcopy_(&N, const_cast<double *> (xM), &inc, resultM, &inc);
-		// resultM <- v + resultTV, details: http://www.netlib.org/lapack/explore-html/d9/dcd/daxpy_8f.html
-		daxpy_(&N, &one, const_cast<double *> (v), &inc, resultM, &inc);
-	};
-
-	void Manifold::coTangentVector(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const
-	{
-		xiy->CopyTo(result);
-	};
-
-	void Manifold::DiffRetraction(Variable *x, Vector *etax, Variable *y, Vector *xix, Vector *result, bool IsEtaXiSameDir) const
-	{
-		xix->CopyTo(result);
-	};
-
-	double Manifold::Beta(Variable *x, Vector *etax) const
-	{
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::Beta has not been overridden!\n");
+        #endif
 		return 1;
 	};
 
-	double Manifold::Dist(Variable *x1, Variable *x2) const
+	realdp Manifold::Dist(const Variable &x1, const Variable &x2) const
 	{
-		const double *x1ptr = x1->ObtainReadData();
-		const double *x2ptr = x2->ObtainReadData();
-		double tmp = 0, result = 0;
-		for (integer i = 0; i < x1->Getlength(); i++)
-		{
-			tmp = x1ptr[i] - x2ptr[i];
-			result += tmp * tmp;
-		}
-		return std::sqrt(result);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::Dist has not been overridden!\n");
+        #endif
+		return (x1 - x2).Fnorm();
 	};
 
-	void Manifold::VectorTransport(Variable *x, Vector *etax, Variable *y, Vector *xix, Vector *result) const
+	Vector &Manifold::VectorTransport(const Variable &x, const Vector &etax, const Variable &y, const Vector &xix, Vector *result) const
 	{
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::VectorTransport has not been overridden!\n");
+        #endif
+        if (HasHHR)
+            return LCVectorTransport(x, etax, y, xix, result);
+        
+        return Projection(y, xix, result);
+	};
+
+	Vector &Manifold::InverseVectorTransport(const Variable &x, const Vector &etax, const Variable &y, const Vector &xiy, Vector *result) const
+	{
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::InverseVectorTransport has not been overridden!\n");
+        #endif
 		if (HasHHR)
-			LCVectorTransport(x, etax, y, xix, result);
-		else
-			xix->CopyTo(result);
+			return LCInverseVectorTransport(x, etax, y, xiy, result);
+		
+		return Projection(x, xiy, result);
 	};
 
-	void Manifold::InverseVectorTransport(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const
+	LinearOPE &Manifold::HInvTran(const Variable &x, const Vector &etax, const Variable &y, const LinearOPE &Hx, integer start, integer end, LinearOPE *result) const
 	{
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::HInvTran has not been overridden!\n");
+        #endif
 		if (HasHHR)
-			LCInverseVectorTransport(x, etax, y, xiy, result);
-		else
-			xiy->CopyTo(result);
+			return LCHInvTran(x, etax, y, Hx, start, end, result);
+		
+        *result = Hx;
+        return *result;
 	};
 
-	void Manifold::HInvTran(Variable *x, Vector *etax, Variable *y, LinearOPE *Hx, integer start, integer end, LinearOPE *result) const
+	LinearOPE &Manifold::TranH(const Variable &x, const Vector &etax, const Variable &y, const LinearOPE &Hx, integer start, integer end, LinearOPE *result) const
 	{
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::TranH has not been overridden!\n");
+        #endif
 		if (HasHHR)
-			LCHInvTran(x, etax, y, Hx, start, end, result);
-		else
-			Hx->CopyTo(result);
+			return LCTranH(x, etax, y, Hx, start, end, result);
+		
+        *result = Hx;
+		return *result;
 	};
 
-	void Manifold::TranH(Variable *x, Vector *etax, Variable *y, LinearOPE *Hx, integer start, integer end, LinearOPE *result) const
+	LinearOPE &Manifold::TranHInvTran(const Variable &x, const Vector &etax, const Variable &y, const LinearOPE &Hx, LinearOPE *result) const
 	{
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::TranHInvTran has not been overridden!\n");
+        #endif
+        
 		if (HasHHR)
-			LCTranH(x, etax, y, Hx, start, end, result);
-		else
-			Hx->CopyTo(result);
+			return LCTranHInvTran(x, etax, y, Hx, result);
+        
+        *result = Hx;
+        return *result;
 	};
 
-	void Manifold::TranHInvTran(Variable *x, Vector *etax, Variable *y, LinearOPE *Hx, LinearOPE *result) const
+	LinearOPE &Manifold::HaddScaledRank1OPE(const Variable &x, const LinearOPE &Hx, realdp scalar, const Vector &etax, const Vector &xix, LinearOPE *result) const
 	{
-		if (HasHHR)
-			LCTranHInvTran(x, etax, y, Hx, result);
-		else
-			Hx->CopyTo(result);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::HaddScaledRank1OPE has not been overridden!\n");
+        #endif
+        /*even if etax and xix are complex elements, the real reparameterizations are used. In other words, we viewed it is
+        2 n dimension real data. Therefore, the low rank update uses real operations. */
+        bool etaxiscomplex = etax.Getiscomplex(), xixiscomplex = xix.Getiscomplex();
+        etax.Setiscomplex(false);
+        xix.Setiscomplex(false);
+        *result = Hx;
+        Vector etaxreshape = etax; etaxreshape.Reshape(etax.Getlength());
+        Vector xixreshape = xix; xixreshape.Reshape(xix.Getlength());
+        result->HaddRankone(scalar, etaxreshape, xixreshape);
+        etax.Setiscomplex(etaxiscomplex);
+        xix.Setiscomplex(xixiscomplex);
+        return *result;
 	};
 
-	void Manifold::HaddScaledRank1OPE(Variable *x, LinearOPE *Hx, double scalar, Vector *etax, Vector *xix, LinearOPE *result) const
+	Vector &Manifold::ObtainEtaxFlat(const Variable &x, const Vector &etax, Vector *result) const
 	{
-		const double *veta = etax->ObtainReadData();
-		const double *vxi = xix->ObtainReadData();
-		Hx->CopyTo(result);
-		double *resultL = result->ObtainWritePartialData();
-		integer ell = Hx->Getsize()[0], N = ell, inc = 1;
-		// resultL <- scalar * veta * vxi^T + resultL, details: http://www.netlib.org/lapack/explore-html/dc/da8/dger_8f.html
-		dger_(&N, &N, &scalar, const_cast<double *> (veta), &inc, const_cast<double *> (vxi), &inc, resultL, &N);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ObtainEtaxFlat has not been overridden!\n");
+        #endif
+        *result = etax;
+        return *result;
 	};
 
-	void Manifold::ObtainEtaxFlat(Variable *x, Vector *etax, Vector *etaxflat) const
+	Vector &Manifold::ObtainIntr(const Variable &x, const Vector &etax, Vector *result) const
 	{
-		etax->CopyTo(etaxflat);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ObtainIntr has not been overridden!\n");
+        #endif
+        *result = etax;
+        return *result;
 	};
 
-	void Manifold::ObtainIntr(Variable *x, Vector *etax, Vector *result) const
+	Vector &Manifold::ObtainExtr(const Variable &x, const Vector &intretax, Vector *result) const
 	{
-		etax->CopyTo(result);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ObtainExtr has not been overridden!\n");
+        #endif
+        *result = intretax;
+        return *result;
 	};
 
-	void Manifold::ObtainExtr(Variable *x, Vector *intretax, Vector *result) const
+	Vector &Manifold::ObtainNorVerIntr(const Variable &x, const Vector &etax, Vector *result) const
 	{
-		intretax->CopyTo(result);
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ObtainNorVerIntr has not been overridden!\n");
+        #endif
+        *result = etax;
+        return *result;
 	};
 
-	void Manifold::Obtainnu1nu2forLC(Variable *x, Vector *etax, Variable *y) const
+	Vector &Manifold::ObtainNorVerExtr(const Variable &x, const Vector &intretax, Vector *result) const
 	{
-		Vector *eps1 = etax->ConstructEmpty();
-		Vector *nu1 = etax->ConstructEmpty();
-		Vector *nu2 = etax->ConstructEmpty();
-		if (!etax->TempDataExist("beta") || !etax->TempDataExist("betaTReta"))
-		{
-			DiffRetraction(x, etax, y, etax, eps1, true);
-		}
-		HasHHR = false; VectorTransport(x, etax, y, etax, eps1); HasHHR = true;
-		const SharedSpace *TReta = etax->ObtainReadTempData("betaTReta");
-		Vector *TRetaVector = TReta->GetSharedElement();
-		SharedSpace *Sharedtau1tau2 = new SharedSpace(1, 2);
-		SharedSpace *Sharednu1 = new SharedSpace(nu1);
-		SharedSpace *Sharednu2 = new SharedSpace(nu2);
-		double *tau1tau2 = Sharedtau1tau2->ObtainWriteEntireData();
-		ScaleTimesVector(x, 2.0, eps1, nu1);
-		VectorLinearCombination(x, -1.0, eps1, -1.0, TRetaVector, nu2);
-		tau1tau2[0] = 2.0 / Metric(x, nu1, nu1);
-		tau1tau2[1] = 2.0 / Metric(x, nu2, nu2);
-
-		etax->AddToTempData("tau1tau2", Sharedtau1tau2);
-		etax->AddToTempData("nu1", Sharednu1);
-		etax->AddToTempData("nu2", Sharednu2);
-		delete eps1;
+        #ifdef CHECKMANIFOLDOVERRIDDEN
+                printf("Manifold::ObtainNorVerExtr has not been overridden!\n");
+        #endif
+        *result = intretax;
+        return *result;
 	};
 
-	void Manifold::LCVectorTransport(Variable *x, Vector *etax, Variable *y, Vector *xix, Vector *result) const
-	{
-		if (!etax->TempDataExist("nu1nu2"))
-		{
-			Obtainnu1nu2forLC(x, etax, y);
-		}
-		HasHHR = false; VectorTransport(x, etax, y, xix, result); HasHHR = true;
-		const SharedSpace *Sharedtau1tau2 = etax->ObtainReadTempData("tau1tau2");
-		const double *tau1tau2 = Sharedtau1tau2->ObtainReadData();
-		const SharedSpace *Sharednu1 = etax->ObtainReadTempData("nu1");
-		Vector *nu1 = Sharednu1->GetSharedElement();
-		const SharedSpace *Sharednu2 = etax->ObtainReadTempData("nu2");
-		Vector *nu2 = Sharednu2->GetSharedElement();
-		double temp = 0;
-		temp = -Metric(x, result, nu1);
-		scalarVectorAddVector(x, temp * tau1tau2[0], nu1, result, result);
-		temp = -Metric(x, result, nu2);
-		scalarVectorAddVector(x, temp * tau1tau2[1], nu2, result, result);
-	};
+    void Manifold::CheckParams(void) const
+    {
+        printf("GENERAL PARAMETERS:\n");
+        printf("name          :%15s,\n", name.c_str());
+        printf("IsIntrApproach:%15d,\t", IsIntrApproach);
+        printf("IntrinsicDim  :%15d,\n", IntrinsicDim);
+        printf("ExtrinsicDim  :%15d,\t", ExtrinsicDim);
+        printf("HasHHR        :%15d,\n", HasHHR);
+    };
 
-	void Manifold::LCInverseVectorTransport(Variable *x, Vector *etax, Variable *y, Vector *xiy, Vector *result) const
-	{
-		if (!etax->TempDataExist("nu1nu2"))
-		{
-			Obtainnu1nu2forLC(x, etax, y);
-		}
-		const SharedSpace *Sharedtau1tau2 = etax->ObtainReadTempData("tau1tau2");
-		const double *tau1tau2 = Sharedtau1tau2->ObtainReadData();
-		const SharedSpace *Sharednu1 = etax->ObtainReadTempData("nu1");
-		Vector *nu1 = Sharednu1->GetSharedElement();
-		const SharedSpace *Sharednu2 = etax->ObtainReadTempData("nu2");
-		Vector *nu2 = Sharednu2->GetSharedElement();
-		double temp = 0;
-		temp = -Metric(x, xiy, nu2);
-		scalarVectorAddVector(x, temp * tau1tau2[1], nu2, xiy, result);
-		temp = -Metric(x, result, nu1);
-		scalarVectorAddVector(x, temp * tau1tau2[0], nu1, result, result);
-		HasHHR = false; InverseVectorTransport(x, etax, y, result, result); HasHHR = true;
-	};
+    void Manifold::SetParams(PARAMSMAP params)
+    {
+        PARAMSMAP::iterator iter;
+        for (iter = params.begin(); iter != params.end(); iter++)
+        {
+            if (iter->first == static_cast<std::string> ("HasHHR"))
+            {
+                SetHasHHR(((static_cast<integer> (iter->second)) != 0));
+            }
+        }
+    };
 
-	void Manifold::LCHInvTran(Variable *x, Vector *etax, Variable *y, LinearOPE *Hx, integer start, integer end, LinearOPE *result) const
-	{
-		if (!etax->TempDataExist("nu1nu2"))
-		{
-			Obtainnu1nu2forLC(x, etax, y);
-		}
-		const SharedSpace *Sharedtau1tau2 = etax->ObtainReadTempData("tau1tau2");
-		const double *tau1tau2 = Sharedtau1tau2->ObtainReadData();
-		const SharedSpace *Sharednu1 = etax->ObtainReadTempData("nu1");
-		Vector *nu1 = Sharednu1->GetSharedElement();
-		const SharedSpace *Sharednu2 = etax->ObtainReadTempData("nu2");
-		Vector *nu2 = Sharednu2->GetSharedElement();
-
-		double temp = 0;
-		const double *nu1TV = nu1->ObtainReadData();
-		const double *nu2TV = nu2->ObtainReadData();
-
-		//double *nu1TV = new double[nu1->Getlength() * 2];
-		//double *nu2TV = nu1TV + nu1->Getlength();
-		//nu1->CopytoArray(nu1TV);
-		//nu2->CopytoArray(nu2TV);
-		HasHHR = false; HInvTran(x, etax, y, Hx, start, end, result); HasHHR = true;
-		double *resultTV = result->ObtainWritePartialData();
-		char *sider = const_cast<char *> ("r");
-		integer ell = Hx->Getsize()[0], length = etax->Getlength();
-		double *work = new double[ell];
-
-		// resultTV(:, start : start + length - 1) <- resultTV(:, start : start + length - 1) * (I - tau1tau2(0) * nu1TV * nu1TV^T),
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sider, &ell, &length, const_cast<double *> (nu1TV), const_cast<double *> (tau1tau2), resultTV + start * ell, &ell, work);
-		// resultTV(:, start : start + length - 1) <- resultTV(:, start : start + length - 1) * (I - tau1tau2(1) * nu2TV * nu2TV^T),
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sider, &ell, &length, const_cast<double *> (nu2TV), const_cast<double *> (tau1tau2 + 1), resultTV + start * ell, &ell, work);
-		delete[] work;
-		//delete[] nu1TV;
-	};
-
-	void Manifold::LCTranH(Variable *x, Vector *etax, Variable *y, LinearOPE *Hx, integer start, integer end, LinearOPE *result) const
-	{
-		if (!etax->TempDataExist("nu1nu2"))
-		{
-			Obtainnu1nu2forLC(x, etax, y);
-		}
-		const SharedSpace *Sharedtau1tau2 = etax->ObtainReadTempData("tau1tau2");
-		const double *tau1tau2 = Sharedtau1tau2->ObtainReadData();
-		const SharedSpace *Sharednu1 = etax->ObtainReadTempData("nu1");
-		Vector *nu1 = Sharednu1->GetSharedElement();
-		const SharedSpace *Sharednu2 = etax->ObtainReadTempData("nu2");
-		Vector *nu2 = Sharednu2->GetSharedElement();
-		double temp = 0;
-		const double *nu1TV = nu1->ObtainReadData();
-		const double *nu2TV = nu2->ObtainReadData();
-		//double *nu1TV = new double[nu1->Getlength() * 2];
-		//double *nu2TV = nu1TV + nu1->Getlength();
-		//nu1->CopytoArray(nu1TV);
-		//nu2->CopytoArray(nu2TV);
-		HasHHR = false; TranH(x, etax, y, Hx, start, end, result); HasHHR = true;
-		double *resultTV = result->ObtainWritePartialData();
-
-		char *sidel = const_cast<char *> ("l");
-		integer ell = Hx->Getsize()[0], length = etax->Getlength();
-		double *work = new double[ell];
-		// resultTV(start : start + length - 1, :) <- (I - tau1tau2(0) * nu1TV * nu1TV^T) * resultTV(start : start + length - 1, :),
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sidel, &length, &ell, const_cast<double *> (nu1TV), const_cast<double *> (tau1tau2), resultTV + start, &ell, work);
-		// resultTV(start : start + length - 1, :) <- (I - tau1tau2(1) * nu2TV * nu2TV^T) * resultTV(start : start + length - 1, :),
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sidel, &length, &ell, const_cast<double *> (nu2TV), const_cast<double *> (tau1tau2 + 1), resultTV + start, &ell, work);
-		delete[] work;
-		//delete[] nu1TV;
-	};
-
-	void Manifold::LCTranHInvTran(Variable *x, Vector *etax, Variable *y, LinearOPE *Hx, LinearOPE *result) const
-	{
-		if (!etax->TempDataExist("nu1nu2"))
-		{
-			Obtainnu1nu2forLC(x, etax, y);
-		}
-		const SharedSpace *Sharedtau1tau2 = etax->ObtainReadTempData("tau1tau2");
-		const double *tau1tau2 = Sharedtau1tau2->ObtainReadData();
-		const SharedSpace *Sharednu1 = etax->ObtainReadTempData("nu1");
-		Vector *nu1 = Sharednu1->GetSharedElement();
-		const SharedSpace *Sharednu2 = etax->ObtainReadTempData("nu2");
-		Vector *nu2 = Sharednu2->GetSharedElement();
-		double temp = 0;
-		const double *nu1TV = nu1->ObtainReadData();
-		const double *nu2TV = nu2->ObtainReadData();
-		HasHHR = false; TranHInvTran(x, etax, y, Hx, result); HasHHR = true;
-		double *resultTV = result->ObtainWritePartialData();
-		char *sidel = const_cast<char *> ("l"), *sider = const_cast<char *> ("r");
-		integer ell = Hx->Getsize()[0], length = etax->Getlength();
-		double *work = new double[ell];
-		// resultTV <- resultTV * (I - tau1tau2(0) * nu1TV * nu1TV^T),
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sider, &ell, &length, const_cast<double *> (nu1TV), const_cast<double *> (tau1tau2), resultTV, &ell, work);
-		// resultTV <- resultTV * (I - tau1tau2(1) * nu2TV * nu2TV^T),
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sider, &ell, &length, const_cast<double *> (nu2TV), const_cast<double *> (tau1tau2 + 1), resultTV, &ell, work);
-		// resultTV <- (I - tau1tau2(0) * nu1TV * nu1TV^T) * resultTV,
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sidel, &length, &ell, const_cast<double *> (nu1TV), const_cast<double *> (tau1tau2), resultTV, &ell, work);
-		// resultTV <- (I - tau1tau2(1) * nu2TV * nu2TV^T) * resultTV,
-		// details: http://www.netlib.org/lapack/explore-html/db/d10/dlarfx_8f.html
-		dlarfx_(sidel, &length, &ell, const_cast<double *> (nu2TV), const_cast<double *> (tau1tau2 + 1), resultTV, &ell, work);
-		delete[] work;
-		//delete[] nu1TV;
-	};
-
-	void Manifold::IntrProjection(Variable *x, Vector *v, Vector *result) const
-	{
-		v->CopyTo(result);
-	};
-
-	void Manifold::ExtrProjection(Variable *x, Vector *v, Vector *result) const
-	{
-		v->CopyTo(result);
-	};
-
-	void Manifold::CheckParams(void) const
-	{
-		printf("GENERAL PARAMETERS:\n");
-		printf("name          :%15s,\t", name.c_str());
-		printf("IsIntrApproach:%15d\n", IsIntrApproach);
-		printf("IntrinsicDim  :%15d,\t", IntrinsicDim);
-		printf("ExtrinsicDim  :%15d\n", ExtrinsicDim);
-		printf("HasHHR        :%15d,\t", HasHHR);
-		printf("UpdBetaAlone  :%15d\n", UpdBetaAlone);
-		printf("HasLockCon    :%15d\n", HasLockCon);
-	};
-
-	void Manifold::CheckIntrExtr(Variable *x) const
+	void Manifold::CheckIntrExtr(Variable x) const
 	{
 		printf("==============Check Intrinsic/Extrinsic transform=========\n");
-		Vector *exetax = EMPTYEXTR->ConstructEmpty();
-		Vector *inetax = EMPTYINTR->ConstructEmpty();
+		Vector exetax(EMPTYEXTR);
+		Vector inetax(EMPTYINTR);
 
-		x->Print("x");
-		exetax->RandGaussian();
-		ExtrProjection(x, exetax, exetax);
-		exetax->Print("exetax1");
-		ObtainIntr(x, exetax, inetax);
+		x.Print("x");
+		exetax.RandGaussian();
+		ExtrProjection(x, exetax, &exetax);
+		exetax.Print("exetax1");
+		 ObtainIntr(x, exetax, &inetax);
+        bool Isintr = GetIsIntrinsic();
+        SetIsIntrApproach(false);
 		printf("extr inp:%g\n", Metric(x, exetax, exetax));
+        SetIsIntrApproach(true);
 		printf("intr inp:%g\n", Metric(x, inetax, inetax));
-		inetax->Print("inetax1");
-		ObtainExtr(x, inetax, exetax);
-		exetax->Print("exetax2");
-		ObtainIntr(x, exetax, inetax);
-		inetax->Print("inetax2");
+        SetIsIntrApproach(Isintr);
+		inetax.Print("inetax1");
+		ObtainExtr(x, inetax, &exetax);
+		exetax.Print("exetax2");
+		ObtainIntr(x, exetax, &inetax);
+		inetax.Print("inetax2");
 		printf("exeta1 and inetax1 should approximately equal exetax2 and inetax2 respectively!\n");
-
-		delete exetax;
-		delete inetax;
 	};
 
-	void Manifold::CheckRetraction(Variable *x) const
+	void Manifold::CheckRetraction(Variable x) const
 	{
 		printf("==============Check Retraction=========\n");
-		Vector *etax, *FDetax;
-		etax = EMPTYEXTR->ConstructEmpty();
-		FDetax = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
-		x->Print("x:");
-		etax->Print("etax:");
-		double eps = 1e-5;
-		Variable *y = x->ConstructEmpty();
-		ScaleTimesVector(x, eps, etax, etax);
+		Vector etax(EMPTYEXTR), FDetax(EMPTYEXTR);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
+        ScalarTimesVector(x, 1.0 / sqrt(Metric(x, etax, etax)), etax, &etax);
+		x.Print("x:");
+		etax.Print("etax:");
+#ifdef SINGLE_PRECISION
+		realdp eps = static_cast<realdp> (1e-3);
+#else
+        realdp eps = static_cast<realdp> (1e-5);
+#endif
+		Variable y(x);
+		ScalarTimesVector(x, eps, etax, &etax);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			Retraction(x, inetax, y, 1);
-			delete inetax;
+			Vector inetax(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			Retraction(x, inetax, &y);
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
+			Retraction(x, etax, &y);
 		}
-		VectorMinusVector(x, y, x, FDetax);
-		ScaleTimesVector(x, 1.0 / eps, FDetax, FDetax);
-		FDetax->Print("FDetax:");
+        FDetax = (y - x) / eps;
+		FDetax.Print("FDetax:");
 
 		printf("etax should approximately equal FDetax = (R(eps etax)-R(etax))/eps!\n");
-		delete etax;
-		delete FDetax;
-		delete y;
 	};
 
-	void Manifold::CheckDiffRetraction(Variable *x, bool IsEtaXiSameDir) const
+	void Manifold::CheckDiffRetraction(Variable x, bool IsEtaXiSameDir) const
 	{
 		printf("==============Check Differentiated Retraction=========\n");
-		Vector *etax, *xix, *zetax;
-		etax = EMPTYEXTR->ConstructEmpty();
-		xix = EMPTYEXTR->ConstructEmpty();
-		zetax = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR), zetax(EMPTYEXTR);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
 		if (IsEtaXiSameDir)
 		{
-			etax->CopyTo(xix);
+            xix = etax;
 		}
 		else
 		{
-			xix->RandGaussian();
-			ExtrProjection(x, xix, xix);
+			xix.RandGaussian();
+			ExtrProjection(x, xix, &xix);
 		}
-		x->Print("x:");
-		etax->Print("etax:");
-		Variable *y = x->ConstructEmpty();
+		x.Print("x:");
+		etax.Print("etax:");
+		Variable y(x);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			Vector *inzetax = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			ObtainIntr(x, xix, inxix);
-			Retraction(x, inetax, y, 1);
-			DiffRetraction(x, inetax, y, inxix, inzetax, IsEtaXiSameDir);
-			ObtainExtr(y, inzetax, zetax);
-			delete inetax;
-			delete inxix;
-			delete inzetax;
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR), inzetax(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			ObtainIntr(x, xix, &inxix);
+            std::cout << "************************************************************************************************************" << std::endl;
+			Retraction(x, inetax, &y);
+			DiffRetraction(x, inetax, y, inxix, &inzetax, IsEtaXiSameDir);
+			ObtainExtr(y, inzetax, &zetax);
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
-			DiffRetraction(x, etax, y, xix, zetax, IsEtaXiSameDir);
+			Retraction(x, etax, &y);
+			DiffRetraction(x, etax, y, xix, &zetax, IsEtaXiSameDir);
 		}
-		y->Print("y:");
-		zetax->Print("zetax:");
-		Variable *yeps = x->ConstructEmpty();
-		double eps = 1e-5;
-		scalarVectorAddVector(x, eps, xix, etax, etax);
+		y.Print("y:");
+		zetax.Print("zetax:");
+		Variable yeps(x);
+		realdp eps = static_cast<realdp> (1e-5);
+        ScalarVectorAddVector(x, eps, xix, etax, &etax);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			Retraction(x, inetax, yeps, 1);
-			delete inetax;
+			Vector inetax(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			Retraction(x, inetax, &yeps);
 		}
 		else
 		{
-			Retraction(x, etax, yeps, 1);
+			Retraction(x, etax, &yeps);
 		}
-		VectorMinusVector(x, yeps, y, zetax);
-		ScaleTimesVector(x, 1.0 / eps, zetax, zetax);
-		ExtrProjection(y, zetax, zetax);
-		zetax->Print("FDzetax:");
+        zetax = (yeps - y) / eps;
+		ExtrProjection(y, zetax, &zetax);
+		zetax.Print("FDzetax:");
 		printf("zetax = T_{R_etax} xix should approximately equal FDzetax = (R(etax+eps xix) - R(etax))/eps!\n");
-
-		delete etax;
-		delete xix;
-		delete zetax;
-		delete yeps;
-		delete y;
 	};
 
-	void Manifold::CheckLockingCondition(Variable *x) const
+	void Manifold::CheckLockingCondition(Variable x) const
 	{
 		printf("==============Check Locking Condition=========\n");
-		Vector *etax, *xix, *zetax;
-		etax = EMPTYEXTR->ConstructEmpty();
-		xix = EMPTYEXTR->ConstructEmpty();
-		zetax = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
-		ScaleTimesVector(x, genrandreal() + 0.5, etax, xix);
-		Variable *y = x->ConstructEmpty();
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR), zetax(EMPTYEXTR);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
+		ScalarTimesVector(x, 1, etax, &xix); /* genrandreal() + static_cast<realdp> (0.5) */
+		Variable y(x);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			Vector *inzetax = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			ObtainIntr(x, xix, inxix);
-			Retraction(x, inetax, y, 1);
-			DiffRetraction(x, inetax, y, inxix, inzetax, true);
-			if (inetax->TempDataExist("beta"))
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR), inzetax(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			ObtainIntr(x, xix, &inxix);
+			Retraction(x, inetax, &y);
+			DiffRetraction(x, inetax, y, inxix, &inzetax, true);
+			if (inetax.FieldsExist("beta"))
 			{
-				const SharedSpace *beta = inetax->ObtainReadTempData("beta");
-				const double *betav = beta->ObtainReadData();
-				printf("beta = |etax| / |T_{etax} etax|: %g\n", betav[0]);
+                Vector beta = inetax.Field("beta");
+                const realdp *betav = beta.ObtainReadData();
+                printf("beta = |etax| / |T_{etax} etax|: %g\n", betav[0]);
 			}
 			else
 			{
 				printf("beta: %d\n", 1);
 			}
 			printf("|xix| / |T_{etax} xix|:%g\n", sqrt(Metric(x, inxix, inxix) / Metric(x, inzetax, inzetax)));
-			ScaleTimesVector(x, sqrt(Metric(x, inxix, inxix) / Metric(x, inzetax, inzetax)),
-				inzetax, inzetax);
-			ObtainExtr(y, inzetax, zetax);
-			zetax->Print("Beta DiffRetraction zetax:");
-			VectorTransport(x, inetax, y, inxix, inzetax);
-			ObtainExtr(y, inzetax, zetax);
-			zetax->Print("Vector Transport zetax:");
-			delete inetax;
-			delete inxix;
-			delete inzetax;
+			ScalarTimesVector(x, sqrt(Metric(x, inxix, inxix) / Metric(x, inzetax, inzetax)), inzetax, &inzetax);
+			ObtainExtr(y, inzetax, &zetax);
+			zetax.Print("Beta DiffRetraction zetax:");
+			VectorTransport(x, inetax, y, inxix, &inzetax);
+            
+			ObtainExtr(y, inzetax, &zetax);
+			zetax.Print("Vector Transport zetax:");
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
-			DiffRetraction(x, etax, y, xix, zetax, true);
-			if (etax->TempDataExist("beta"))
+			Retraction(x, etax, &y);
+			DiffRetraction(x, etax, y, xix, &zetax, true);
+			if (etax.FieldsExist("beta"))
 			{
-				const SharedSpace *beta = etax->ObtainReadTempData("beta");
-				const double *betav = beta->ObtainReadData();
-				printf("beta = |etax| / |T_{etax} etax|:%g\n", betav[0]);
+                Element beta = etax.Field("beta");
+                const realdp *betav = beta.ObtainReadData();
+                printf("beta = |etax| / |T_{etax} etax|: %g\n", betav[0]);
 			}
 			else
 			{
 				printf("beta: %d\n", 1);
 			}
-			printf("|xix| / |T_{etax} xix|:%g\n", sqrt(Metric(x, xix, xix) / Metric(x, zetax, zetax)));
-			ScaleTimesVector(x, sqrt(Metric(x, xix, xix) / Metric(x, zetax, zetax)),
-				zetax, zetax);
-			zetax->Print("Beta DiffRetraction zetax:");
-			VectorTransport(x, etax, y, xix, zetax);
-			zetax->Print("Vector Transport zetax:");
+			printf("|xix| / |T_{etax} xix|:%g\n", sqrt(Metric(x, xix, xix) / Metric(y, zetax, zetax)));
+			ScalarTimesVector(y, sqrt(Metric(x, xix, xix) / Metric(y, zetax, zetax)), zetax, &zetax);
+			zetax.Print("Beta DiffRetraction zetax:");
+			VectorTransport(x, etax, y, xix, &zetax);
+			zetax.Print("Vector Transport zetax:");
 		}
 		printf("Beta DiffRetraction zetax should approximately equal Vector Transport zetax!\n");
-
-		delete etax;
-		delete xix;
-		delete zetax;
-		delete y;
 	};
 
-	void Manifold::CheckcoTangentVector(Variable *x) const
+	void Manifold::CheckcoTangentVector(Variable x) const
 	{
 		printf("==============Check CoTangentVector=========\n");
-		Vector *etax, *xix, *zetay, *xiy, *zetax;
-		etax = EMPTYEXTR->ConstructEmpty();
-		xix = EMPTYEXTR->ConstructEmpty();
-		zetay = EMPTYEXTR->ConstructEmpty();
-		zetax = EMPTYEXTR->ConstructEmpty();
-		xiy = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR), zetay(EMPTYEXTR), xiy(EMPTYEXTR), zetax(EMPTYEXTR);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
 
-		xix->RandGaussian();
-		ExtrProjection(x, xix, xix);
+		xix.RandGaussian();
+		ExtrProjection(x, xix, &xix);
 
-		Variable *y = x->ConstructEmpty();
+		Variable y(x);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			Vector *inzetay = EMPTYINTR->ConstructEmpty();
-			Vector *inxiy = EMPTYINTR->ConstructEmpty();
-			Vector *inzetax = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			ObtainIntr(x, xix, inxix);
-			Retraction(x, inetax, y, 1);
-			DiffRetraction(x, inetax, y, inxix, inzetay, false);
-			ObtainExtr(y, inzetay, zetay);
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR), inzetay(EMPTYINTR), inxiy(EMPTYINTR), inzetax(EMPTYINTR);
+            ObtainIntr(x, etax, &inetax);
+			ObtainIntr(x, xix, &inxix);
+			Retraction(x, inetax, &y);
+			DiffRetraction(x, inetax, y, inxix, &inzetay, false);
+			ObtainExtr(y, inzetay, &zetay);
 
-			xiy->RandGaussian();
-			ExtrProjection(y, xiy, xiy);
-			ObtainIntr(y, xiy, inxiy);
+			xiy.RandGaussian();
+            ExtrProjection(y, xiy, &xiy);
+			ObtainIntr(y, xiy, &inxiy);
 			printf("<xiy, T_{R_{eta}} xix>:%g\n", Metric(y, inxiy, inzetay));
 
-			coTangentVector(x, inetax, y, inxiy, inzetax);
-			ObtainExtr(x, inzetax, zetax);
+			coTangentVector(x, inetax, y, inxiy, &inzetax);
+			ObtainExtr(x, inzetax, &zetax);
 			printf("C(x, etax, xiy) [xix]:%g\n", Metric(x, inzetax, inxix));
-			delete inetax;
-			delete inxix;
-			delete inzetay;
-			delete inxiy;
-			delete inzetax;
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
-			DiffRetraction(x, etax, y, xix, zetay, false);
-			xiy->RandGaussian();
-			ExtrProjection(y, xiy, xiy);
-			ScaleTimesVector(y, sqrt(Metric(y, xiy, xiy)), xiy, xiy);
+			Retraction(x, etax, &y);
+			DiffRetraction(x, etax, y, xix, &zetay, false);
+			xiy.RandGaussian();
+			ExtrProjection(y, xiy, &xiy);
+			ScalarTimesVector(y, sqrt(Metric(y, xiy, xiy)), xiy, &xiy);
 			printf("<xiy, T_{R_{eta}} xix>:%g\n", Metric(y, xiy, zetay));
-			coTangentVector(x, etax, y, xiy, zetax);
+			coTangentVector(x, etax, y, xiy, &zetax);
 			printf("C(x, etax, xiy) [xix]:%g\n", Metric(x, zetax, xix));
 		}
 		printf("<xiy, T_{R_{eta}} xix> should approximately equal C(x, etax, xiy) [xix]!\n");
-
-
-		delete etax;
-		delete xix;
-		delete zetay;
-		delete zetax;
-		delete xiy;
-		delete y;
 	};
 
-	void Manifold::CheckIsometryofVectorTransport(Variable *x) const
+	void Manifold::CheckIsometryofVectorTransport(Variable x) const
 	{
 		printf("==============Check Isometry of the Vector Transport=========\n");
-		Vector *etax, *xix, *zetay;
-		etax = EMPTYEXTR->ConstructEmpty();
-		xix = EMPTYEXTR->ConstructEmpty();
-		zetay = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR), zetay(EMPTYEXTR);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
 
-		xix->RandGaussian();
-		ExtrProjection(x, xix, xix);
+		xix.RandGaussian();
+		ExtrProjection(x, xix, &xix);
 
-		Variable *y = x->ConstructEmpty();
+		Variable y(x);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			Vector *inzetay = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			ObtainIntr(x, xix, inxix);
-			Retraction(x, inetax, y, 1);
-			VectorTransport(x, inetax, y, inxix, inzetay);
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR), inzetay(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			ObtainIntr(x, xix, &inxix);
+			Retraction(x, inetax, &y);
+			VectorTransport(x, inetax, y, inxix, &inzetay);
 			printf("Before vector transport:%g, After vector transport:%g\n", Metric(x, inxix, inxix), Metric(y, inzetay, inzetay));
-			delete inetax;
-			delete inxix;
-			delete inzetay;
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
-			VectorTransport(x, etax, y, xix, zetay);
-			y->Print("y:");
-			zetay->Print("zetay:");
+			Retraction(x, etax, &y);
+			VectorTransport(x, etax, y, xix, &zetay);
+			y.Print("y:");
+			zetay.Print("zetay:");
 			printf("Before vector transport:%g, After vector transport:%g\n", Metric(x, xix, xix), Metric(y, zetay, zetay));
 		}
 		printf("|xix| (Before vector transport) should approximately equal |T_{R_etax} xix| (After vector transport)\n");
-
-		delete etax;
-		delete xix;
-		delete zetay;
-		delete y;
 	};
 
-	void Manifold::CheckIsometryofInvVectorTransport(Variable *x) const
+	void Manifold::CheckIsometryofInvVectorTransport(Variable x) const
 	{
 		printf("==============Check Isometry of the Inverse Vector Transport=========\n");
-		Vector *etax, *xix, *zetay;
-		etax = EMPTYEXTR->ConstructEmpty();
-		xix = EMPTYEXTR->ConstructEmpty();
-		zetay = EMPTYEXTR->ConstructEmpty();
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR), zetay(EMPTYEXTR);
 
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
 
-		Variable *y = x->ConstructEmpty();
+		Variable y(x);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			Vector *inzetay = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			Retraction(x, inetax, y, 1);
-			zetay->RandGaussian();
-			ExtrProjection(y, zetay, zetay);
-			ScaleTimesVector(y, sqrt(Metric(y, zetay, zetay)), zetay, zetay);
-			ObtainIntr(y, zetay, inzetay);
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR), inzetay(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			Retraction(x, inetax, &y);
+			zetay.RandGaussian();
+			ExtrProjection(y, zetay, &zetay);
+			ScalarTimesVector(y, sqrt(Metric(y, zetay, zetay)), zetay, &zetay);
+			ObtainIntr(y, zetay, &inzetay);
 
-			InverseVectorTransport(x, inetax, y, inzetay, inxix);
+			InverseVectorTransport(x, inetax, y, inzetay, &inxix);
 			printf("Before inverse vector transport:%g, After inverse vector transport:%g\n", Metric(y, inzetay, inzetay), Metric(x, inxix, inxix));
-			delete inetax;
-			delete inxix;
-			delete inzetay;
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
-			zetay->RandGaussian();
-			ExtrProjection(y, zetay, zetay);
-			InverseVectorTransport(x, etax, y, zetay, xix);
-			x->Print("x:");
-			xix->Print("xix:");
+			Retraction(x, etax, &y);
+			zetay.RandGaussian();
+			ExtrProjection(y, zetay, &zetay);
+			InverseVectorTransport(x, etax, y, zetay, &xix);
+			x.Print("x:");
+			xix.Print("xix:");
 			printf("Before inverse vector transport:%g, After inverse vector transport:%g\n", Metric(y, zetay, zetay), Metric(x, xix, xix));
 		}
 		printf("|zetay| (Before inverse vector transport) should approximately equal |T_{R_etax}^{-1} zetay| (After inverse vector transport)\n");
-
-		delete etax;
-		delete xix;
-		delete zetay;
-		delete y;
 	};
 
-	void Manifold::CheckVecTranComposeInverseVecTran(Variable *x) const
+	void Manifold::CheckVecTranComposeInverseVecTran(Variable x) const
 	{
 		printf("==============Check Vector Transport Compose Inverse Vector Transport=========\n");
-		Vector *etax, *xix, *zetay;
-		etax = EMPTYEXTR->ConstructEmpty();
-		xix = EMPTYEXTR->ConstructEmpty();
-		zetay = EMPTYEXTR->ConstructEmpty();
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR), zetay(EMPTYEXTR);
 
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
-		xix->RandGaussian();
-		ExtrProjection(x, xix, xix);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
+		xix.RandGaussian();
+		ExtrProjection(x, xix, &xix);
 
-		Variable *y = x->ConstructEmpty();
+		Variable y(x);
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			Vector *inzetay = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			Retraction(x, inetax, y, 1);
-			ObtainIntr(x, xix, inxix);
-			xix->Print("xix:");
-			VectorTransport(x, inetax, y, inxix, inzetay);
-			InverseVectorTransport(x, inetax, y, inzetay, inxix);
-			ObtainExtr(x, inxix, xix);
-			xix->Print("T^{-1} ciric T xix:");
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR), inzetay(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			Retraction(x, inetax, &y);
+			ObtainIntr(x, xix, &inxix);
+			xix.Print("xix:");
+			VectorTransport(x, inetax, y, inxix, &inzetay);
+			InverseVectorTransport(x, inetax, y, inzetay, &inxix);
+			ObtainExtr(x, inxix, &xix);
+			xix.Print("T^{-1} ciric T xix:");
 			printf("xix and T^{-1} ciric T xix should be similar!\n");
-			delete inetax;
-			delete inxix;
-			delete inzetay;
 		}
 		else
 		{
-			Retraction(x, etax, y, 1);
-			xix->Print("xix:");
-			VectorTransport(x, etax, y, xix, zetay);
-			InverseVectorTransport(x, etax, y, zetay, xix);
-			xix->Print("T^{-1} ciric T xix:");
+			Retraction(x, etax, &y);
+			xix.Print("xix:");
+			VectorTransport(x, etax, y, xix, &zetay);
+			InverseVectorTransport(x, etax, y, zetay, &xix);
+			xix.Print("T^{-1} ciric T xix:");
 			printf("xix and T^{-1} ciric T xix should be similar!\n");
 		}
-		delete etax;
-		delete xix;
-		delete zetay;
-		delete y;
 	};
 
-	void Manifold::CheckTranHInvTran(Variable *x) const
+	void Manifold::CheckTranHInvTran(Variable x) const
 	{
 		printf("==============Check Transport of a Hessian approximation=========\n");
-		Vector *etax;
-		Variable *y;
-		LinearOPE *Hx, *result;
+		Vector etax(EMPTYEXTR);
+		Variable y(x);
 
-		etax = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
 
-		y = x->ConstructEmpty();
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			Retraction(x, inetax, y, 1);
-			Hx = new LinearOPE(EMPTYINTR->Getlength());
-			Hx->ScaledIdOPE();
-			Hx->Print("Hx before:");
-			result = new LinearOPE(EMPTYINTR->Getlength());
-			TranHInvTran(x, inetax, y, Hx, result);
-
-			result->Print("Hx after:");
-			delete inetax;
+            LinearOPE Hx(EMPTYINTR.Getlength(), EMPTYINTR.Getlength()), result(EMPTYINTR.Getlength(), EMPTYINTR.Getlength());
+			Vector inetax(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			Retraction(x, inetax, &y);
+			Hx.ScaledIdOPE();
+			Hx.Print("Hx before:");
+			TranHInvTran(x, inetax, y, Hx, &result);
+			result.Print("Hx after:");
 		}
 		else
 		{
-			Hx = new LinearOPE(EMPTYEXTR->Getlength());
-			Hx->ScaledIdOPE();
-			Hx->Print("Hx before:");
-			result = new LinearOPE(EMPTYEXTR->Getlength());
-			Retraction(x, etax, y, 1);
-			Vector *zetay1 = EMPTYEXTR->ConstructEmpty();
-			Vector *zetay2 = EMPTYEXTR->ConstructEmpty();
-			zetay1->RandGaussian();
-			ExtrProjection(y, zetay1, zetay1);
-			TranHInvTran(x, etax, y, Hx, result);
-			result->Print("Hx after:");
-			zetay1->Print("zetay:");
-			LinearOPEEta(y, result, zetay1, zetay2);
-			zetay2->Print("Hx zetay:");
-			delete zetay1;
-			delete zetay2;
+            LinearOPE Hx(EMPTYEXTR.Getlength(), EMPTYEXTR.Getlength()), result(EMPTYEXTR.Getlength(), EMPTYEXTR.Getlength());
+			Hx.ScaledIdOPE();
+			Hx.Print("Hx before:");
+			Retraction(x, etax, &y);
+			Vector zetay1(EMPTYEXTR), zetay2(EMPTYEXTR);
+			zetay1.RandGaussian();
+			ExtrProjection(y, zetay1, &zetay1);
+			TranHInvTran(x, etax, y, Hx, &result);
+			result.Print("Hx after:");
+			zetay1.Print("zetay:");
+            LinearOPEEta(y, result, zetay1, &zetay2);
+			zetay2.Print("Hx zetay:");
 		}
-
-		delete etax;
-		delete y;
-		delete Hx;
-		delete result;
 	};
 
-	void Manifold::CheckHaddScaledRank1OPE(Variable *x) const
+	void Manifold::CheckHaddScaledRank1OPE(Variable x) const
 	{
 		printf("==============Check Rank one Update to a Hessian Approximation=========\n");
-		LinearOPE *Hx, *result;
-		double scalar = 1.0;
-		Vector *etax, *xix;
-		etax = EMPTYEXTR->ConstructEmpty();
-		etax->RandGaussian();
-		ExtrProjection(x, etax, etax);
-
-		xix = EMPTYEXTR->ConstructEmpty();
-		xix->RandGaussian();
-		ExtrProjection(x, xix, xix);
+		realdp scalar = 1.0;
+		Vector etax(EMPTYEXTR), xix(EMPTYEXTR);
+		etax.RandGaussian();
+		ExtrProjection(x, etax, &etax);
+		xix.RandGaussian();
+		ExtrProjection(x, xix, &xix);
 
 		if (IsIntrApproach)
 		{
-			Vector *inetax = EMPTYINTR->ConstructEmpty();
-			Vector *inxix = EMPTYINTR->ConstructEmpty();
-			ObtainIntr(x, etax, inetax);
-			ObtainIntr(x, xix, inxix);
-			Hx = new LinearOPE(EMPTYINTR->Getlength());
-			Hx->ScaledIdOPE();
-			Hx->Print("Hx before:");
-			result = new LinearOPE(EMPTYINTR->Getlength());
-			HaddScaledRank1OPE(x, Hx, scalar, inetax, inxix, result);
-			inetax->Print("etax:");
-			inxix->Print("xix:");
-			result->Print("Hx after:");
-			delete inetax;
-			delete inxix;
+            LinearOPE Hx(EMPTYINTR.Getlength(), EMPTYINTR.Getlength()), result(EMPTYINTR.Getlength(), EMPTYINTR.Getlength());
+			Vector inetax(EMPTYINTR), inxix(EMPTYINTR);
+			ObtainIntr(x, etax, &inetax);
+			ObtainIntr(x, xix, &inxix);
+			Hx.ScaledIdOPE();
+			Hx.Print("Hx before:");
+			HaddScaledRank1OPE(x, Hx, scalar, inetax, inxix, &result);
+			inetax.Print("etax:");
+			inxix.Print("xix:");
+			result.Print("Hx after:");
 		}
 		else
 		{
-			Hx = new LinearOPE(EMPTYEXTR->Getlength());
-			Hx->ScaledIdOPE();
-			Hx->Print("Hx before:");
-			result = new LinearOPE(EMPTYEXTR->Getlength());
-			HaddScaledRank1OPE(x, Hx, scalar, etax, xix, result);
-			etax->Print("etax:");
-			xix->Print("xix:");
-			result->Print("Hx after:");
+            LinearOPE Hx(EMPTYEXTR.Getlength(), EMPTYEXTR.Getlength()), result(EMPTYEXTR.Getlength(), EMPTYEXTR.Getlength());
+			Hx.ScaledIdOPE();
+			Hx.Print("Hx before:");
+			HaddScaledRank1OPE(x, Hx, scalar, etax, xix, &result);
+			etax.Print("etax:");
+			xix.Print("xix:");
+			result.Print("Hx after:");
 		}
-		delete Hx;
-		delete result;
-		delete etax;
-		delete xix;
 	};
 
-	void Manifold::SetParams(PARAMSMAP params)
-	{
-		PARAMSMAP::iterator iter;
-		for (iter = params.begin(); iter != params.end(); iter++)
-		{
-			if (iter->first == static_cast<std::string> ("HasHHR"))
-			{
-				SetHasHHR(((static_cast<integer> (iter->second)) != 0));
-			}
-		}
-	};
+    void Manifold::Obtainnu1nu2forLC(const Variable &x, const Vector &etax, const Variable &y) const
+    {
+        Vector eps1(etax), nu1(etax), nu2(etax);
+        
+        if (!etax.FieldsExist("beta") || !etax.FieldsExist("betaTReta"))
+        {
+            DiffRetraction(x, etax, y, etax, &eps1, true);
+        }
+        Vector TRetaVector = etax.Field("betaTReta");
+        HasHHR = false; VectorTransport(x, etax, y, etax, &eps1); HasHHR = true;
+        ScalarTimesVector(y, sqrt(Metric(x, etax, etax) / Metric(y, eps1, eps1)), eps1, &eps1); /*note \|etax\|_x = \|TRetaVector\|_y*/
+        Element tau1tau2(2);
+        realdp *tau1tau2ptr = tau1tau2.ObtainWriteEntireData();
+        ScalarTimesVector(y, 2.0, eps1, &nu1);
+        VectorLinearCombination(y, -1.0, eps1, -1.0, TRetaVector, &nu2);
+        tau1tau2ptr[0] = static_cast<realdp> (2) / Metric(y, nu1, nu1);
+        tau1tau2ptr[1] = static_cast<realdp> (2) / Metric(y, nu2, nu2);
+        
+        etax.AddToFields("tau1tau2", tau1tau2);
+        etax.AddToFields("nu1", nu1);
+        etax.AddToFields("nu2", nu2);
+    };
+
+    Vector &Manifold::LCVectorTransport(const Variable &x, const Vector &etax, const Variable &y, const Vector &xix, Vector *result) const
+    {
+        if (!etax.FieldsExist("tau1tau2"))
+        {
+            Obtainnu1nu2forLC(x, etax, y);
+        }
+        HasHHR = false; VectorTransport(x, etax, y, xix, result); HasHHR = true;
+        ScalarTimesVector(y, sqrt(Metric(x, xix, xix) / Metric(y, *result, *result)), *result, result);
+        
+        Element tau1tau2 = etax.Field("tau1tau2");
+        const realdp *tau1tau2ptr = tau1tau2.ObtainReadData();
+        Vector nu1 = etax.Field("nu1");
+        Vector nu2 = etax.Field("nu2");
+        realdp temp = - Metric(y, *result, nu1);
+        ScalarVectorAddVector(y, temp * tau1tau2ptr[0], nu1, *result, result);
+        temp = -Metric(y, *result, nu2);
+        ScalarVectorAddVector(y, temp * tau1tau2ptr[1], nu2, *result, result);
+        
+        return *result;
+    };
+
+    Vector &Manifold::LCInverseVectorTransport(const Variable &x, const Vector &etax, const Variable &y, const Vector &xiy, Vector *result) const
+    {
+        if (!etax.FieldsExist("tau1tau2"))
+        {
+            Obtainnu1nu2forLC(x, etax, y);
+        }
+        
+        Element tau1tau2 = etax.Field("tau1tau2");
+        const realdp *tau1tau2ptr = tau1tau2.ObtainReadData();
+        Vector nu1 = etax.Field("nu1");
+        Vector nu2 = etax.Field("nu2");
+        realdp temp = -Metric(y, xiy, nu2);
+        VectorLinearCombination(y, temp * tau1tau2ptr[1], nu2, 1, xiy, result);
+        temp = -Metric(y, *result, nu1);
+        ScalarVectorAddVector(y, temp * tau1tau2ptr[0], nu1, *result, result);
+        
+        HasHHR = false; InverseVectorTransport(x, etax, y, *result, result); HasHHR = true;
+        return *result;
+    };
+
+    LinearOPE &Manifold::LCHInvTran(const Variable &x, const Vector &etax, const Variable &y, const LinearOPE &Hx, integer start, integer end, LinearOPE *result) const
+    {
+        if (!etax.FieldsExist("tau1tau2"))
+        {
+            Obtainnu1nu2forLC(x, etax, y);
+        }
+        Element tau1tau2 = etax.Field("tau1tau2");
+        const realdp *tau1tau2ptr = tau1tau2.ObtainReadData();
+        Vector nu1 = etax.Field("nu1");
+        Vector nu2 = etax.Field("nu2");
+        const realdp *nu1TV = nu1.ObtainReadData();
+        const realdp *nu2TV = nu2.ObtainReadData();
+        
+        HasHHR = false; HInvTran(x, etax, y, Hx, start, end, result); HasHHR = true;
+        
+        realdp *resultTV = result->ObtainWritePartialData();
+        char *sider = const_cast<char *> ("r");
+        integer ell = Hx.Getsize()[0], length = etax.Getlength();
+        realdp *work = new realdp[ell];
+
+        /* resultTV(:, start : start + length - 1) <- resultTV(:, start : start + length - 1) * (I - tau1tau2(0) * nu1TV * nu1TV^T),
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sider, &ell, &length, const_cast<realdp *> (nu1TV), const_cast<realdp *> (tau1tau2ptr), resultTV + start * ell, &ell, work);
+        /* resultTV(:, start : start + length - 1) <- resultTV(:, start : start + length - 1) * (I - tau1tau2(1) * nu2TV * nu2TV^T),
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sider, &ell, &length, const_cast<realdp *> (nu2TV), const_cast<realdp *> (tau1tau2ptr + 1), resultTV + start * ell, &ell, work);
+        delete[] work;
+        return *result;
+    };
+
+    LinearOPE &Manifold::LCTranH(const Variable &x, const Vector &etax, const Variable &y, const LinearOPE &Hx, integer start, integer end, LinearOPE *result) const
+    {
+        if (!etax.FieldsExist("tau1tau2"))
+        {
+            Obtainnu1nu2forLC(x, etax, y);
+        }
+        Element tau1tau2 = etax.Field("tau1tau2");
+        const realdp *tau1tau2ptr = tau1tau2.ObtainReadData();
+        Vector nu1 = etax.Field("nu1");
+        Vector nu2 = etax.Field("nu2");
+        const realdp *nu1TV = nu1.ObtainReadData();
+        const realdp *nu2TV = nu2.ObtainReadData();
+        HasHHR = false; TranH(x, etax, y, Hx, start, end, result); HasHHR = true;
+        realdp *resultTV = result->ObtainWritePartialData();
+        
+        char *sidel = const_cast<char *> ("l");
+        integer ell = Hx.Getsize()[0], length = etax.Getlength();
+        realdp *work = new realdp[ell];
+        /* resultTV(start : start + length - 1, :) <- (I - tau1tau2(0) * nu1TV * nu1TV^T) * resultTV(start : start + length - 1, :),
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sidel, &length, &ell, const_cast<realdp *> (nu1TV), const_cast<realdp *> (tau1tau2ptr), resultTV + start, &ell, work);
+        /* resultTV(start : start + length - 1, :) <- (I - tau1tau2(1) * nu2TV * nu2TV^T) * resultTV(start : start + length - 1, :),
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sidel, &length, &ell, const_cast<realdp *> (nu2TV), const_cast<realdp *> (tau1tau2ptr + 1), resultTV + start, &ell, work);
+        delete[] work;
+        return *result;
+    };
+
+    LinearOPE &Manifold::LCTranHInvTran(const Variable &x, const Vector &etax, const Variable &y, const LinearOPE &Hx, LinearOPE *result) const
+    {
+        if (!etax.FieldsExist("tau1tau2"))
+        {
+            Obtainnu1nu2forLC(x, etax, y);
+        }
+        
+        Element tau1tau2 = etax.Field("tau1tau2");
+        const realdp *tau1tau2ptr = tau1tau2.ObtainReadData();
+        Vector nu1 = etax.Field("nu1");
+        Vector nu2 = etax.Field("nu2");
+        const realdp *nu1TV = nu1.ObtainReadData();
+        const realdp *nu2TV = nu2.ObtainReadData();
+        HasHHR = false; TranHInvTran(x, etax, y, Hx, result); HasHHR = true;
+        realdp *resultTV = result->ObtainWritePartialData();
+        
+        char *sidel = const_cast<char *> ("l"), *sider = const_cast<char *> ("r");
+        integer ell = Hx.Getsize()[0], length = etax.Getlength();
+        realdp *work = new realdp[ell];
+        /* resultTV <- resultTV * (I - tau1tau2(0) * nu1TV * nu1TV^T),
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sider, &ell, &length, const_cast<realdp *> (nu1TV), const_cast<realdp *> (tau1tau2ptr), resultTV, &ell, work);
+        /* resultTV <- resultTV * (I - tau1tau2(1) * nu2TV * nu2TV^T),
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sider, &ell, &length, const_cast<realdp *> (nu2TV), const_cast<realdp *> (tau1tau2ptr + 1), resultTV, &ell, work);
+        /* resultTV <- (I - tau1tau2(0) * nu1TV * nu1TV^T) * resultTV,
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sidel, &length, &ell, const_cast<realdp *> (nu1TV), const_cast<realdp *> (tau1tau2ptr), resultTV, &ell, work);
+        /* resultTV <- (I - tau1tau2(1) * nu2TV * nu2TV^T) * resultTV,
+        details: www.netlib.org/lapack/explore-html/db/d10/larfx_8f.html */
+        larfx_(sidel, &length, &ell, const_cast<realdp *> (nu2TV), const_cast<realdp *> (tau1tau2ptr + 1), resultTV, &ell, work);
+        delete[] work;
+        return *result;
+    };
+
+    Vector &Manifold::TangentSpaceProximalMap(Variable &x, const Vector &etax, realdp adavalue, realdp SMtol, realdp SMlambda, const Problem *prob, Vector *inoutinitD, integer *outSMiter, integer *outSMCGiter, Vector *result) const
+    { /*eta = argmin g(gfx, eta) + 0.5 \|eta\|_W^2 + h(eta), W is either a scalar or a weight matrix that is given by function "PreConditioner" defined in Problem.
+              Only extrinsic representation is supported. */
+        integer dimNorVec = ExtrinsicDim - IntrinsicDim;
+        if(inoutinitD->GetSpace() == nullptr)
+        {
+            *inoutinitD = Vector (dimNorVec);
+            inoutinitD->SetToZeros();
+        }
+        Vector SMz(dimNorVec), Fz(dimNorVec), SMd(dimNorVec), SMu(dimNorVec), Fu(dimNorVec);
+        
+        /*parameters*/
+        realdp SMtau = 0.1, SMalpha = 0.1;
+        integer SMmaxiter = 100, maxSMbtiter = 10;
+        std::string status;
+        integer SMbtiter = 0;
+        bool earlytermination = false;
+        Vector Weight;
+        prob->PreConditioner(x, Weight, &Weight);
+        Weight.ScalarTimesThis(adavalue); /*Weight = adavalue * Weight*/
+        
+        realdp nFz = 0, nFu = 0, mu = 0;
+        SMz = *inoutinitD;
+        Vector BLambda(x);
+        ComputeBLambda(x, SMz, Weight, etax, prob, &BLambda);
+        
+        EW(x, BLambda, Weight, prob, &Fz);
+        nFz = Fz.Fnorm();
+        
+        SMd.SetToZeros();
+        
+        (*outSMiter) = 0;
+        (*outSMCGiter) = 0;
+        integer outSMCGiter_i = 0;
+        while(nFz * nFz > SMtol && (*outSMiter) < SMmaxiter)
+        {
+            mu = ((nFz < 0.1) ? nFz : 0.1);
+            mu = ((mu > 1e-11) ? mu : 1e-11);
+            mu = SMlambda *  mu;
+            myCG(x, Fz, dimNorVec, mu, SMtau, SMlambda * nFz, ((dimNorVec < 30) ? dimNorVec : 30), Weight, BLambda, SMd, prob, &outSMCGiter_i, &SMd);
+            (*outSMCGiter) = (*outSMCGiter) + outSMCGiter_i;
+            SMu = SMz; SMu.AlphaXaddThis(1, SMd); /* SMu = SMz + SMd; */
+            ComputeBLambda(x, SMu, Weight, etax, prob, &BLambda);
+            EW(x, BLambda, Weight, prob, &Fu);
+            nFu = Fu.Fnorm();
+
+            SMalpha = 1;
+            SMbtiter = 0;
+            while(nFu * nFu > nFz * nFz * (1 - 0.001 * SMalpha) && SMbtiter < maxSMbtiter)
+            {
+                SMalpha *= 0.5;
+                SMu = SMz; SMu.AlphaXaddThis(SMalpha, SMd); /* SMu = SMalpha * SMd + SMz; */
+                ComputeBLambda(x, SMu, Weight, etax, prob, &BLambda);
+                EW(x, BLambda, Weight, prob, &Fu);
+                nFu = Fu.Fnorm();
+                SMbtiter++;
+            }
+            /*We let the SSN run for at least 1 iteration before early termination*/
+            if(SMbtiter == maxSMbtiter && (*outSMiter) != 0)
+            {
+                earlytermination = true;
+                break;
+            }
+            SMz = SMu;
+            Fz = Fu;
+            nFz = nFu;
+            (*outSMiter)++;
+        }
+        *inoutinitD = SMz;
+        prob->ProxW(BLambda, Weight, result); result->AlphaXaddThis(-1, x); /*result = prob->ProxW(BLambda, Weight) - x*/
+        Projection(x, *result, result);
+        return *result;
+    };
+
+    Vector &Manifold::myCG(const Variable &x, const Vector &nb, integer dimNorVec, realdp mu, realdp tau, realdp lambdanFz, integer maxiter, const Vector &Weight, const Vector &BLambda, const Vector &init, const Problem *prob, integer *CGiter, Vector *result) const
+    {
+        Vector r(dimNorVec), p(dimNorVec), Ap(dimNorVec), SMd(init);
+        realdp rr0, alpha, beta;
+        
+        GLdW(x, SMd, Weight, BLambda, prob, &Ap).AlphaXaddThis(mu, SMd); /* Ap = mu * SMd + GLdW(x, SMd, Weight, BLambda, prob, &tmp); */
+        *result = SMd;
+        r = Ap; r.ScalarTimesThis(-1); r.AlphaXaddThis(-1, nb); /*r = -1 * nb - Ap; r is negative residual*/
+        p = r;
+        (*CGiter) = 0;
+        while(r.Fnorm() > tau * ((lambdanFz * result->Fnorm() < 1.0) ? lambdanFz * result->Fnorm() : 1.0) && (*CGiter) < maxiter)
+        {
+            GLdW(x, p, Weight, BLambda, prob, &Ap).AlphaXaddThis(mu, p); /* Ap = mu * p + GLdW(x, p, Weight, BLambda, prob, &tmp); */
+            rr0 = r.DotProduct(r);
+            alpha = rr0 / p.DotProduct(Ap);
+            result->AlphaXaddThis(alpha, p); /* (*result) = alpha * p + (*result); */
+            r.AlphaXaddThis(- alpha, Ap); /* r = r - alpha * Ap; */
+            beta = r.DotProduct(r) / rr0;
+            p.ScalarTimesThis(beta); p.AlphaXaddThis(1, r); /* p = r + beta * p; */
+            (*CGiter)++;
+        }
+        return *result;
+    };
+
+    Vector &Manifold::ComputeBLambda(const Variable &x, const Vector &d, const Vector &Weight, const Vector &gfx, const Problem *prob, Vector *result) const
+    {
+        calAadj(x, d, prob, result);
+        result->ScalarTimesThis(-1); result->AlphaXaddThis(1, gfx); /*result = gfx - calAadj(x, d, prob) */
+        
+        integer nblock = Weight.Getlength();
+        integer blocksize = x.Getlength() / nblock;
+        realdp *resultptr = result->ObtainWritePartialData();
+        
+        for(integer i = 0; i < nblock; i++)
+        {
+            const realdp L = Weight.ObtainReadData()[i];
+            realdp tmp = 1.0 / L;
+            scal_(&blocksize, &tmp, resultptr + i * blocksize, &GLOBAL::IONE);
+        }
+        result->ScalarTimesThis(-1); result->AlphaXaddThis(1, x); /* result = x - result; */
+        return *result;
+    };
+
+    Vector &Manifold::EW(const Variable &x, const Vector &BLambda, const Vector &Weight, const Problem *prob, Vector *result) const
+    {
+        Vector DLambda(BLambda);
+        prob->ProxW(BLambda, Weight, &DLambda);
+        DLambda.AlphaXaddThis(-1, x); /* DLambda = prob->ProxW(BLambda, Weight) - x; */
+        return calA(x, DLambda, prob, result);
+    };
+
+    Vector &Manifold::GLdW(const Variable &x, const Vector &d, const Vector &Weight, const Vector &BLambda, const Problem *prob, Vector *result) const
+    {
+        Vector VecTMP1(x), VecTMP2(x);
+        calAadj(x, d, prob, &VecTMP1);
+        prob->CalJW(BLambda, VecTMP1, Weight, &VecTMP2);
+        
+        integer nblock = Weight.Getlength();
+        integer blocksize = x.Getlength() / nblock;
+        realdp *Vec2ptr = VecTMP2.ObtainWritePartialData();
+        
+        for(integer i = 0; i < nblock; i++)
+        {
+            const realdp L = Weight.ObtainReadData()[i];
+            realdp tmp = 1.0 / L;
+            scal_(&blocksize, &tmp, Vec2ptr + i * blocksize, &GLOBAL::IONE);
+        }
+        
+        return calA(x, VecTMP2, prob, result);
+    };
+
+    Vector &Manifold::calA(const Variable &x, const Vector &DLambda, const Problem *prob, Vector *result) const
+    {
+        return ObtainNorVerIntr(x, DLambda, result);
+        /*for debug*/
+        /*testCalACalAadj(x, DLambda, ELambda); */
+    };
+
+    Vector &Manifold::calAadj(const Variable &x, const Vector &d, const Problem *prob, Vector *result) const
+    {
+        return ObtainNorVerExtr(x, d, result);
+    };
+/*
+    void RPG::testCalACalAadj(Variable *x, Vector *DLambda, realdp *ELambda)
+    {
+        Prob->GetDomain()->ObtainNorVerIntr(x, DLambda, ELambda);
+        realdp *tmpp = new realdp[dimNorVec];
+        for(integer i = 0; i < dimNorVec; i++)
+            tmpp[i] = genrandnormal();
+        std::cout << "<A d, t>:" << dot_(&dimNorVec, ELambda, &GLOBAL::IONE, tmpp, &GLOBAL::IONE) << std::endl;
+
+        Vector *Vtmp = DLambda->ConstructEmpty();
+        calAadj(x, tmpp, Vtmp);
+        std::cout << "<d, A^* t>:" << Prob->GetDomain()->Metric(nullptr, Vtmp, DLambda) << std::endl;
+        delete Vtmp;
+        delete[] tmpp;
+    }
+*/
 }; /*end of ROPTLIB namespace*/

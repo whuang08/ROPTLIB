@@ -8,18 +8,18 @@
 #ifndef RANDGEN_H
 #define RANDGEN_H
 
-//#include <cmath>
 #include <random>
 #include <stdio.h>
 #include <iostream>
+#include "Others/def.h"
 
 /* initializes  a seed */
 void genrandseed(unsigned int s);
 
 /* generates a random number on [0,1]-real-interval */
-double genrandreal();
+realdp genrandreal(void);
 
 /* generate a random number following the standard normal distribution*/
-double genrandnormal();
+realdp genrandnormal(void);
 
 #endif

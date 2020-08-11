@@ -4,7 +4,9 @@ extern "C" {
 
 #include "f2c.h" 
 
-E_f snrm2_(integer *n, real *x, integer *incx);
+real snrm2_(integer *n, real *x, integer *incx);
+
+//E_f snrm2_(integer *n, real *x, integer *incx);
 
 #ifdef __cplusplus
 }

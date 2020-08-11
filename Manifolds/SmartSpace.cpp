@@ -7,7 +7,6 @@ namespace ROPTLIB{
 	void SmartSpace::Initialization(integer numberofdimensions, ...)
 	{
 		va_list argptr;
-		//	va_start(argptr, numberofdimensions);
 		ls = numberofdimensions;
 		size = new integer[ls];
 		va_start(argptr, numberofdimensions);
@@ -51,40 +50,47 @@ namespace ROPTLIB{
 		else
 			if ((*sharedtimes) > 1)
 			{
-				double *ptr = Space;
+				realdp *ptr = Space;
 				NewMemory();
 				(*sharedtimes)--;
 				sharedtimes = new integer;
 				*sharedtimes = 1;
 
 				integer N = length, inc = 1;
-				// Space <- ptr, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
-				dcopy_(&N, ptr, &inc, Space, &inc);
+				copy_(&N, ptr, &inc, Space, &inc);
 			}
 	};
 
-	void SmartSpace::RandUnform(double start, double end)
+	void SmartSpace::RandUnform(realdp start, realdp end)
 	{
 		NewMemoryOnWrite();
-		double ell = end - start;
+		realdp ell = end - start;
 		for (integer i = 0; i < length; i++)
 			Space[i] = genrandreal() * ell + start;
 	};
 
-	void SmartSpace::RandGaussian(double mean, double variance)
+	void SmartSpace::RandGaussian(realdp mean, realdp variance)
 	{
 		NewMemoryOnWrite();
 		for (integer i = 0; i < length; i++)
 			Space[i] = (genrandnormal() + mean) * variance;
 	};
 
-	void SmartSpace::CopyTo(SmartSpace *eta) const
-	{
-		if (this == eta || eta->Space == Space)
-			return;
-		bool IsSameSize = true;
+    void SmartSpace::SetToZeros(void)
+    {
+        NewMemoryOnWrite();
+        for (integer i = 0; i < length; i++)
+            Space[i] = 0;
+    };
 
-		if (eta->ls != ls)
+	void SmartSpace::CopyTo(SmartSpace &eta) const
+	{
+		if (this == &eta || (eta.Space == Space && !(eta.Space == nullptr && Space == nullptr)))
+			return;
+        
+		bool IsSameSize = true;
+        
+		if (eta.ls != ls)
 		{
 			IsSameSize = false;
 		}
@@ -92,62 +98,62 @@ namespace ROPTLIB{
 		{
 			for (integer i = 0; i < ls; i++)
 			{
-				if (eta->size[i] != size[i])
+				if (eta.size[i] != size[i])
 				{
 					IsSameSize = false;
 					break;
 				}
 			}
 		}
-		if (eta->sharedtimes != nullptr && *(eta->sharedtimes) == 1 && IsSameSize)
+		if (eta.sharedtimes != nullptr && *(eta.sharedtimes) == 1 && IsSameSize)
 		{
 			integer N = length, inc = 1;
-			// (eta->Space) <- Space, details: http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html
+            
              if(Space != nullptr)
-                dcopy_(&N, Space, &inc, eta->Space, &inc);
+                copy_(&N, Space, &inc, eta.Space, &inc);
              else
              {
- 				delete eta->sharedtimes; eta->sharedtimes = nullptr;
- 				delete[] eta->Space; eta->Space = nullptr;
+ 				delete eta.sharedtimes; eta.sharedtimes = nullptr;
+ 				delete[] eta.Space; eta.Space = nullptr;
              }
 			return;
 		}
-
-		if (eta->sharedtimes != nullptr && *(eta->sharedtimes) > 1)
+		if (eta.sharedtimes != nullptr && *(eta.sharedtimes) > 1)
 		{
-			(*(eta->sharedtimes))--;
+			(*(eta.sharedtimes))--;
 		}
 		else
-			if (eta->sharedtimes != nullptr && *(eta->sharedtimes) == 1)
+			if (eta.sharedtimes != nullptr && *(eta.sharedtimes) == 1)
 			{
-
 #ifdef CHECKMEMORYDELETED
 				(*CheckMemoryDeleted)[eta->sharedtimes] = *(eta->sharedtimes);
 #endif
-				delete eta->sharedtimes; eta->sharedtimes = nullptr;
-				delete[] eta->Space; eta->Space = nullptr;
+				delete eta.sharedtimes; eta.sharedtimes = nullptr;
+				delete[] eta.Space; eta.Space = nullptr;
 			}
-
+        
 		if (sharedtimes != nullptr)
 			(*sharedtimes)++;
-		eta->sharedtimes = sharedtimes;
-		eta->Space = Space;
-
-		if (eta->ls != ls)
+		eta.sharedtimes = sharedtimes;
+		eta.Space = Space;
+        
+		if (eta.ls != ls)
 		{
-			delete[] eta->size;
-			eta->size = new integer[ls];
-			eta->ls = ls;
+			delete[] eta.size;
+			eta.size = new integer[ls];
+			eta.ls = ls;
 		}
+        
 		for (integer i = 0; i < ls; i++)
-			eta->size[i] = size[i];
-		eta->length = length;
+			eta.size[i] = size[i];
+        
+		eta.length = length;
 	};
 
 	void SmartSpace::NewMemory(void)
 	{
 		try{
-			Space = new double[length];
+			Space = new realdp[length];
 		}
 		catch (std::bad_alloc exception)
 		{
@@ -155,18 +161,18 @@ namespace ROPTLIB{
 		}
 	};
 
-	const double *SmartSpace::ObtainReadData(void) const
+	const realdp *SmartSpace::ObtainReadData(void) const
 	{
 		return Space;
 	};
 
-	double *SmartSpace::ObtainWriteEntireData(void)
+	realdp *SmartSpace::ObtainWriteEntireData(void)
 	{
 		NewMemoryOnWrite();
 		return Space;
 	};
 
-	double *SmartSpace::ObtainWritePartialData(void)
+	realdp *SmartSpace::ObtainWritePartialData(void)
 	{
 		CopyOnWrite();
 		return Space;
@@ -176,6 +182,7 @@ namespace ROPTLIB{
 	{
 		if (size != nullptr)
 			delete[] size;
+        size = nullptr;
 
 		if (sharedtimes != nullptr)
 		{
@@ -186,9 +193,11 @@ namespace ROPTLIB{
 			(*sharedtimes)--;
 			if (*sharedtimes == 0 && Space != nullptr)
 			{
-				delete sharedtimes; sharedtimes = nullptr;
-				delete[] Space; Space = nullptr;
+				delete sharedtimes;
+				delete[] Space;
 			}
+            sharedtimes = nullptr;
+            Space = nullptr;
 		}
 	};
 
@@ -233,9 +242,9 @@ namespace ROPTLIB{
 				}
 				else
 				{
-					integer st = 0, ed = 0, row = size[0], col = size[1];
+					integer row = size[0], col = size[1];
 					integer *idices = new integer[ls + 1];
-					double *ptr = Space;
+					realdp *ptr = Space;
 					for (integer i = 2; i < ls + 1; i++)
 						idices[i] = 0;
 					while (1)
@@ -269,7 +278,7 @@ namespace ROPTLIB{
 				}
 	};
 
-	void SmartSpace::SetByParams(integer *insize, integer inls, integer inlength, integer *insharedtimes, double *inSpace)
+	void SmartSpace::SetByParams(integer *insize, integer inls, integer inlength, integer *insharedtimes, realdp *inSpace)
 	{
 		size = insize;
 		ls = inls;
@@ -278,10 +287,40 @@ namespace ROPTLIB{
 		Space = inSpace;
 	};
 
-	void SmartSpace::DeleteBySettingNull(void)
+    void SmartSpace::SetByParams(integer *insharedtimes, realdp *inSpace)
+    {
+        sharedtimes = insharedtimes;
+        Space = inSpace;
+    };
+
+    void SmartSpace::DeleteBySettingNull(void)
+    {
+        size = nullptr;
+        sharedtimes = nullptr;
+        Space = nullptr;
+    };
+
+	void SmartSpace::Delete(void)
 	{
-		size = nullptr;
-		sharedtimes = nullptr;
-		Space = nullptr;
+        if (size != nullptr)
+            delete[] size;
+        size = nullptr;
+        ls = 0;
+
+        if (sharedtimes != nullptr)
+        {
+#ifdef CHECKMEMORYDELETED
+            (*CheckMemoryDeleted)[sharedtimes] = *sharedtimes;
+#endif
+            (*sharedtimes)--;
+            if (*sharedtimes == 0 && Space != nullptr)
+            {
+                delete sharedtimes;
+                delete[] Space;
+            }
+            sharedtimes = nullptr;
+            Space = nullptr;
+        }
+        length = 0;
 	};
 }; /*end of ROPTLIB namespace*/

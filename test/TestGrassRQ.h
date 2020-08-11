@@ -21,16 +21,14 @@ This is the test file for the Reyleigh Quotient problem defined in GrassRQ.h and
 
 /*Problem related classes*/
 #include "Problems/Problem.h"
-#include "Problems/GrassRQ/GrassRQ.h"
+#include "Problems/GrassRQ.h"
+#include "Problems/SphereTxRQ.h"
 
 /*Manifold related classes*/
 #include "Manifolds/Manifold.h"
-#include "Manifolds/Grassmann/GrassVector.h"
-#include "Manifolds/Grassmann/GrassVariable.h"
-#include "Manifolds/Grassmann/Grassmann.h"
+#include "Manifolds/Grassmann.h"
 
 /*Linesearch based solvers*/
-#include "Solvers/SolversLS.h"
 #include "Solvers/RSD.h"
 #include "Solvers/RNewton.h"
 #include "Solvers/RCG.h"
@@ -40,7 +38,6 @@ This is the test file for the Reyleigh Quotient problem defined in GrassRQ.h and
 #include "Solvers/LRBFGS.h"
 
 /*Trust-region based solvers*/
-#include "Solvers/SolversTR.h"
 #include "Solvers/RTRSD.h"
 #include "Solvers/RTRNewton.h"
 #include "Solvers/RTRSR1.h"
@@ -53,6 +50,5 @@ using namespace ROPTLIB;
 
 /*The main test function*/
 void testGrassRQ(void);
-void testGrassRQ(double *B, integer n, integer p, double *X = nullptr, double *Xopt = nullptr);
 
 #endif // end of TESTGRASSRQ_H

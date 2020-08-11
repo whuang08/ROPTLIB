@@ -7,7 +7,13 @@
 #ifndef ROPTLIB_F2C_INCLUDE
 #define ROPTLIB_F2C_INCLUDE
 
+#ifdef SINGLE_PRECISION
+typedef int integer;
+#elif _WIN64 // The following code is compiled only when this library is compiled in Windows (64-bit only)
 typedef long int integer;
+#else
+typedef int integer;
+#endif
 typedef unsigned long int uinteger;
 typedef char *address;
 typedef short int shortint;
@@ -50,7 +56,8 @@ typedef long int ftnint;
 
 /*external read, write*/
 typedef struct
-{	flag cierr;
+{
+	flag cierr;
 	ftnint ciunit;
 	flag ciend;
 	char *cifmt;
@@ -59,7 +66,8 @@ typedef struct
 
 /*internal read, write*/
 typedef struct
-{	flag icierr;
+{
+	flag icierr;
 	char *iciunit;
 	flag iciend;
 	char *icifmt;
@@ -69,7 +77,8 @@ typedef struct
 
 /*open*/
 typedef struct
-{	flag oerr;
+{
+	flag oerr;
 	ftnint ounit;
 	char *ofnm;
 	ftnlen ofnmlen;
@@ -82,20 +91,23 @@ typedef struct
 
 /*close*/
 typedef struct
-{	flag cerr;
+{
+	flag cerr;
 	ftnint cunit;
 	char *csta;
 } cllist;
 
 /*rewind, backspace, endfile*/
 typedef struct
-{	flag aerr;
+{
+	flag aerr;
 	ftnint aunit;
 } alist;
 
 /* inquire */
 typedef struct
-{	flag inerr;
+{
+	flag inerr;
 	ftnint inunit;
 	char *infile;
 	ftnlen infilen;
@@ -134,7 +146,7 @@ union Multitype {	/* for multiple entry points */
 	doublereal d;
 	f2c_complex c;
 	doublecomplex z;
-	};
+};
 
 typedef union Multitype Multitype;
 
@@ -145,14 +157,14 @@ struct Vardesc {	/* for Namelist */
 	char *addr;
 	ftnlen *dims;
 	int  type;
-	};
+};
 typedef struct Vardesc Vardesc;
 
 struct Namelist {
 	char *name;
 	Vardesc **vars;
 	int nvars;
-	};
+};
 typedef struct Namelist Namelist;
 
 #define abs(x) ((x) >= 0 ? (x) : -(x))
@@ -169,29 +181,29 @@ typedef struct Namelist Namelist;
 
 #define F2C_proc_par_types 1
 #ifdef __cplusplus
-typedef int /* Unknown procedure type */ (*U_fp)(...);
-typedef shortint (*J_fp)(...);
-typedef integer (*I_fp)(...);
-typedef f2c_real (*R_fp)(...);
-typedef doublereal (*D_fp)(...), (*E_fp)(...);
-typedef /* Complex */ VOID (*C_fp)(...);
-typedef /* Double Complex */ VOID (*Z_fp)(...);
-typedef logical (*L_fp)(...);
-typedef shortlogical (*K_fp)(...);
-typedef /* Character */ VOID (*H_fp)(...);
-typedef /* Subroutine */ int (*S_fp)(...);
+typedef int /* Unknown procedure type */(*U_fp)(...);
+typedef shortint(*J_fp)(...);
+typedef integer(*I_fp)(...);
+typedef f2c_real(*R_fp)(...);
+typedef doublereal(*D_fp)(...), (*E_fp)(...);
+typedef /* Complex */ VOID(*C_fp)(...);
+typedef /* Double Complex */ VOID(*Z_fp)(...);
+typedef logical(*L_fp)(...);
+typedef shortlogical(*K_fp)(...);
+typedef /* Character */ VOID(*H_fp)(...);
+typedef /* Subroutine */ int(*S_fp)(...);
 #else
-typedef int /* Unknown procedure type */ (*U_fp)();
-typedef shortint (*J_fp)();
-typedef integer (*I_fp)();
-typedef f2c_real (*R_fp)();
-typedef doublereal (*D_fp)(), (*E_fp)();
-typedef /* Complex */ VOID (*C_fp)();
-typedef /* Double Complex */ VOID (*Z_fp)();
-typedef logical (*L_fp)();
-typedef shortlogical (*K_fp)();
-typedef /* Character */ VOID (*H_fp)();
-typedef /* Subroutine */ int (*S_fp)();
+typedef int /* Unknown procedure type */(*U_fp)();
+typedef shortint(*J_fp)();
+typedef integer(*I_fp)();
+typedef f2c_real(*R_fp)();
+typedef doublereal(*D_fp)(), (*E_fp)();
+typedef /* Complex */ VOID(*C_fp)();
+typedef /* Double Complex */ VOID(*Z_fp)();
+typedef logical(*L_fp)();
+typedef shortlogical(*K_fp)();
+typedef /* Character */ VOID(*H_fp)();
+typedef /* Subroutine */ int(*S_fp)();
 #endif
 /* E_fp is for real functions when -R is not specified */
 typedef VOID C_f;	/* complex function */

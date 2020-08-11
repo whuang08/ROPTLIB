@@ -4,26 +4,26 @@
 /*Define the namespace*/
 namespace ROPTLIB{
 
-	RTRNewton::RTRNewton(const Problem *prob, const Variable *initialx, const Variable *insoln)
+	RTRNewton::RTRNewton(const Problem *prob, const Variable *initialx)
 	{
-		Initialization(prob, initialx, insoln);
+		Initialization(prob, initialx);
 	};
 
-	void RTRNewton::SetProbX(const Problem *prob, const Variable *initialx, const Variable *insoln)
+	void RTRNewton::SetProbX(const Problem *prob, const Variable *initialx)
 	{
-		SolversTR::SetProbX(prob, initialx, insoln);
+		SolversSMTR::SetProbX(prob, initialx);
 		prob->SetUseGrad(true);
 		prob->SetUseHess(true);
 	};
 
 	void RTRNewton::SetDefaultParams()
 	{
-		SolversTR::SetDefaultParams();
+		SolversSMTR::SetDefaultParams();
 		SolverName.assign("RTRNewton");
 	};
 
-	void RTRNewton::HessianEta(Vector *Eta, Vector *result)
+	Vector &RTRNewton::HessianEta(const Vector &Eta, Vector *result)
 	{
-		Prob->HessianEta(x1, Eta, result);
+		return Prob->HessianEta(x1, Eta, result);
 	};
 }; /*end of ROPTLIB namespace*/

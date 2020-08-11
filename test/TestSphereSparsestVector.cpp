@@ -6,74 +6,68 @@ using namespace ROPTLIB;
 void testSphereSparsestVector(void)
 {
 	// size of the matrix Q
-	integer m = 10, n = 5;
+	integer m = 100, n =10;
 
 	// Generate the matrix
-	double *Q = new double[m * n];
-	/*Q is an m by n matrix*/
-	for (integer i = 0; i < m * n; i++)
-	{
-		Q[i] = genrandnormal();
-	}
+    Vector Q(m, n);
+    Q.RandGaussian();
 
-	testSphereSparsestVector(Q, m, n);
-	delete[] Q;
-}
+//    Variable SphereX(n);
+//    SphereX.RandInManifold();
 
-void testSphereSparsestVector(double *Q, integer m, integer n)
-{
-	SphereVariable SphereX(n);
-	SphereX.RandInManifold();
+    // Define the manifold
+    Sphere Domain(n);
+    Domain.SetHasHHR(false);
+//    Domain.ChooseParamsSet2();
+    //Domain.SetHasHHR(true); /*set whether the manifold uses the idea in [HGA2015, Section 4.3] or not*/
+    Variable SphereX = Domain.RandominManifold();
+    
+    // Define the SparestVector problem
+    SphereSparsestVector Prob(Q);
+    /*The domain of the problem is a Stiefel manifold*/
+    Prob.SetDomain(&Domain);
 
-	// Define the manifold
-	Sphere Domain(n);
-	Domain.SetHasHHR(true);
-	//Domain.SetHasHHR(true); /*set whether the manifold uses the idea in [HGA2015, Section 4.3] or not*/
+    /*Output the parameters of the domain manifold*/
+    Domain.CheckParams();
 
-	// Define the SparestVector problem
-	SphereSparsestVector Prob(Q, m, n);
-	/*The domain of the problem is a Stiefel manifold*/
-	Prob.SetDomain(&Domain);
+    //Prob.CheckGradHessian(&SphereX);
+    
+    //Domain.CheckRetraction(&StieX);
+    //Domain.CheckDiffRetraction(&StieX);
+    //Domain.CheckLockingCondition(&StieX);
+    //Domain.CheckcoTangentVector(&StieX);
+    //Domain.CheckIsometryofVectorTransport(&StieX);
+    //Domain.CheckIsometryofInvVectorTransport(&StieX);
+    //Domain.CheckVecTranComposeInverseVecTran(&StieX);
+    //Domain.CheckTranHInvTran(&StieX);
+    //Domain.CheckHaddScaledRank1OPE(&StieX);
+    
+//    LRBFGSSub *LRBFGSSubsolver = new LRBFGSSub(&Prob, &SphereX);
+    RGS *LRBFGSSubsolver = new RGS(&Prob, &SphereX);
+//    RGS *LRBFGSSubsolver = new RGS(&Prob, &SphereX);
+    LRBFGSSubsolver->Verbose = ITERRESULT;//--- FINALRESULT;
+    LRBFGSSubsolver->OutputGap = 1;
+//    LRBFGSSubsolver->lambdaLower = static_cast<realdp> (1e-3);
+//    LRBFGSSubsolver->lambdaUpper = static_cast<realdp> (1e3);
+    LRBFGSSubsolver->Tolerance = static_cast<realdp> (1e-6);
+    LRBFGSSubsolver->Max_Iteration = 200;
+    //LRBFGSSubsolver->Stop_Criterion = FUN_REL;
+    LRBFGSSubsolver->CheckParams();
+    LRBFGSSubsolver->Run();
+    if (LRBFGSSubsolver->Getnormndnd0() < 1e-6)
+        printf("SUCCESS!\n");
+    else
+        printf("FAIL!\n");
+    delete LRBFGSSubsolver;
 
-	/*Output the parameters of the domain manifold*/
-	//Domain.CheckParams();
-
-	//Prob.CheckGradHessian(&SphereX);
-	
-	//Domain.CheckRetraction(&StieX);
-	//Domain.CheckDiffRetraction(&StieX);
-	//Domain.CheckLockingCondition(&StieX);
-	//Domain.CheckcoTangentVector(&StieX);
-	//Domain.CheckIsometryofVectorTransport(&StieX);
-	//Domain.CheckIsometryofInvVectorTransport(&StieX);
-	//Domain.CheckVecTranComposeInverseVecTran(&StieX);
-	//Domain.CheckTranHInvTran(&StieX);
-	//Domain.CheckHaddScaledRank1OPE(&StieX);
-
-	RBFGSLPSub *RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &SphereX);
-	RBFGSLPSubsolver->Debug = FINALRESULT;
-	RBFGSLPSubsolver->OutputGap = 1;
-	RBFGSLPSubsolver->lambdaLower = 1e-3;
-	RBFGSLPSubsolver->lambdaUpper = 1e3;
-	RBFGSLPSubsolver->Tolerance = 1e-6;
-	RBFGSLPSubsolver->Max_Iteration = 80;
-	//RBFGSLPSubsolver->Stop_Criterion = FUN_REL;
-	//RBFGSLPSubsolver->CheckParams();
-	RBFGSLPSubsolver->Run();
-	if (RBFGSLPSubsolver->Getnormgfgf0() < 1e-6)
-		printf("SUCCESS!\n");
-	else
-		printf("FAIL!\n");
-	delete RBFGSLPSubsolver;
-
-	//RBFGSLPSubsolver = new RBFGSLPSub(&Prob, &StieX);
-	//RBFGSLPSubsolver->Debug = FINALRESULT;
-	//RBFGSLPSubsolver->OutputGap = 10;
-	//RBFGSLPSubsolver->lambdaLower = 1e-7;
-	//RBFGSLPSubsolver->lambdaUpper = 1e7;
-	//RBFGSLPSubsolver->CheckParams();
-	//RBFGSLPSubsolver->Run();
-	//delete RBFGSLPSubsolver;
+    //RBFGSSubsolver = new RBFGSSub(&Prob, &StieX);
+    //RBFGSSubsolver->Debug = FINALRESULT;
+    //RBFGSSubsolver->OutputGap = 10;
+    //RBFGSSubsolver->lambdaLower = 1e-7;
+    //RBFGSSubsolver->lambdaUpper = 1e7;
+    //RBFGSSubsolver->CheckParams();
+    //RBFGSSubsolver->Run();
+    //delete RBFGSSubsolver;
 }
 
 /*If it is compiled in Matlab, then the following "mexFunction" is used as the entrance.*/
@@ -93,7 +87,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 		mexErrMsgTxt("The number of arguments should be at least five.\n");
 	}
-	double *Q, *X, *Xopt;
+	realdp *Q, *X;
 	Q = mxGetPr(prhs[0]);
 	X = mxGetPr(prhs[1]);
 	/* dimensions of input matrices */
@@ -112,35 +106,37 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	genrandseed(0);
 
 	CheckMemoryDeleted = new std::map<integer *, integer>;
-	//	testStieBrockett(B, D, n, p, X, Xopt);
 
-	SphereVariable SphereX(n);
-	double *SphereXptr = SphereX.ObtainWriteEntireData();
-	for (integer i = 0; i < n; i++)
-		SphereXptr[i] = X[i];
-
-	// Define the manifold
-	Sphere Domain(n);
+    Vector QQ(m, n);
+    realdp *QQptr = QQ.ObtainWriteEntireData();
+    for(integer i = 0; i < m * n; i++)
+        QQptr[i] = Q[i];
+    Sphere Domain(n);
+    Variable initX = Domain.RandominManifold();
+    realdp *initXptr = initX.ObtainWriteEntireData();
+    for(integer i = 0; i < n; i++)
+        initXptr[i] = X[i];
+    
+    Domain.SetHasHHR(HasHHR);
+    
 	if (Paramset == 1)
-		Domain.ChooseSphereParamsSet1();
+		Domain.ChooseParamsSet1();
 	else if (Paramset == 2)
-		Domain.ChooseSphereParamsSet2();
+		Domain.ChooseParamsSet2();
 	else if (Paramset == 3)
-		Domain.ChooseSphereParamsSet3();
+		Domain.ChooseParamsSet3();
 	else if (Paramset == 4)
-		Domain.ChooseSphereParamsSet4();
-	else if (Paramset == 5)
-		Domain.ChooseSphereParamsSet5();
+		Domain.ChooseParamsSet4();
 
 	// Define the SparestVector problem
-	SphereSparsestVector Prob(Q, m, n);
+	SphereSparsestVector Prob(QQ);
 	Prob.SetDomain(&Domain);
 
 	Domain.SetHasHHR(HasHHR != 0);
 	//Domain.CheckParams();
 
 	// Call the function defined in DriverMexProb.h
-	ParseSolverParamsAndOptimizing(prhs[4], &Prob, &SphereX, nullptr, plhs);
+	ParseSolverParamsAndOptimizing(prhs[4], &Prob, &initX, plhs);
 
 	std::map<integer *, integer>::iterator iter = CheckMemoryDeleted->begin();
 	for (iter = CheckMemoryDeleted->begin(); iter != CheckMemoryDeleted->end(); iter++)

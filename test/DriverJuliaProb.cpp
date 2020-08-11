@@ -1,14 +1,107 @@
 
-#include "DriverJuliaProb.h"
-
+#include "test/DriverJuliaProb.h"
 
 #ifdef DRIVERJULIAPROB
 
 using namespace ROPTLIB;
 
-double *DriverJuliaProb(struct FunHandles *Handles, struct SolverParams *Sparams,
-                     struct ManiParams *Mparams, integer inHasHHR, double *X0, integer length_X0, double *soln)
+//double *DriverJuliaProb(const char *fname, const char *gfname, const char *hfname, const char *isstopped, const char *LSinput, const char *solvername, double *paramsvalues, long int lengthSParams)
+double *DriverJuliaProb(const char *fname, const char *gfname, const char *hfname, const char *isstopped, const char *LSinput, /*Handles*/
+                        const char *solvername, double *paramsvalues, long long lengthSParams, /*Sparams*/
+                        const char *maninames, long long numoftypes, long long *numofmani, long long *paramset, long long *ms, long long *ns, long long *ps, long long IsCheckParams,
+                        long long inHasHHR, double *X0, integer length_X0)
 {
+    FunHandles *Handles = new FunHandles();
+    SolverParams *Sparams = new SolverParams();
+    ManiParams *Mparams = new ManiParams();
+
+    Handles->fname = fname;
+    Handles->gfname = gfname;
+    Handles->hfname = hfname;
+    Handles->isstopped = isstopped;
+    Handles->LinesearchInput = LSinput;
+    
+    Sparams->name = solvername;
+    Sparams->IsCheckParams = paramsvalues[0];
+    Sparams->IsCheckGradHess = paramsvalues[1];
+    Sparams->Stop_Criterion = paramsvalues[2];
+    Sparams->Tolerance = paramsvalues[3];
+    Sparams->Diffx = paramsvalues[4];
+    Sparams->NumExtraGF = paramsvalues[5];
+    Sparams->TimeBound = paramsvalues[6];
+    Sparams->Min_Iteration = paramsvalues[7];
+    Sparams->Max_Iteration = paramsvalues[8];
+    Sparams->OutputGap = paramsvalues[9];
+    Sparams->Verbose = paramsvalues[10];
+    Sparams->isconvex = paramsvalues[11];
+    Sparams->nu = paramsvalues[12];
+    Sparams->mu = paramsvalues[13];
+    Sparams->LengthSY = paramsvalues[14];
+    Sparams->lambdaLower = paramsvalues[15];
+    Sparams->lambdaUpper = paramsvalues[16];
+    Sparams->LineSearch_LS = paramsvalues[17];
+    Sparams->IsPureLSInput = paramsvalues[18];
+    Sparams->LS_alpha = paramsvalues[19];
+    Sparams->LS_beta = paramsvalues[20];
+    Sparams->Minstepsize = paramsvalues[21];
+    Sparams->Maxstepsize = paramsvalues[22];
+    Sparams->LS_ratio1 = paramsvalues[23];
+    Sparams->LS_ratio2 = paramsvalues[24];
+    Sparams->Initstepsize = paramsvalues[25];
+    Sparams->Accuracy = paramsvalues[26];
+    Sparams->Finalstepsize = paramsvalues[27];
+    Sparams->Num_pre_funs = paramsvalues[28];
+    Sparams->InitSteptype = paramsvalues[29];
+    Sparams->Acceptence_Rho = paramsvalues[30];
+    Sparams->Shrinked_tau = paramsvalues[31];
+    Sparams->Magnified_tau = paramsvalues[32];
+    Sparams->minimum_Delta = paramsvalues[33];
+    Sparams->maximum_Delta = paramsvalues[34];
+    Sparams->useRand = paramsvalues[35];
+    Sparams->Max_Inner_Iter = paramsvalues[36];
+    Sparams->Min_Inner_Iter = paramsvalues[37];
+    Sparams->theta = paramsvalues[38];
+    Sparams->kappa = paramsvalues[39];
+    Sparams->initial_Delta = paramsvalues[40];
+    Sparams->Eps = paramsvalues[41];
+    Sparams->Theta_eps = paramsvalues[42];
+    Sparams->Min_Eps = paramsvalues[43];
+    Sparams->Del = paramsvalues[44];
+    Sparams->Theta_del = paramsvalues[45];
+    const char **Maninames = new const char*[numoftypes];
+    char *Maninamestr = new char[1000];
+    strcpy(Maninamestr, maninames);
+    integer idx = 0;
+    Maninames[idx] = strtok(Maninamestr, " ,.-");
+//    printf("hhh\n");//---
+//    std::cout << "numoftypes:" << numoftypes << std::endl;//---
+    std::cout << Maninames[idx] << std::endl;//---
+    while(Maninames[idx] != nullptr)
+    {
+//        std::cout << "idx:" << idx << std::endl;//---
+        idx++;
+        if(idx == numoftypes)
+            break;
+        Maninames[idx] = strtok(nullptr, " ,.-");
+        std::cout << Maninames[idx] << std::endl;//---
+    }
+    Mparams->name = Maninames;
+    Mparams->m = ms;
+    Mparams->n = ns;
+    Mparams->p = ps;
+    Mparams->numoftypes = numoftypes;
+    Mparams->numofmani = numofmani;
+    Mparams->paramset = paramset;
+    Mparams->IsCheckParams = IsCheckParams;
+    
+//    std::cout << Handles->fname << std::endl;//---
+//    std::cout << Handles->gfname << std::endl;//---
+//    std::cout << Handles->hfname << std::endl;//---
+//    std::cout << Handles->isstopped << std::endl;//---
+//    std::cout << Handles->LinesearchInput << std::endl;//---
+//    std::cout << Sparams->name << std::endl;//---
+//    std::cout << maninames << std::endl;//---
+    
     // Initialization of Julia is not necessary.
     // If this code is run in C++ environment,  then calling julia requires initialization of Julia.
     // However, this C++ code is run in Julia. This implies Julia has been run when this code is called.
@@ -16,75 +109,85 @@ double *DriverJuliaProb(struct FunHandles *Handles, struct SolverParams *Sparams
     //	jl_init(JULIA_DIR)
 
     // Obtain manifold and iterate structure
-    Manifold *domain, **manifolds;
-    Variable *initialX;
-    Element **elements;
+    Manifold *domain = nullptr, **manifolds = nullptr;
+    Variable initialX;
     integer *powsinterval, numoftype, numoftotal;
 
-    if (!ParseManiParams(Mparams, manifolds, elements, powsinterval, numoftype, numoftotal))
+    if (!ParseManiParams(Mparams, manifolds, numoftype, powsinterval))
     {
         std::cout << "Parsing ManiParams fails." << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    domain = new ProductManifold(manifolds, numoftype, powsinterval, numoftotal);
-
-    bool HasHHR = (inHasHHR != 0);
-    domain->SetHasHHR(HasHHR);
-
+    numoftotal = powsinterval[numoftype];
+    if(numoftotal > 1)
+        domain = new MultiManifolds(manifolds, numoftype, powsinterval);
+    else
+        domain = manifolds[0];
+    
+    domain->SetHasHHR(inHasHHR != 0);
     if(Mparams->IsCheckParams != 0)
         domain->CheckParams();
 
-    initialX = new ProductElement(elements, numoftotal, powsinterval, numoftype);
-    //initialX->Print("initialX");
-
+    initialX = domain->RandominManifold();
+//    std::cout << "h1" << std::endl;//---
     // initialize the initial iterate
     if (length_X0 != 0)
     {
-        double *initXptr = initialX->ObtainWriteEntireData();
-        if(length_X0 != initialX->Getlength())
+        double *initXptr = initialX.ObtainWriteEntireData();
+        if(length_X0 != initialX.Getlength())
         {
-            std::cout << "Error: The initial iterate does not have correct size: " << length_X0 << "!=" << initialX->Getlength() << "!" << std::endl;
+            std::cout << "Error: The initial iterate does not have correct size: " << length_X0 << "!=" << initialX.Getlength() << "!" << std::endl;
             exit(EXIT_FAILURE);
         }
         dcopy_(&length_X0, X0, &GLOBAL::IONE, initXptr, &GLOBAL::IONE);
     }
-    else
-    {
-        initialX->RandInManifold();
-	}
-	Variable *SolnX = nullptr;
-	if (soln != nullptr)
-	{
-		SolnX = new ProductElement(elements, numoftotal, powsinterval, numoftype);
-		double *SolnXptr = SolnX->ObtainWriteEntireData();
-		dcopy_(&length_X0, soln, &GLOBAL::IONE, SolnXptr, &GLOBAL::IONE);
-	}
-
+    
+//    std::cout << "h2" << std::endl;//---
     // Define the problem
     jl_function_t *func = jl_get_function(jl_main_module, Handles->fname);
     jl_function_t *gfunc = jl_get_function(jl_main_module, Handles->gfname);
     jl_function_t *hfunc = jl_get_function(jl_main_module, Handles->hfname);
-
+    
+//    std::cout << (long) func << std::endl;//---
+//    std::cout << (long) gfunc << std::endl;//---
+//    std::cout << (long) hfunc << std::endl;//---
+    
+//    std::cout << "h3" << std::endl;//---
     Problem *Prob = new juliaProblem(func, gfunc, hfunc);
+//    std::cout << "h31" << std::endl;//---
     Prob->SetDomain(domain);
-
-    double *result = ParseSolverParamsAndOptimizing(Sparams, Handles, Prob, initialX, SolnX);
-
+    
+//    std::cout << "h4" << std::endl;//---
+    double *result = ParseSolverParamsAndOptimizing(Sparams, Handles, Prob, &initialX);
+//    std::cout << "h5" << std::endl;//---
     delete Prob;
-    delete domain;
-	delete initialX;
-	delete SolnX;
-
+//    std::cout << "h6" << std::endl;//---
+    if(numoftotal > 1)
+        delete domain;
+    
+//    std::cout << "h7" << std::endl;//---
     for (integer i = 0; i < numoftype; i++)
     {
         delete manifolds[i];
-        delete elements[i];
     }
+//    std::cout << "h8" << std::endl;//---
     delete[] manifolds;
-    delete[] elements;
+//    std::cout << "h9" << std::endl;//---
     delete[] powsinterval;
-
+    
+//    std::cout << "h10" << std::endl;//---
+    delete Handles;
+//    std::cout << "h11" << std::endl;//---
+    delete Sparams;
+//    std::cout << "h12" << std::endl;//---
+    delete Mparams;
+//    std::cout << "h13" << std::endl;//---
+    delete [] Maninames;
+//    std::cout << "h14" << std::endl;//---
+    delete [] Maninamestr;
+//    std::cout << "h15" << std::endl;//---
+    
     return result;
 
 //    It is not necessary to close Julia. The reason is the same as that in "jl_init"
@@ -95,28 +198,26 @@ double *DriverJuliaProb(struct FunHandles *Handles, struct SolverParams *Sparams
 namespace RJULIA{
     jl_function_t *isstopped = nullptr;
     /*This function defines the stopping criterion that may be used in the C++ solver*/
-    bool juliaInnerStop(Variable *x, Vector *gf, double f, double ngf, double ngf0, const Problem *prob, const Solvers *solver)
+    bool juliaInnerStop(const Variable &x, const Vector &funSeries, integer lengthSeries, realdp ngf, realdp ngf0, const Problem *prob, const Solvers *solver)
     {
-        jl_value_t *args[5] = {nullptr};
-        jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
-        double *xptr = x->ObtainWritePartialData();
-        jl_array_t *arrx = jl_ptr_to_array_1d(array_type, xptr, x->Getlength(), 0);
-        double *gfptr = gf->ObtainWritePartialData();
-        jl_array_t *arrgf = jl_ptr_to_array_1d(array_type, gfptr, gf->Getlength(), 0);
+        jl_value_t *args[4] = {nullptr};
+        jl_value_t* array_type = jl_apply_array_type((jl_value_t *) jl_float64_type, 1);
+        const double *xptr = x.ObtainReadData();
+        jl_array_t *arrx = jl_ptr_to_array_1d(array_type, const_cast<double *> (xptr), x.Getlength(), 0);
+        const double *funptr = funSeries.ObtainReadData();
+        jl_array_t *arrfuns = jl_ptr_to_array_1d(array_type, const_cast<double *> (funptr), lengthSeries, 0);
         args[0] = (jl_value_t *) arrx;
-        args[1] = (jl_value_t *) arrgf;
-        args[2] = jl_box_float64(f);
-        args[3] = jl_box_float64(ngf);
-        args[4] = jl_box_float64(ngf0);
+        args[1] = (jl_value_t *) arrfuns;
+        args[2] = jl_box_float64(ngf);
+        args[3] = jl_box_float64(ngf0);
 
-        jl_value_t *retx = jl_call(isstopped, args, 5);
+        jl_value_t *retx = jl_call(isstopped, args, 4);
 
         if(jl_is_int64(retx))
         {
             integer result = jl_unbox_int64(retx);
             return (result != 0);
         }
-
         if(jl_is_bool(retx))
         {
             return jl_unbox_bool(retx);
@@ -128,14 +229,14 @@ namespace RJULIA{
 
     jl_function_t *LinesearchInput = nullptr;
     /*This function defines the line search algorithm that may be used in the C++ solver*/
-    double juliaLinesearchInput(integer iter, Variable *x1, Vector *eta1, double initialstepsize, double initialslope, const Problem *prob, const Solvers *solver)
+    double juliaLinesearchInput(integer iter, const Variable &x1, const Vector &eta1, realdp initialstepsize, realdp initialslope, const Problem *prob, const Solvers *solver)
     {
-        jl_value_t *args[4] = {nullptr};
-        jl_value_t* array_type = jl_apply_array_type(jl_float64_type, 1);
-        double *xptr = x1->ObtainWritePartialData();
-        jl_array_t *arrx = jl_ptr_to_array_1d(array_type, xptr, x1->Getlength(), 0);
-        double *etaptr = eta1->ObtainWritePartialData();
-        jl_array_t *arreta = jl_ptr_to_array_1d(array_type, etaptr, eta1->Getlength(), 0);
+        jl_value_t *args[5] = {nullptr};
+        jl_value_t* array_type = jl_apply_array_type((jl_value_t *) jl_float64_type, 1);
+        const double *xptr = x1.ObtainReadData();
+        jl_array_t *arrx = jl_ptr_to_array_1d(array_type, const_cast<double *> (xptr), x1.Getlength(), 0);
+        const double *etaptr = eta1.ObtainReadData();
+        jl_array_t *arreta = jl_ptr_to_array_1d(array_type, const_cast<double *> (etaptr), eta1.Getlength(), 0);
         args[0] = (jl_value_t *) arrx;
         args[1] = (jl_value_t *) arreta;
         args[2] = jl_box_float64(initialstepsize);
@@ -144,18 +245,12 @@ namespace RJULIA{
 
         jl_value_t *retx = jl_call(LinesearchInput, args, 5);
 
-        if(jl_is_float64(retx))
-        {
-            double result = jl_unbox_float64(retx);
-            return result;
-        }
-
-        std::cout << "Error: Function isstopped must return a number of double precision!" << std::endl;
-        exit(EXIT_FAILURE);
+        double result = jl_unbox_float64(retx);
+        return result;
     }
 };
 
-double *ParseSolverParamsAndOptimizing(struct SolverParams *Sparams, struct FunHandles *Handles, Problem *Prob, Variable *initialX, Variable *SolnX)
+double *ParseSolverParamsAndOptimizing(struct SolverParams *Sparams, struct FunHandles *Handles, Problem *Prob, Variable *initialX)
 {
     PARAMSMAP params;
 
@@ -176,8 +271,8 @@ double *ParseSolverParamsAndOptimizing(struct SolverParams *Sparams, struct FunH
         params.insert(std::pair<std::string, double>("Max_Iteration", Sparams->Max_Iteration));
     if(Sparams->OutputGap != -1)
         params.insert(std::pair<std::string, double>("OutputGap", Sparams->OutputGap));
-    if(Sparams->DEBUG != -1)
-        params.insert(std::pair<std::string, double>("DEBUG", Sparams->DEBUG));
+    if(Sparams->Verbose != -1)
+        params.insert(std::pair<std::string, double>("Verbose", Sparams->Verbose));
     if(Sparams->isconvex != -1)
         params.insert(std::pair<std::string, double>("isconvex", Sparams->isconvex));
     if(Sparams->nu != -1)
@@ -249,76 +344,87 @@ double *ParseSolverParamsAndOptimizing(struct SolverParams *Sparams, struct FunH
     if(Sparams->Theta_del != -1)
         params.insert(std::pair<std::string, double>("Theta_del", Sparams->Theta_del));
 
+    std::cout << "h41" << std::endl;//---
     std::string stdmethodname = Sparams->name;
     Solvers *solver;
     if (stdmethodname == "RSD")
     {
-        solver = new RSD(Prob, initialX, SolnX);
+        solver = new RSD(Prob, initialX);
     }
     else
     if (stdmethodname == "RNewton")
     {
-		solver = new RNewton(Prob, initialX, SolnX);
+		solver = new RNewton(Prob, initialX);
     }
     else
     if (stdmethodname == "RCG")
     {
-		solver = new RCG(Prob, initialX, SolnX);
+		solver = new RCG(Prob, initialX);
     }
     else
     if (stdmethodname == "RBroydenFamily")
     {
-		solver = new RBroydenFamily(Prob, initialX, nullptr, SolnX);
+		solver = new RBroydenFamily(Prob, initialX, nullptr);
     }
     else
     if (stdmethodname == "RWRBFGS")
     {
-		solver = new RWRBFGS(Prob, initialX, nullptr, SolnX);
+		solver = new RWRBFGS(Prob, initialX, nullptr);
     }
     else
     if (stdmethodname == "RBFGS")
     {
-		solver = new RBFGS(Prob, initialX, nullptr, SolnX);
+		solver = new RBFGS(Prob, initialX, nullptr);
     }
     else
-    if (stdmethodname == "RBFGSLPSub")
+    if (stdmethodname == "RBFGSSub")
     {
-		solver = new RBFGSLPSub(Prob, initialX, nullptr, SolnX);
+		solver = new RBFGSSub(Prob, initialX, nullptr);
     }
     else
-    if (stdmethodname == "LRBFGSLPSub")
+    if (stdmethodname == "LRBFGSSub")
     {
-		solver = new LRBFGSLPSub(Prob, initialX, SolnX);
+		solver = new LRBFGSSub(Prob, initialX);
     }
     else
     if (stdmethodname == "RGS")
     {
-		solver = new RGS(Prob, initialX, SolnX);
+		solver = new RGS(Prob, initialX);
     }
     else
     if (stdmethodname == "LRBFGS")
     {
-		solver = new LRBFGS(Prob, initialX, SolnX);
+		solver = new LRBFGS(Prob, initialX);
     }
     else
     if (stdmethodname == "RTRSD")
     {
-		solver = new RTRSD(Prob, initialX, SolnX);
+		solver = new RTRSD(Prob, initialX);
     }
     else
     if (stdmethodname == "RTRNewton")
     {
-		solver = new RTRNewton(Prob, initialX, SolnX);
+		solver = new RTRNewton(Prob, initialX);
     }
     else
     if (stdmethodname == "RTRSR1")
     {
-		solver = new RTRSR1(Prob, initialX, nullptr, SolnX);
+		solver = new RTRSR1(Prob, initialX, nullptr);
     }
     else
     if (stdmethodname == "LRTRSR1")
     {
-		solver = new LRTRSR1(Prob, initialX, SolnX);
+		solver = new LRTRSR1(Prob, initialX);
+    }
+    else
+    if (stdmethodname == "ManPG")
+    {
+        solver = new ManPG(Prob, initialX);
+    }
+    else
+    if (stdmethodname == "AManPG")
+    {
+        solver = new AManPG(Prob, initialX);
     }
     else
     {
@@ -335,25 +441,104 @@ double *ParseSolverParamsAndOptimizing(struct SolverParams *Sparams, struct FunH
     if(strlen(Handles->LinesearchInput) > 0)
     {
         RJULIA::LinesearchInput = jl_get_function(jl_main_module, Handles->LinesearchInput);
-        SolversLS *solverLS = dynamic_cast<SolversLS *> (solver);
-        if (solverLS != nullptr)
-            solverLS->LinesearchInput = &RJULIA::juliaLinesearchInput;
+        SolversSMLS *solverSMLS = dynamic_cast<SolversSMLS *> (solver);
+        if (solverSMLS != nullptr)
+            solverSMLS->LinesearchInput = &RJULIA::juliaLinesearchInput;
     }
 
     if(Sparams->IsCheckParams != 0)
         solver->CheckParams();
     solver->Run();
 
+    
+//    Vector Xopttmp = solver->GetXopt();
+//    mexProblem::ObtainMxArrayFromElement(plhs[0], &Xopttmp);
+//    plhs[1] = mxCreateDoubleScalar(static_cast<double> (solver->Getfinalfun()));
+//
+//    SolversSM *solverSM = dynamic_cast<SolversSM *> (solver);
+//    if(solverSM != nullptr)
+//    {
+//        plhs[2] = mxCreateDoubleScalar(static_cast<double> (solverSM->Getnormgf()));
+//        plhs[3] = mxCreateDoubleScalar(static_cast<double> (solverSM->Getnormgfgf0()));
+//    }
+//    SolversNSM *solverNSM = dynamic_cast<SolversNSM *> (solver);
+//    if(solverNSM != nullptr)
+//    {
+//        plhs[2] = mxCreateDoubleScalar(static_cast<double> (solverNSM->Getnormnd()));
+//        plhs[3] = mxCreateDoubleScalar(static_cast<double> (solverNSM->Getnormndnd0()));
+//    }
+//
+//    plhs[4] = mxCreateDoubleScalar(static_cast<double> (solver->GetIter()));
+//    plhs[5] = mxCreateDoubleScalar(static_cast<double> (solver->Getnf()));
+//    plhs[6] = mxCreateDoubleScalar(static_cast<double> (solver->Getng()));
+//    plhs[7] = mxCreateDoubleScalar(static_cast<double> (solver->GetnR()));
+//    plhs[8] = mxCreateDoubleScalar(static_cast<double> (solver->GetnV()));
+//    plhs[9] = mxCreateDoubleScalar(static_cast<double> (solver->GetnVp()));
+//    plhs[10] = mxCreateDoubleScalar(static_cast<double> (solver->GetnH()));
+//    plhs[11] = mxCreateDoubleScalar(static_cast<double> (solver->GetComTime()));
+//    integer lengthSeries = solver->GetlengthSeries();
+//    plhs[12] = mxCreateDoubleMatrix(lengthSeries, 1, mxREAL);
+//    plhs[13] = mxCreateDoubleMatrix(lengthSeries, 1, mxREAL);
+//    plhs[14] = mxCreateDoubleMatrix(lengthSeries, 1, mxREAL);
+//
+//    double *plhsfun = mxGetPr(plhs[12]), *plhsgrad = mxGetPr(plhs[13]), *plhstime = mxGetPr(plhs[14]); //--, *plhsdist = mxGetPr(plhs[15]);
+//    const double *tmpSeries = nullptr;
+//    tmpSeries = (solverSM == nullptr) ? solverNSM->GetdirSeries().ObtainReadData() : solverSM->GetgradSeries().ObtainReadData();
+//
+//    for (integer i = 0; i < lengthSeries; i++)
+//    {
+//        plhsfun[i] = solver->GetfunSeries().ObtainReadData()[i];
+//        plhstime[i] = solver->GettimeSeries().ObtainReadData()[i];
+//        plhsgrad[i] = tmpSeries[i];
+//    }
+//
+//    tmp = mexProblem::GetFieldbyName(SolverParams, 0, "IsCheckGradHess");
+//    if (tmp != nullptr)
+//    {
+//        if (fabs(mxGetScalar(tmp)) > std::numeric_limits<realdp>::epsilon()) // if the value is nonzero
+//        {
+//            Prob->CheckGradHessian(*initialX);
+//            Prob->CheckGradHessian(solver->GetXopt());
+//        }
+//    }
+//    plhs[15] = mxCreateDoubleMatrix(4, 1, mxREAL);
+//    double *plhseigHess = mxGetPr(plhs[15]);
+//    for(integer i = 0; i < 4; i++)
+//        plhseigHess[i] = 0;
+//
+//    if (solver->Verbose >= DETAILED)
+//    {
+//        Vector MinMaxEigVals1 = Prob->MinMaxEigValHess(*initialX);
+//        plhseigHess[0] = MinMaxEigVals1.ObtainReadData()[0];
+//        plhseigHess[1] = MinMaxEigVals1.ObtainReadData()[1];
+//
+//        Vector MinMaxEigVals2 = Prob->MinMaxEigValHess(solver->GetXopt());
+//        plhseigHess[2] = MinMaxEigVals2.ObtainReadData()[0];
+//        plhseigHess[3] = MinMaxEigVals2.ObtainReadData()[1];
+//    }
+//
+    
     integer lengthSeries = solver->GetlengthSeries();
-    integer lengthresult = 1 + initialX->Getlength() + 11 + 4 * lengthSeries;
+    integer lengthresult = 1 + initialX->Getlength() + 11 + 3 * lengthSeries + 4;
     double *result = new double[lengthresult];
     result[0] = lengthresult;
-    const double *xoptptr = solver->GetXopt()->ObtainReadData();
+    const double *xoptptr = solver->GetXopt().ObtainReadData();
     integer lengthx = initialX->Getlength();
     dcopy_(&lengthx, const_cast<double *>(xoptptr), &GLOBAL::IONE, result + 1, &GLOBAL::IONE);
     result[lengthx + 1] = static_cast<double> (solver->Getfinalfun());
-    result[lengthx + 2] = static_cast<double> (solver->Getnormgf());
-    result[lengthx + 3] = static_cast<double> (solver->Getnormgfgf0());
+
+    SolversSM *solverSM = dynamic_cast<SolversSM *> (solver);
+    if(solverSM != nullptr)
+    {
+        result[lengthx + 2] = static_cast<double> (solverSM->Getnormgf());
+        result[lengthx + 3] = static_cast<double> (solverSM->Getnormgfgf0());
+    }
+    SolversNSM *solverNSM = dynamic_cast<SolversNSM *> (solver);
+    if(solverNSM != nullptr)
+    {
+        result[lengthx + 2] = static_cast<double> (solverNSM->Getnormnd());
+        result[lengthx + 3] = static_cast<double> (solverNSM->Getnormndnd0());
+    }
     result[lengthx + 4] = static_cast<double> (solver->GetIter());
     result[lengthx + 5] = static_cast<double> (solver->Getnf());
     result[lengthx + 6] = static_cast<double> (solver->Getng());
@@ -362,47 +547,63 @@ double *ParseSolverParamsAndOptimizing(struct SolverParams *Sparams, struct FunH
     result[lengthx + 9] = static_cast<double> (solver->GetnVp());
     result[lengthx + 10] = static_cast<double> (solver->GetnH());
     result[lengthx + 11] = static_cast<double> (solver->GetComTime());
-    for (integer i = 0; i < lengthSeries; i++)
-        result[lengthx + 12 + i] = solver->GetfunSeries()[i];
-    for (integer i = 0; i < lengthSeries; i++)
-		result[lengthx + 12 + lengthSeries + i] = solver->GetgradSeries()[i];
-	for (integer i = 0; i < lengthSeries; i++)
-		result[lengthx + 12 + 2 * lengthSeries + i] = solver->GettimeSeries()[i];
-	for (integer i = 0; i < lengthSeries; i++)
-		result[lengthx + 12 + 3 * lengthSeries + i] = solver->GetdistSeries()[i];
+    
 
+    const double *tmpSeries = nullptr;
+    tmpSeries = (solverSM == nullptr) ? solverNSM->GetdirSeries().ObtainReadData() : solverSM->GetgradSeries().ObtainReadData();
+    
+    for (integer i = 0; i < lengthSeries; i++)
+        result[lengthx + 12 + i] = solver->GetfunSeries().ObtainReadData()[i];
+    
+    for (integer i = 0; i < lengthSeries; i++)
+        result[lengthx + 12 + lengthSeries + i] = solver->GettimeSeries().ObtainReadData()[i];
+    
+    for (integer i = 0; i < lengthSeries; i++)
+        result[lengthx + 12 + 2 * lengthSeries + i] = tmpSeries[i];
+    
     if(Sparams->IsCheckGradHess != 0)
     {
-        Prob->CheckGradHessian(initialX);
-        // Check gradient and Hessian
-        const Variable *xopt = solver->GetXopt();
-        Variable *xoptcopy = xopt->ConstructEmpty();
-        xopt->CopyTo(xoptcopy);
-        xoptcopy->RemoveAllFromTempData();
-        Prob->CheckGradHessian(xoptcopy);
-        delete xoptcopy;
+        Prob->CheckGradHessian(*initialX);
+        Prob->CheckGradHessian(solver->GetXopt());
     }
+
+    if(Sparams->Verbose >= 3)
+    {
+        Vector MinMaxEigVals1 = Prob->MinMaxEigValHess(*initialX);
+        result[lengthx + 12 + 3 * lengthSeries] = MinMaxEigVals1.ObtainReadData()[0];
+        result[lengthx + 12 + 3 * lengthSeries + 1] = MinMaxEigVals1.ObtainReadData()[1];
+        
+        Vector MinMaxEigVals2 = Prob->MinMaxEigValHess(solver->GetXopt());
+        result[lengthx + 12 + 3 * lengthSeries + 2] = MinMaxEigVals2.ObtainReadData()[0];
+        result[lengthx + 12 + 3 * lengthSeries + 3] = MinMaxEigVals2.ObtainReadData()[1];
+    } else
+    {
+        result[lengthx + 12 + 3 * lengthSeries] = 0;
+        result[lengthx + 12 + 3 * lengthSeries + 1] = 0;
+        result[lengthx + 12 + 3 * lengthSeries + 2] = 0;
+        result[lengthx + 12 + 3 * lengthSeries + 3] = 0;
+    }
+    
     delete solver;
     return result;
 };
 
-bool ParseManiParams(struct ManiParams *Mparams, Manifold **&manifolds, Element **&elements,
-                     integer *&powsinterval, integer &numoftype, integer &numoftotal)
+bool ParseManiParams(struct ManiParams *Mparams, Manifold **&manifolds, integer &numoftype, integer *&powsinterval)
+//bool ParseManiParams(struct ManiParams *Mparams, Manifold **&manifolds, Element **&elements,
+//                     integer *&powsinterval, integer &numoftype, integer &numoftotal)
 {
     // Parse ManiParams
     numoftype = Mparams->numoftypes;
-
+    
     powsinterval = new integer[numoftype + 1];
     const char *name = nullptr;
     manifolds = new Manifold *[numoftype];
     integer n, p, m, Params;
     powsinterval[0] = 0;
-
+    
     for (integer i = 0; i < numoftype; i++)
         powsinterval[i + 1] = powsinterval[i] + Mparams->numofmani[i];
-
-    numoftotal = powsinterval[numoftype];
-    elements = new Element *[numoftotal];
+    
     PARAMSMAP params;
     for (integer i = 0; i < numoftype; i++)
     {
@@ -417,11 +618,7 @@ bool ParseManiParams(struct ManiParams *Mparams, Manifold **&manifolds, Element 
         manifolds[i] = GetAManifold(name, n, m, p);
         manifolds[i]->SetParams(params);
 
-        for (integer j = powsinterval[i]; j < powsinterval[i + 1]; j++)
-        {
-            elements[j] = GetAnElement(name, n, m, p);
-        }
-        if (manifolds[i] == nullptr || elements[i] == nullptr)
+        if (manifolds[i] == nullptr)
         {
             return false;
         }
@@ -431,9 +628,44 @@ bool ParseManiParams(struct ManiParams *Mparams, Manifold **&manifolds, Element 
 
 Manifold *GetAManifold(const char *name, integer n, integer m, integer p)
 {
+    if (strcmp(name, "CFixedRankQ2F") == 0)
+    {
+        return new CFixedRankQ2F(m, n, p);
+    }
+    else
+    if (strcmp(name, "CStiefel") == 0)
+    {
+        return new CStiefel(n, p);
+    }
+    else
+    if (strcmp(name, "CSymFixedRankQ") == 0)
+    {
+        return new CSymFixedRankQ(n, p);
+    }
+    else
     if (strcmp(name, "Euclidean") == 0)
     {
-        return new Euclidean(n, m);
+        return new Euclidean(m, n);
+    }
+    else
+    if (strcmp(name, "FixedRankE") == 0)
+    {
+        return new FixedRankE(m, n, p);
+    }
+    else
+    if (strcmp(name, "FixedRankQ2F") == 0)
+    {
+        return new FixedRankE(m, n, p);
+    }
+    else
+    if (strcmp(name, "Grassmann") == 0)
+    {
+        return new Grassmann(n, p);
+    }
+    else
+    if (strcmp(name, "SPDManifold") == 0)
+    {
+        return new SPDManifold(n);
     }
     else
     if (strcmp(name, "Sphere") == 0)
@@ -446,121 +678,13 @@ Manifold *GetAManifold(const char *name, integer n, integer m, integer p)
         return new Stiefel(n, p);
     }
     else
-    if (strcmp(name, "Oblique") == 0)
+    if (strcmp(name, "SymFixedRankQ") == 0)
     {
-        return new Oblique(n, m);
-    }
-    else
-    if (strcmp(name, "LowRank") == 0)
-    {
-        return new LowRank(n, m, p);
-    }
-    else
-    if (strcmp(name, "OrthGroup") == 0)
-    {
-        return new OrthGroup(n);
-    }
-    else
-    if (strcmp(name, "L2Sphere") == 0)
-    {
-        return new L2Sphere(n);
-    }
-    else
-    if (strcmp(name, "SPDManifold") == 0)
-    {
-        return new SPDManifold(n);
-    }
-    else
-    if (strcmp(name, "CpxNStQOrth") == 0)
-    {
-        return new CpxNStQOrth(n, p);
-    }
-    else
-    if (strcmp(name, "Grassmann") == 0)
-    {
-        return new Grassmann(n, p);
-    }
-    else
-    if (strcmp(name, "EucPositive") == 0)
-    {
-        return new EucPositive(n, m);
-    }
-    else
-    if (strcmp(name, "SPDTensor") == 0)
-    {
-        return new SPDTensor(n, m);
+        return new SymFixedRankQ(n, p);
     }
     else
     {
-        std::cout << "Manifold: " << name << " does not implemented in this library!" << std::endl;
-        return nullptr;
-    }
-};
-
-Element *GetAnElement(const char *name, integer n, integer m, integer p)
-{
-    if (strcmp(name, "Euclidean") == 0)
-    {
-        return new EucVariable(n, m);
-    }
-    else
-    if (strcmp(name, "Sphere") == 0)
-    {
-        return new SphereVariable(n);
-    }
-    else
-    if (strcmp(name, "Stiefel") == 0)
-    {
-        return new StieVariable(n, p);
-    }
-    else
-    if (strcmp(name, "Oblique") == 0)
-    {
-        return new ObliqueVariable(n, m);
-    }
-    else
-    if (strcmp(name, "LowRank") == 0)
-    {
-        return new LowRankVariable(n, m, p);
-    }
-    else
-    if (strcmp(name, "OrthGroup") == 0)
-    {
-        return new OrthGroupVariable(n);
-    }
-    else
-    if (strcmp(name, "L2Sphere") == 0)
-    {
-        return new L2SphereVariable(n);
-    }
-    else
-    if (strcmp(name, "SPDManifold") == 0)
-    {
-        return new SPDVariable(n);
-    }
-    else
-    if (strcmp(name, "CpxNStQOrth") == 0)
-    {
-        return new CSOVariable(n, p);
-    }
-    else
-    if (strcmp(name, "Grassmann") == 0)
-    {
-        return new GrassVariable(n, p);
-    }
-    else
-    if (strcmp(name, "EucPositive") == 0)
-    {
-        return new EucPosVariable(n, m);
-    }
-    else
-    if (strcmp(name, "SPDTensor") == 0)
-    {
-        return new SPDTVariable(n, m);
-    }
-    else
-    {
-        std::cout << "Element: " << name << " does not implemented in this library!" << std::endl;
+        printf("Manifold: %s does not implemented in this library!\n", name);
         return nullptr;
     }
 };

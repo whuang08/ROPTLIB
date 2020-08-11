@@ -17,38 +17,27 @@ norm point in a polytope and a pair of closest points in two polytopes.
 
 #include "Problems/Problem.h"
 #include "Manifolds/Manifold.h"
-#include "Solvers/QuasiNewton.h"
-#include "Problems/SphereConvexHull/SphereConvexHull.h"
-#include "Others/MyMatrix.h"
+#include "Solvers/SolversNSMSub.h"
+#include "Problems/SphereConvexHull.h"
 #include "Others/def.h"
 
-#define RIEMANNIANCONHULL // RECURSIVEMETHOD // 
+#define RIEMANNIANCONHULL /* RECURSIVEMETHOD */
 
 /*Define the namespace*/
 namespace ROPTLIB{
 
+    class SolversNSMSub;
+
 	/*Compute min_{y in convex hull of gfs, and gfs are tangent vectors at the tangent space at x} ||y||_2 */
-	extern double MinPNormConHull(const Manifold *Mani, Variable *x, Vector **Ys, integer LYs, Vector *Soln, double *YtY, integer inc);
+	extern realdp MinPNormConHull(const Manifold *Mani, Variable x, Vector *Ys, integer LYs, Vector &outSoln);
 
 	/*Compute min_{y in convex hull of gfs, and gfs are tangent vectors at the tangent space at x} ||y|| */
-	extern double MinPNormConHull(const Manifold *Mani, Variable *x, Vector **Ys, integer LYs, QuasiNewton *solver, 
-		void (QuasiNewton::*Hv)(Vector *v, Vector *result), Vector *Soln, double *YtPY, integer inc);
-
-	/*Compute min_{y in convex hull of gfs, and gfs are tangent vectors at the tangent space at x} ||y||_P */
-	extern double MinPNormConHullRecursive(const Manifold *Mani, Variable *x, Vector **Ys, integer LYs, 
-		QuasiNewton *solver, void (QuasiNewton::*Hv)(Vector *v, Vector *result), Vector *Soln, double *YtPY, integer inc);
-
-	extern double MinPNormConHullRecursivesubprob(const Manifold *Mani, Variable *x, Vector **Ys, Vector **PYs, integer LYs, bool *idxYs, double *Pnorm2Ys, double NumErr, Vector *initialX,
-		QuasiNewton *solver, void (QuasiNewton::*Hv)(Vector *v, Vector *result), Vector *Soln, integer &times);
+	extern realdp MinPNormConHull(const Manifold *Mani, Variable x, Vector *Ys, integer LYs, SolversNSMSub *solver,
+		Vector &(SolversNSMSub::*Hv)(const Vector &v, Vector *result), Vector &outSoln);
 
 	/*Compute min_{y in convex hull of gfs, and gfs are tangent vectors at the tangent space at x} ||y|| */
-	extern double MinPNormConHullRMethod(const Manifold *Mani, Variable *x, Vector **Ys, integer LYs, QuasiNewton *solver, 
-		void (QuasiNewton::*Hv)(Vector *v, Vector *result), Vector *Soln, double *YtPY, integer inc);
-
-	/*Compute min_{y in convex hull of gfs, and gfs are tangent vectors at the tangent space at x} ||y|| */
-	extern double MinPNormConHullMatlab(const Manifold *Mani, Variable *x, Vector **Ys, integer LYs, QuasiNewton *solver, 
-		void (QuasiNewton::*Hv)(Vector *v, Vector *result), Vector *Soln, double *YtPY, integer inc);
-
+	extern realdp MinPNormConHullRMethod(const Manifold *Mani, Variable x, Vector *Ys, integer LYs, SolversNSMSub *solver,
+		Vector &(SolversNSMSub::*Hv)(const Vector &v, Vector *result), Vector &outSoln);
 }; /*end of ROPTLIB namespace*/
 
 #endif

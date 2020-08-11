@@ -2,12 +2,12 @@
 
 /*Define the namespace*/
 namespace ROPTLIB{
-	double ForDebug::NormF(const double *V, integer length)
+	realdp ForDebug::NormF(const realdp *V, integer length)
 	{
-		return std::sqrt(ddot_(&length, const_cast<double *> (V), &GLOBAL::IONE, const_cast<double *> (V), &GLOBAL::IONE));
+		return std::sqrt(dot_(&length, const_cast<realdp *> (V), &GLOBAL::IONE, const_cast<realdp *> (V), &GLOBAL::IONE));
 	};
 
-	void ForDebug::Print(const char *name, const double *M, integer row, integer col, integer num)
+	void ForDebug::Print(const char *name, const realdp *M, integer row, integer col, integer num)
 	{
 		printf("=============%s============\n", name);
 		if (col == 1 && num == 1)

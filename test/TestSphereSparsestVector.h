@@ -21,18 +21,16 @@ This is the test file for the Sparest Vector problem defined in SphereSparestVec
 
 /*Problem related classes*/
 #include "Problems/Problem.h"
-#include "Problems/SphereSparsestVector/SphereSparsestVector.h"
-#include "Problems/SphereTxRQ/SphereTxRQ.h"
+#include "Problems/SphereSparsestVector.h"
+//#include "Problems/SphereTxRQ/SphereTxRQ.h"
 
 /*Manifold related classes*/
 #include "Manifolds/Manifold.h"
-#include "Manifolds/Stiefel/StieVector.h"
-#include "Manifolds/Stiefel/StieVariable.h"
-#include "Manifolds/Stiefel/Stiefel.h"
-#include "Manifolds/SphereTx/SphereTx.h"
+//#include "Manifolds/Stiefel/StieVariable.h"
+#include "Manifolds/Stiefel.h"
+//#include "Manifolds/SphereTx/SphereTx.h"
 
 /*Linesearch based solvers*/
-#include "Solvers/SolversLS.h"
 #include "Solvers/RSD.h"
 #include "Solvers/RNewton.h"
 #include "Solvers/RCG.h"
@@ -40,10 +38,11 @@ This is the test file for the Sparest Vector problem defined in SphereSparestVec
 #include "Solvers/RWRBFGS.h"
 #include "Solvers/RBFGS.h"
 #include "Solvers/LRBFGS.h"
-#include "Solvers/RBFGSLPSub.h"
+#include "Solvers/LRBFGSSub.h"
+#include "Solvers/RBFGSSub.h"
+#include "Solvers/RGS.h"
 
 /*Trust-region based solvers*/
-#include "Solvers/SolversTR.h"
 #include "Solvers/RTRSD.h"
 #include "Solvers/RTRNewton.h"
 #include "Solvers/RTRSR1.h"
@@ -56,6 +55,5 @@ using namespace ROPTLIB;
 
 /*The main test function*/
 void testSphereSparsestVector(void);
-void testSphereSparsestVector(double *Q, integer m, integer n);
 
 #endif // end of TESTSPHERESPARSESTVECTOR_H
