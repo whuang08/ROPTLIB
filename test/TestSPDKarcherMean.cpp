@@ -11,7 +11,7 @@ void testSPDKarcherMean(void)
 	// Define the manifold
 	SPDManifold Domain(n);
 //	Domain.SetHasHHR(true); /*set whether the manifold uses the idea in [HGA2015, Section 4.3] or not*/
-    Domain.ChooseParamsSet();
+    Domain.ChooseParamsSet1();
     Variable SPDX = Domain.RandominManifold();
 
     Vector EE(n, n), tmp(n, n);

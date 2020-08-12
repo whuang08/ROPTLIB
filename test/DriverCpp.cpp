@@ -23,7 +23,7 @@ int main(void)
 //    testProdStieSumBrockett();
 //    testSPDKarcherMean();
 //    testSphereSparsestVector();
-    testStieBrockett();
+//    testStieBrockett();
 //    testStieSPCA();
 //    testSFRQLyapunov();
 //    testCSFRQPhaseRetrieval();
@@ -34,7 +34,7 @@ int main(void)
 //    integer inc = 1;
 //    std::cout << ":::" << sdot_(&length, vals, &inc, vals, &inc) << std::endl;//---
     
-//	testall();
+	testall();
 
 #ifdef _WIN64
 #ifdef _DEBUG
@@ -148,7 +148,7 @@ void testall(void)
 
         // Define the manifold
         SPDManifold Domain(n);
-        Domain.ChooseParamsSet();
+        Domain.ChooseParamsSet1();
         Variable InitialX = Domain.RandominManifold();
 
         Vector EE(n, n), tmp(n, n);
